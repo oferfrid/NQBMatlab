@@ -1,5 +1,5 @@
-function [WellTime WellMeas] = ReadWalacMultipleData(filename, NumMeasurements)
-%% [WellTime WellMeas] = ReadWalacMultipleData(filename,NumMeasurements)
+function [WellTime WellMeas] = ReadWalacMultipleDataCounts(filename, NumMeasurements)
+%% [WellTime WellMeas] = ReadWalacMultipleDataCounts(filename,NumMeasurements)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
 %
@@ -29,7 +29,7 @@ newData1 = importdata(filename);
 fields = fieldnames(newData1.data);
 alldata = newData1.data.(fields{1});
 %alldata = newData1.data;
-stepSize = 2*NumMeasurements;
+stepSize = 4*NumMeasurements;
 tests = (size(alldata,2) - HeaderCols)/stepSize; % number of measurments each cycle
 
 % finding number of plates
@@ -48,20 +48,19 @@ end
 
 
 %% reshaping alldata
-TimeRowind=(HeaderCols+1):2:(tests*stepSize+HeaderCols); % there is a time coloumn for every measurment type
+TimeRowind=(HeaderCols+1):4:(tests*stepSize+HeaderCols); % there is a time coloumn for every measurment type
 MeasRowind = zeros(NumMeasurements, tests);
 for k = 1:NumMeasurements
-    MeasRowind(k,:) = (HeaderCols+2*k):stepSize:(tests*stepSize+HeaderCols);
+    MeasRowind(k,:) = ((HeaderCols+4*k):stepSize:(tests*stepSize+HeaderCols))-1;
 end
 %WellMeas = zeros(size(alldata,1)/96*3,96, NumMeasurements);
 WellMeas = zeros(size(alldata,1)/NumWells*tests ,NumWells);
-WellTime = (reshape(alldata(1:NumWells:length(alldata),TimeRowind)',...
-    [NumMeasurements, tests*length(alldata)/NumWells])*24*60)';
-for i=1:NumWells
-    for k = 1:NumMeasurements
-        ind1=i:NumWells:length(alldata);
-        WellMeas(:,i,k)=reshape(alldata(ind1,MeasRowind(k,:))',...
-            [tests*length(alldata)/NumWells 1]);
+WellTime = (reshape(alldata(1:NumWells:length(alldata),TimeRowind)', [NumMeasurements, tests*length(alldata)  /NumWells])*24*60)';
+    for i=1:NumWells
+        for k = 1:NumMeasurements
+            ind1=i:NumWells:length(alldata);
+            WellMeas(:,i,k)=reshape(alldata(ind1,MeasRowind(k,:))',...
+                [tests*length(alldata)/NumWells 1]);
+        end
     end
-end
 end

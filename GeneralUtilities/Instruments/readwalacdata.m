@@ -29,16 +29,31 @@ end
 newData1 = importdata(filename);
 fields = fieldnames(newData1.data);
 data = newData1.data.(fields{1});
-wells=find(data(2:end,2)>data(1:end-1,2),1,'first');
 
 tests = (size(data,2) - 4)/2;
 
 TimeRowind=5:2:(tests*2+4);
 MeasRowind=6:2:(tests*2+4);
-%WellMeas = zeros(size(data,1)/96*tests,96);
-WellTime = ((reshape(data(1:wells:length(data),TimeRowind)',[tests*length(data)/wells 1])')*24*60)';
-for i=1:wells
-  ind1=i:wells:length(data);
-  WellMeas(:,i)=reshape(data(ind1,MeasRowind)',[tests*length(data)/wells 1]);
+
+% finding number of plates
+NumPlates = max(data(:,1));
+if NumPlates>1
+    NumWells = find(data(:,1)>1,1,'first')-1;
+else
+    NumWells = length(data(:,1));
+end
+
+% finding number of cycles
+repetitions = sort(unique(data(:,2))); % number of cycles
+if length(repetitions)>1
+    NumWells = find(data(:,2)>1,1,'first')-1;
+end
+
+
+WellMeas = zeros(size(data,1)/NumWells*tests,NumWells);
+WellTime = ((reshape(data(1:NumWells:length(data),TimeRowind)',[tests*length(data)/NumWells 1])')*24*60)';
+for i=1:NumWells
+  ind1=i:NumWells:length(data);
+  WellMeas(:,i)=reshape(data(ind1,MeasRowind)',[tests*length(data)/NumWells 1]);
 end
 end
