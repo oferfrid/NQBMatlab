@@ -1,5 +1,5 @@
-function [WellTime WellMeas] = readwalacdata(filename)
-%% [WellTime WellMeas] = readwalacdata(filename)
+function [Measurments, Time] = ReadWalacData(FullFileName)
+% [Measurments,  Time] = ReadWalacData(FullFileName)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
 %
@@ -23,10 +23,10 @@ if nargin == 0
     if isequal(FileName,0)
         return;
     end
-    filename = [FilePath, FileName];
+    FullFileName = [FilePath, FileName];
 end
 
-newData1 = importdata(filename);
+newData1 = importdata(FullFileName);
 fields = fieldnames(newData1.data);
 data = newData1.data.(fields{1});
 
@@ -50,10 +50,10 @@ if length(repetitions)>1
 end
 
 
-WellMeas = zeros(size(data,1)/NumWells*tests,NumWells);
-WellTime = ((reshape(data(1:NumWells:length(data),TimeRowind)',[tests*length(data)/NumWells 1])')*24*60)';
+Measurments = zeros(size(data,1)/NumWells*tests,NumWells);
+Time = ((reshape(data(1:NumWells:length(data),TimeRowind)',[tests*length(data)/NumWells 1])')*24*60)';
 for i=1:NumWells
   ind1=i:NumWells:length(data);
-  WellMeas(:,i)=reshape(data(ind1,MeasRowind)',[tests*length(data)/NumWells 1]);
+  Measurments(:,i)=reshape(data(ind1,MeasRowind)',[tests*length(data)/NumWells 1]);
 end
 end

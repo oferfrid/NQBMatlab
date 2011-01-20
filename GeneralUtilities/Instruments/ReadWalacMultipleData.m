@@ -1,5 +1,5 @@
-function [WellTime WellMeas] = ReadWalacMultipleData(filename, NumMeasurements)
-%% [WellTime WellMeas] = ReadWalacMultipleData(filename,NumMeasurements)
+function  [Measurments, Time] = ReadWalacMultipleData(FullFileName, NumMeasurements)
+%% [Measurments, Time] = ReadWalacMultipleData(FullFileName, NumMeasurements)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
 %
@@ -13,7 +13,7 @@ function [WellTime WellMeas] = ReadWalacMultipleData(filename, NumMeasurements)
 %          (od, yfp, cherry...)
 % 
 % Returns: WellTime - time vector (in minutes) of the measurement
-%          WellMeas - a matrix with results X wells.
+%          Measurments - a matrix with results X wells.
 %         
 % -------------------------------------------------------------------
 % Ofer Fridman, 01.01.2008
@@ -25,7 +25,7 @@ function [WellTime WellMeas] = ReadWalacMultipleData(filename, NumMeasurements)
 HeaderCols = 4;
 
 %% reading data from excel
-newData1 = importdata(filename);
+newData1 = importdata(FullFileName);
 fields = fieldnames(newData1.data);
 alldata = newData1.data.(fields{1});
 %alldata = newData1.data;
@@ -54,13 +54,13 @@ for k = 1:NumMeasurements
     MeasRowind(k,:) = (HeaderCols+2*k):stepSize:(tests*stepSize+HeaderCols);
 end
 %WellMeas = zeros(size(alldata,1)/96*3,96, NumMeasurements);
-WellMeas = zeros(size(alldata,1)/NumWells*tests ,NumWells);
-WellTime = (reshape(alldata(1:NumWells:length(alldata),TimeRowind)',...
+Measurments = zeros(size(alldata,1)/NumWells*tests ,NumWells);
+Time = (reshape(alldata(1:NumWells:length(alldata),TimeRowind)',...
     [NumMeasurements, tests*length(alldata)/NumWells])*24*60)';
 for i=1:NumWells
     for k = 1:NumMeasurements
         ind1=i:NumWells:length(alldata);
-        WellMeas(:,i,k)=reshape(alldata(ind1,MeasRowind(k,:))',...
+        Measurments(:,i,k)=reshape(alldata(ind1,MeasRowind(k,:))',...
             [tests*length(alldata)/NumWells 1]);
     end
 end
