@@ -1,53 +1,62 @@
-function PreparePictures(board, plateVec, DirName )
-% PreparePictures(board, plateVec, DirName )
+function PreparePictures( DestDirName, board, plateVec, SourceDirName )
+% PreparePictures( DestDirName, board, plateVec, SourceDirName )
 % -------------------------------------------------------------------------
 % Purpose: makes all the necessary preparations for TimeLapse to work
 % Description: Alignes the pictures, finds the plates and cuts the picture.
-% Arguments: DirName(optional) - directory full name
+% Arguments: DestDirName - directory full name
 %       plateVec - plates to cut
 %       board - The board used for the scan
-% Output files: under DirNameA all the aligned pictures. SHOULD BE DELETED
-%       AFTER CUT PICTURE
-%       DirName_# - a folder for each plate
+%       SourceDirName (optional) - source files dir
+% Output files: DestDirName/circlesVec.mat
+%       DestDirName/motions.mat
+%       DestDirName/TimeAxis.mat
+%       DestDirName_# - a folder for each plate
 % -------------------------------------------------------------------------
 % Irit Levin 01.2008
 
 %% getting the arguments not supplied
-if nargin == 1
+if nargin == 2
     plateVec = 1:6;
-    DirName = uigetdir;
-    if isequal(DirName,0)
+    SourceDirName = uigetdir;
+    if isequal(DestDirName,0)
         return;
     end
 end
-if nargin == 2
-    DirName = uigetdir;
-    if isequal(DirName,0)
+if nargin == 3
+    SourceDirName = uigetdir;
+    if isequal(DestDirName,0)
         return;
     end
+end
+
+[successMK,mgsMK,msgidMK] = mkdir(DestDirName);
+if ~successMK
+    error(msgidMK, mgsMK);
 end
 
 %% find plated
-disp([datestr(now), '   FIND PLATES'])
-dirOutput = dir(fullfile(DirName, '*.tif'));
+% disp([datestr(now), '   FIND PLATES'])
+dirOutput = dir(fullfile(SourceDirName, '*.tif'));
 FileVec   = {dirOutput.name}';
-I_4 =  imread( fullfile(DirName,char(FileVec(1))) ) ;
-I = rgb2gray(double( I_4(:,:,1:3) )/255);
-[circlesVec]=findPlates(I, board)
+% checking if exist
+circlesFile = fullfile(DestDirName, 'circlesVec.mat');
+circlesExist = dir(circlesFile);
+if isempty(circlesExist)
+    I_4 =  imread( fullfile(SourceDirName,char(FileVec(1))) ) ;
+    I = rgb2gray(im2double( I_4(:,:,1:3) ));
+    [circlesVec]=findPlates(I, board)
+    save(circlesFile,'circlesVec');
+else
+    circ = load(circlesFile);
+    circlesVec = circ.circlesVec;
+end
 
 %% align pictures
-disp([datestr(now), '   ALIGN PICTURES'])
-AlignAll(DirName,'*.tif');
+motions = FindMotions(SourceDirName, DestDirName);
 
 %% time axis
-disp([datestr(now), '   MAKE TIME AXIS'])
-makeTimeAxis(DirName);
-AlignedDir = [DirName 'A'];
-[successMV,mgsMV,msgidMV] = movefile(fullfile(DirName,'TimeAxis.mat'),AlignedDir);
-if ~successMV
-    error(msgidMV, mgsMV);
-end
+TimeAxis = makeTimeAxis(SourceDirName);
+save(fullfile(DestDirName,'TimeAxis'),'TimeAxis');
+
 %% cut picture
-disp([datestr(now), '   CUT PICTURE'])
-CutPicture(AlignedDir, DirName, plateVec , circlesVec);
-disp('DON''T FORGET TO DELETE THE ALIGNED PICTURES !!!')
+CutPicture(SourceDirName, DestDirName, plateVec , circlesVec);

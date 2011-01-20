@@ -5,23 +5,26 @@ function CutPicture(OrgFolder, destFolder, PlatesVec, circleVec)
 %
 % Description : the function returns each plate in a different file. 
 %          The cut is done according to the centre coordinates of each 
-%          plate ginev by FindPlates.
-%          The original files are in the directory of aligned pictures.
-%          The result files are in sub-directories names PtreeN (N-plate
-%          number).
+%          plate gine by FindPlates.
+%          The original files are aligned with the motions file, and then 
+%          cut. The result files are in sub-directories names PtreeN 
+%          (N-plate number).
 %
 % Arguments : OrgFolder - original folder
 %          destFolder - name of destination folder destFolder_#
 %          PlatesVec - the plates to cut from the original picture
 %          circleVec - the CM of the plates. assumes that the picture was
 %                      taken in 300 DPI and therefore it is 1050pxl.
-% output : NumOfPlates files Named 'P year month day T hour min sec.tif'
+% output : NumOfPlates files Named 'P#_<minutes from start>.tif'
 % ----------------------------------------------------------------------
 % Irit Levin. September 2006
+% ---------
+% updates: 10.2008
+% Irit Levin. Aligning pic with GM's procedure first.
 
 %% Constants
+disp([datestr(now)   '   Cutting Pictures']);
 % Cen is the array of the centers of the plates
-%CEN = [717, 647; 717, 1770; 717, 2892; 1902, 648; 1899, 1771; 1898, 2892];
 CEN(:,1) = circleVec(:,1);
 CEN(:,2) = circleVec(:,2);
 PicSize = 1050;         % each picture is 1050 pixels
@@ -29,21 +32,16 @@ PicSize = 1050;         % each picture is 1050 pixels
 %% Getting the file list and their dates
 dirOutput = dir(fullfile(OrgFolder, '*.tif'));
 FileVec   = {dirOutput.name}';
-load(fullfile(OrgFolder,'TimeAxis'));
+load(fullfile(destFolder,'TimeAxis'));
 NumOfPlates = length(PlatesVec);
 
-%% Showing the first file, and marking the plates
-FName = char(FileVec(1)); 
-FullFileName = fullfile(OrgFolder, FName);
-RGB = imread(FullFileName);
-%imshow(RGB,'InitialMagnification','fit');
+%% loading movements
+mov = load(fullfile(destFolder,'motions.mat'));
+motions = mov.motions;
+acc_u = cumsum(motions(:, 1));
+acc_v = cumsum(motions(:, 2));
 
 %% getting the coordinates to cut the picture
-% [X,Y]=ginput(NumOfPlates*2)   % can be used if the fixed coorddinates
-                                % don't fit. 
-% x = round(X)
-% y = round(Y)
-
 x(1:2:11) = CEN(:,1)-PicSize/2;
 x(2:2:12) = CEN(:,1)+PicSize/2;
 y(1:2:11) = CEN(:,2)-PicSize/2;
@@ -64,21 +62,29 @@ for k=1:NumOfPlates
 end
 
 %% running over all the files
+%initialize a progress bar
+progress_bar = waitbar(0);
 NumOfFiles = size(FileVec,1);
 for k=1:NumOfFiles
-    msg = ['Processing picture ', num2str(k),'/',num2str(NumOfFiles)];
-    disp(msg);
+    msg = ['Cutting picture ', num2str(k),'/',num2str(NumOfFiles)];
+    waitbar(k/NumOfFiles, progress_bar, msg);
+    
     FName = char(FileVec(k));
     FullFileName = fullfile(OrgFolder, FName);
     RGB = imread(FullFileName);
+    RGB = RGB(:,:,1:3);
+    % aligning picture
+    RGB = imdilate(RGB,translate(strel(1),...
+             [-round(acc_v(k)) -round(acc_u(k))]));
     % each file is cut into N files
     for j=1:NumOfPlates%2:size(X,1)
         Ptree = RGB(y(2*PlatesVec(j)-1):y(2*PlatesVec(j)),...
                     x(2*PlatesVec(j)-1):x(2*PlatesVec(j)),:);
         dirName = [destFolder ,'_',num2str(PlatesVec(j))];
         picDir = fullfile(dirName, 'Pictures');
-        FileName = sprintf('P%1d_%05d.tif',PlatesVec(j),TimeAxis(k));
+        FileName = sprintf('P%1.0f_%05.0f.tif',PlatesVec(j),TimeAxis(k));
         FullName = fullfile(picDir ,FileName);
         imwrite(Ptree,FullName,'tif');
     end
 end
+close(progress_bar);
