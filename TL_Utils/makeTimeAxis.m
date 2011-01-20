@@ -8,13 +8,14 @@ function TimeAxis = makeTimeAxis(FileDir)
 % Returns : TimeAxis - the time in minutes from the first picture
 %--------------------------------------------------------------------------
 % Irit Levin. 14.05.2007
+% -------------------------------------------------------------------------
+% Updates: 
+% Ofer Fridman 11.09 - VecDate = [dirOutput.datenum]
 
 %% Getting the file list and their dates
 disp([datestr(now)   '   Time Axis']);
 dirOutput = dir(fullfile(FileDir, '*.tif'));
-FileVec   = {dirOutput.name}';
-DateList  = {dirOutput.date}';
-VecDate   = datenum(DateList);
+VecDate   = [dirOutput.datenum];
 FirstFile = VecDate(1);
 TimeAxis  = round((VecDate-FirstFile)*24*60);
-% save(fullfile(FileDir,'TimeAxis'),'TimeAxis');
+save(fullfile(FileDir,'TimeAxis'),'TimeAxis');

@@ -12,7 +12,7 @@ function motions = FindMotions(SourceDirName, DestDirName)
 % Irit Levin Reisman. 10.2008
 
 %% initialization
-addpath 'D:\Irit\Matlab\GeneralUtilities\MGBacteriaTracker\motion'
+% addpath 'C:\Documents and Settings\Irit\My Documents\MATLAB\DEVELOP\GeneralUtilities\MGBacteriaTracker\motion'
 
 disp([datestr(now)   '   Calculating Motion']);
 [successMK,mgsMK,msgidMK] = mkdir(DestDirName);
@@ -20,7 +20,9 @@ if ~successMK
     error(msgidMK, mgsMK);
 end
 motions = [0 0];
-CropRect = [20 800 1800 700];
+% CropRect = [20 800 1800 700];
+% rect: [xmin ymin width height]
+CropRect = [870 800 900 800];
 
 
 %% aligning pictures

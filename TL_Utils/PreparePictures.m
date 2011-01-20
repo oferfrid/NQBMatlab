@@ -34,7 +34,9 @@ if ~successMK
     error(msgidMK, mgsMK);
 end
 
-%% find plated
+ConfigurationFile;
+
+%% find plates
 % disp([datestr(now), '   FIND PLATES'])
 dirOutput = dir(fullfile(SourceDirName, '*.tif'));
 FileVec   = {dirOutput.name}';
