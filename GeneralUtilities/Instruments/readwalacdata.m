@@ -15,6 +15,16 @@ function [WellTime WellMeas] = readwalacdata(filename)
 %         
 % -------------------------------------------------------------------
 % Ofer Fridman, 01.01.2008
+% is working on  any number of  walls  - Ofer Fridman, 19.7.2008
+
+% showing the "open file" ui, if it wasn't specified
+if nargin == 0
+    [FileName, FilePath] = uigetfile('*.xls');
+    if isequal(FileName,0)
+        return;
+    end
+    filename = [FilePath, FileName];
+end
 
 newData1 = importdata(filename);
 fields = fieldnames(newData1.data);
