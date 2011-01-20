@@ -1,5 +1,5 @@
-function WellMeas = ReadWalacMultiplePlates(filename)
-%% WellMeas = ReadWalacMultiplePlates(filename)
+function Measurments = ReadWalacMultiplePlates(FullFileName)
+%% Measurments = ReadWalacMultiplePlates(FullFileName)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
 %
@@ -7,10 +7,10 @@ function WellMeas = ReadWalacMultiplePlates(filename)
 %           results
 %          The function analyzes file with only one measurement.
 %
-% Arguments: filename - Excel file name in walac format.
+% Arguments: FullFileName - Excel file name in walac format.
 % 
 % Returns: 
-%          WellMeas - a matrix with results X wells.
+%          Measurments - a matrix with results X wells.
 %         
 % -------------------------------------------------------------------
 % Ofer Fridman, 01.01.2008
@@ -22,7 +22,7 @@ function WellMeas = ReadWalacMultiplePlates(filename)
 HeaderCols = 4;
 
 %% reading data from excel
-newData1 = importdata(filename);
+newData1 = importdata(FullFileName);
 fields = fieldnames(newData1.data);
 data = newData1.data.(fields{1});
 
@@ -48,10 +48,10 @@ end
 MeasRowind = 6;
 
 
-WellMeas = zeros(NumPlates,NumWells);
+Measurments = zeros(NumPlates,NumWells);
 
 for i=1:NumPlates
     for k=1:NumWells
-        WellMeas(i,k) = data((i-1)*NumWells+k,MeasRowind);
+        Measurments(i,k) = data((i-1)*NumWells+k,MeasRowind);
     end
 end
