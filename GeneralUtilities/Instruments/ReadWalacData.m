@@ -1,4 +1,4 @@
-function [Measurments, Time] = ReadWalacData(FullFileName)
+function [Measurments, Time ,StartDateTime] = ReadWalacData(FullFileName)
 % [Measurments,  Time] = ReadWalacData(FullFileName)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
@@ -56,4 +56,6 @@ for i=1:NumWells
   ind1=i:NumWells:length(data);
   Measurments(:,i)=reshape(data(ind1,MeasRowind)',[tests*length(data)/NumWells 1]);
 end
+StartDateTime = datenum(newData1.textdata.Protocol{end,end}(max(strfind(newData1.textdata.Protocol{end,end},'.'))+1:end));
+
 end
