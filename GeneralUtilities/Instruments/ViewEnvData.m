@@ -32,7 +32,10 @@ TemperatureSP=data(:,6);
 Steam=data(:,7);
 
 %figure;
-subplot(3,1,1);
+
+
+
+ax(1) = subplot(3,1,1);
 
 
 
@@ -59,17 +62,19 @@ end
 
 xlim([minx maxx]);
 
-subplot(3,1,2);
+ax(2) =subplot(3,1,2);
 plot(DateTime,Steam,'-b.');
 
 
 xlim([minx maxx]);
 
 ylabel('Steam [%]');
-subplot(3,1,3);
+ax(3) =subplot(3,1,3);
 plot(DateTime,TemperatureSP,'k:',DateTime,Temperature,'-b.');
 
 xlim([minx maxx]);
 
 ylabel('Temperature [^oC]');
 xlabel('Time [H]') ;
+
+linkaxes([ax(3) ax(2) ax(1)],'x');
