@@ -1,4 +1,4 @@
-function [Measurments, Time]  = ReadWalacMultipleDataCounts(FullFileName, NumMeasurements)
+function [Measurments, Time , StartDateTime]  = ReadWalacMultipleDataCounts(FullFileName, NumMeasurements)
 %% [Measurments, Time]  = ReadWalacMultipleDataCounts(FullFileName, NumMeasurements)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
@@ -62,4 +62,6 @@ Time = (reshape(alldata(1:NumWells:length(alldata),TimeRowind)', [NumMeasurement
                 [tests*length(alldata)/NumWells 1]);
         end
     end
+    StartDateTime = datenum(newData1.textdata.Protocol{end,end}(max(strfind(newData1.textdata.Protocol{end,end},'.'))+1:end));
+    
 end

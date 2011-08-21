@@ -1,5 +1,5 @@
-function  [Measurments, Time] = ReadWalacMultipleData(FullFileName, NumMeasurements)
-%% [Measurments, Time] = ReadWalacMultipleData(FullFileName, NumMeasurements)
+function  [Measurments, Time, StartDateTime] = ReadWalacMultipleData(FullFileName, NumMeasurements)
+%% [Measurments, Time, StartDateTime] = ReadWalacMultipleData(FullFileName, NumMeasurements)
 % -------------------------------------------------------------------
 % Purpose: Read Walac xls file from walac.
 %
@@ -64,4 +64,11 @@ for i=1:NumWells
             [tests*length(alldata)/NumWells 1]);
     end
 end
+
+% remove NaN at the end
+ indempty = find(~isnan( Measurments(:,1,end)),1,'last');
+   Measurments= Measurments(1:indempty ,:,:);
+    Time  = Time (1:indempty ,:);
+% add the date and the time of the measurement to the out param
+StartDateTime = datenum(newData1.textdata.Protocol{end,end}(max(strfind(newData1.textdata.Protocol{end,end},'.'))+1:end),'dd/mm/yyyy HH:MM:SS');
 end

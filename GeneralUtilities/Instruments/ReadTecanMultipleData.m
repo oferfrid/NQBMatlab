@@ -20,7 +20,7 @@ Measurments = [];
 Temperature = [];
 Time        = [];
 
-% showing the "open file" ui, if it wasn't specified
+%% showing the "open file" ui, if it wasn't specified
 if nargin == 0
     [FileName, FilePath] = uigetfile('*.xls');
     if isequal(FileName,0)
@@ -29,9 +29,20 @@ if nargin == 0
     FullFileName = [FilePath, FileName];
 end
 
-% reading the data
+%% reading the data
 impData     = importdata(FullFileName, ' ', Header_Line);
-impData     = impData.data;
+
+
+if   isstruct(impData.data)
+    names = fieldnames(impData.data);
+
+    if(length(names)>1)
+         throw('the file contains more than one sheet')
+    end
+    impData = getfield(impData.data, names{1});
+else
+   impData = impData.data;
+end
 startData   = find(impData(:,1)==1);
     for i=1:length(startData)
         endData = find(isnan(impData(startData(i):end,1)),1,'first');
