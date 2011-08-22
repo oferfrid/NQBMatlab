@@ -34,6 +34,8 @@ impData     = importdata(FullFileName, ' ');
 
 if   isstruct(impData.data)
     SheetNames = fieldnames(impData.data);
+     Results = cell(length(SheetNames));
+    
     for s=1:length(SheetNames)
         Data{s} =  getfield(impData.data, SheetNames{s});
         TextData{s} = getfield(impData.textdata, SheetNames{s});
@@ -41,6 +43,7 @@ if   isstruct(impData.data)
     end
     
 else %for one Sheet Excel file
+    Results = cell(1);
    Data{1} = impData.data; 
    TextData{1} = impData.textdata;
    Results{1}.SheetName = NaN;
@@ -49,24 +52,53 @@ end
  for s=1:length(Results)
      
     startData   = find(Data{s}(:,1)==1);
-    startTextData =  find(strncmp('Cycle N',TextData{s}(:,1),6));
+    startLabelTextData =  find(strncmp('Cycle N',TextData{s}(:,1),6));
+    
+    
+    
+    startDateTextData =  find(strncmp('Start Time:',TextData{s}(:,1),6));
+    if isempty(startDateTextData) %GENios
+        startDateTextData =  find(strncmp('Date:',TextData{s}(:,1),6));
+        DateLocation =  find(~strcmp('',TextData{s}(startDateTextData,2:end)),1,'first')+1;
+        DatePartText = TextData{s}(startDateTextData,DateLocation);
+        TimePartText = datestr(Data{s}(1,DateLocation) , 'HH:MM:SS');
+        DateText = [DatePartText{1},' ',TimePartText];
+    else
+        DateLocation =  find(~strcmp('',TextData{s}(startDateTextData,2:end)),1,'first')+1;
+        DateText = TextData{s}(startDateTextData,DateLocation);
+    end
+      
+   
+    try %WTF!!!!!!!!!!!!!!!!!!!!
+   Results{s}.StartTime  = datenum(DateText,'dd/mm/yyyy HH:MM:SS');
+    catch exception
+   Results{s}.StartTime  = datenum(DateText,'dd/mm/yyyy HH:MM:SS');
+    end
+    
+   
+    Results{s}.StartTimeText = datestr(Results{s}.StartTime,'dd/mm/yyyy HH:MM:SS');
+
+
+    
+    
+    
         SheetData = Data{s};
         SheetTextData = TextData{s};
     
         for i=1:length(startData)
             endData = find(isnan(SheetData(startData(i):end,1)),1,'first');
             if isempty(endData)
-            Results{s}.Lables{i}.Time        = SheetData(startData(i):end,2)/60;
-            Results{s}.Lables{i}.Temperature = SheetData(startData(i):end,3);
-            Results{s}.Lables{i}.Measurments = SheetData(startData(i):end,4:end);
+            Results{s}.Labels{i}.Time        = SheetData(startData(i):end,2)/60;
+            Results{s}.Labels{i}.Temperature = SheetData(startData(i):end,3);
+            Results{s}.Labels{i}.Measurments = SheetData(startData(i):end,4:end);
             else
                 endind=endData+startData(i)-2;
-            Results{s}.Lables{i}.Time        = SheetData(startData(i):endind,2)/60;
-            Results{s}.Lables{i}.Temperature = SheetData(startData(i):endind,3);
-            Results{s}.Lables{i}.Measurments = SheetData(startData(i):endind,4:end);
+            Results{s}.Labels{i}.Time        = SheetData(startData(i):endind,2)/60;
+            Results{s}.Labels{i}.Temperature = SheetData(startData(i):endind,3);
+            Results{s}.Labels{i}.Measurments = SheetData(startData(i):endind,4:end);
             end
-            Results{s}.Lables{i}.Name = SheetTextData(startTextData(i)-1,1);
-            Results{s}.Lables{i}.Wells = SheetTextData(startTextData(i),4:end);
+            Results{s}.Labels{i}.Name = SheetTextData(startLabelTextData(i)-1,1);
+            Results{s}.Labels{i}.Wells = SheetTextData(startLabelTextData(i),4:end);
             
         end
     
