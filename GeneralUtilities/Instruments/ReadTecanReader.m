@@ -34,7 +34,7 @@ impData     = importdata(FullFileName, ' ');
 
 if   isstruct(impData.data)
     SheetNames = fieldnames(impData.data);
-     Results = cell(length(SheetNames));
+     Results = cell(length(SheetNames),1);
     
     for s=1:length(SheetNames)
         Data{s} =  getfield(impData.data, SheetNames{s});
