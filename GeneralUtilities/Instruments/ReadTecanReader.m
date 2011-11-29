@@ -1,5 +1,5 @@
 function Results = ReadTecanReader(FullFileName)
-% [Measurments, Temperature, Time] = ReadTecanMultipleData(FullFileName)
+%Results = ReadTecanReader(FullFileName)
 % -------------------------------------------------------------------------
 % Purpose: reads data from the Excel file of the Tecan
 % 
