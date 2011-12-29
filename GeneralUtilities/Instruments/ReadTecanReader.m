@@ -58,7 +58,7 @@ end
     
     startDateTextData =  find(strncmp('Start Time:',TextData{s}(:,1),6));
     if isempty(startDateTextData) %GENios
-        startDateTextData =  find(strncmp('Date:',TextData{s}(:,1),6));
+        startDateTextData =  find(strncmp('Date:',TextData{s}(:,1),4));
         DateLocation =  find(~strcmp('',TextData{s}(startDateTextData,2:end)),1,'first')+1;
         DatePartText = TextData{s}(startDateTextData,DateLocation);
         TimePartText = datestr(Data{s}(1,DateLocation) , 'HH:MM:SS');
