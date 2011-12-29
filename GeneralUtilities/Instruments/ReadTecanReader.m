@@ -52,7 +52,7 @@ end
  for s=1:length(Results)
      
     startData   = find(Data{s}(:,1)==1);
-    startLabelTextData =  find(strncmp('Cycle N',TextData{s}(:,1),6));
+    startLabelTextData =  find(strncmp('Time',TextData{s}(:,2),4));
     
     
     
@@ -62,7 +62,7 @@ end
         DateLocation =  find(~strcmp('',TextData{s}(startDateTextData,2:end)),1,'first')+1;
         DatePartText = TextData{s}(startDateTextData,DateLocation);
         TimePartText = datestr(Data{s}(1,DateLocation) , 'HH:MM:SS');
-        DateText = [DatePartText{1},' ',TimePartText];
+        DateText = [DatePartText{1},' ',TimePartText];     
     else
         DateLocation =  find(~strcmp('',TextData{s}(startDateTextData,2:end)),1,'first')+1;
         DateText = TextData{s}(startDateTextData,DateLocation);
@@ -97,8 +97,8 @@ end
             Results{s}.Labels{i}.Temperature = SheetData(startData(i):endind,3);
             Results{s}.Labels{i}.Measurments = SheetData(startData(i):endind,4:end);
             end
-            Results{s}.Labels{i}.Name = SheetTextData(startLabelTextData(i)-1,1);
-            Results{s}.Labels{i}.Wells = SheetTextData(startLabelTextData(i),4:end);
+           Results{s}.Labels{i}.Name = SheetTextData(startLabelTextData(i)-1,1);
+           Results{s}.Labels{i}.Wells = SheetTextData(startLabelTextData(i),4:end);
             
         end
     
