@@ -78,7 +78,10 @@ for k=1:NumOfFiles
     %% cleaning the noises fast method
 %     clnImg = imsubtract(I, bg*0.5); 
 
-    relevantImage1 = relevantArea.*im2double(clnImg);
+    TH = 13/255;
+    Mask = im2bw( clnImg,TH);
+    relevantImage =  medfilt2(Mask);
+    relevantImage1 = relevantArea.*im2double(relevantImage);
     
     %% getting rid of small noises
     %SE = strel('disk',2);

@@ -18,7 +18,7 @@ function h = LrgbShow(Lrgb, clnImg, x, y, r, NColonies)
 
 % h = figure; 
 h = gcf;
-imshow(clnImg,'InitialMagnification','fit'), hold on;
+imshow(clnImg,[],'InitialMagnification','fit'), hold on;
 himage = imshow(Lrgb,'InitialMagnification','fit');
 set(himage, 'AlphaData', 0.5);
 circle([x,y],r ,500,'r-');

@@ -10,10 +10,8 @@ function clnImg = cleanImgNew(I,bg)
 % --------------------------------------------------------------
 
 % disksize = 50;
-Ibg = rgb2gray(imsubtract(I,bg));
-TH = 13/255;
-Mask = im2bw( Ibg,TH);
-clnImg =  medfilt2(Mask);
+clnImg = rgb2gray(imsubtract(I,bg));
+
 %%
 % figure;
 % subplot(1, 2, 1); imshow(I*5); title('I');
