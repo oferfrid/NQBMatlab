@@ -113,4 +113,4 @@ ordColour = couple(ColourVec, coupling);
 save(fullfile(Res_dir,'ordColour') ,'ordColour');
 
 %% Ploting the growth of the colonies
-ShowPlate(TimeAxis(end), DirName, 0);
+%ShowPlate(TimeAxis(end), DirName, 0);

@@ -96,7 +96,7 @@ FindColoniesInTime(DirName);
 % makePlateMovie(DirName);
 
 %% Ploting the growth of the colonies
-ShowAreaGraph(DirName);
+%ShowAreaGraph(DirName);
 
 writeLog(logFile, '');
 fclose('all');

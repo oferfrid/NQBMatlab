@@ -88,7 +88,7 @@ if forMovie
 else
     X      = x(1);
     Y      = y(1);
-    figure;
+    %figure;
 end
 
 ColoniesCM = find(VecCen(:,1,FileNum));
