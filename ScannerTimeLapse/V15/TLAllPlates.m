@@ -1,14 +1,16 @@
-function TLAllPlates(DirVec, DescriptionVec)
+function TLAllPlates(DirVec, DescriptionVec,ProcessLastOnly)
 % TLAllPlates(DirVec, DescriptionVec)
 % -------------------------------------------------------------------------
 % Purpose: runs TimeLapse for all the directories in 'DirVec'.
 % Arguments: DirVec(optional) - cell array of the dirctories
 %       DescriptionVec(optional) - cell array of the descriptions
+%       ProcessLastOnly - process only the last image.
 % -------------------------------------------------------------------------
 
 if nargin==1
     DirNum = size(DirVec,1);
     DescriptionVec =repmat({''},DirNum,1);
+    ProcessLastOnly = 0;
 end
 
 if nargin==0
@@ -27,6 +29,7 @@ if nargin==0
             morePlates = 'Y';
         end
     end
+    ProcessLastOnly = 0;
 end
 DirNum = length(DirVec);
 for i=1:length(DirVec)
@@ -39,5 +42,5 @@ for k=1:DirNum
     disp('');
     disp('_____________________________________________________');
     disp([char(DirVec(k)) ' ' char(DescriptionVec(k))]);
-    TimeLapse(char(DirVec(k)), char(DescriptionVec(k)));
+    TimeLapse(char(DirVec(k)), char(DescriptionVec(k)),ProcessLastOnly);
 end

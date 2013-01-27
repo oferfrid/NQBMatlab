@@ -18,4 +18,4 @@ function [TimeAxis, Histogram, Time, DC, Stat] = ...
 [TimeAxis,TotalAppearenceTime]=GetAppearanceTimes(DirVec);
 Stat = getStatistics(TimeAxis, TotalAppearenceTime); 
 [TimeAxis, Histogram] = AddHistograms(DirVec, bin, ShowPlot);
-[Time, DC] = plotDeathCurve(DirVec, TimeLimit, bin, ShowPlot);
+[Time, DC] = plotDeathCurve(DirVec,ShowPlot);
