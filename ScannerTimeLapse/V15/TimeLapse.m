@@ -1,4 +1,4 @@
-function TimeLapse(DirName, Description ,  ProcessLastOnly  )
+function TimeLapse(DirName, Description)
 %% TimeLapse(DirName, Description)
 % -----------------------------------------------------------------------
 % Purpose: The function traces the canges in time of the colonies
@@ -12,7 +12,6 @@ function TimeLapse(DirName, Description ,  ProcessLastOnly  )
 %
 % Arguments: DirName(optional) - Name of directory.
 %          Description(optional) - A description of the experiment
-%          ProcessLastOnly - process only the last image.
 %
 % Input files: 'P#_00000.tif' - the pictures.
 % Output files: 'L#_00000.mat' - The connected components picture 
@@ -43,7 +42,6 @@ x = 526; y=526;
 %% getting the list of the files
 if nargin == 1
     Description = '';
-    ProcessLastOnly = 0;
 end
 if nargin == 0
     Description = '';
@@ -51,7 +49,6 @@ if nargin == 0
     if isequal(DirName,0)
         return;
     end
-    ProcessLastOnly = 0;
 end
 
 %% getting the relevant area in the picture, unless a file already exists
@@ -84,13 +81,13 @@ disp([datestr(now), ' ', DirName, ' ', Description])
 writeLog(logFile, 'preparing pictures');
 disp('-----------------------------------------------------------------');
 disp('PREPARING PICTURES');
-ProcessPictures(DirName,ProcessLastOnly);
+ProcessPictures(DirName);
 
 %% finding the colonies in all the files, in the same area
 writeLog(logFile, 'matching colonies in time');
 disp('-----------------------------------------------------------------');
 disp('MATCHING THE COLONIES IN TIME');
-FindColoniesInTime(DirName,ProcessLastOnly);
+FindColoniesInTime(DirName);
 
 %% making a movie of the growth
 % writeLog(logFile, 'making movie');

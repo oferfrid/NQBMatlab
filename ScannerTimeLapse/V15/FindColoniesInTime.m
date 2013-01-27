@@ -1,4 +1,4 @@
-function FindColoniesInTime(DirName,ProcessLastOnly )
+function FindColoniesInTime(DirName)
 %%
 % FindColoniesInTime(DirName)
 % -------------------------------------------------------------------------
@@ -9,7 +9,6 @@ function FindColoniesInTime(DirName,ProcessLastOnly )
 %       matchColonies matches the colonies between the picutres.
 %
 % Arguments: DirName - the full directory name
-%       ProcessLastOnly - process only the last image.
 %
 % Input Files: DirName\LRGB\L#_00000.mat - the connected compnents result
 %
@@ -29,9 +28,6 @@ Res_dir  = fullfile(DirName,'Results');
 %% getting the list of the files
 dirOutput = dir(fullfile(LRGB_dir ,'L*.mat'));
 FileVec = {dirOutput.name}';
-if ProcessLastOnly
-    FileVec = {FileVec{[1 end]}}';
-end
 
 %% getting the Time axis from the names of the files
 % file name is 'L#_00000.mat' where 000000 is the number of seconds from

@@ -1,4 +1,4 @@
-function ProcessPictures(DirName,ProcessLastOnly)
+function ProcessPictures(DirName)
 %%
 % ProcessPictures(DirName)
 %--------------------------------------------------------------------------
@@ -9,7 +9,6 @@ function ProcessPictures(DirName,ProcessLastOnly)
 %       which is the result of 'connected components' algorithm
 %
 % Arguments: DirName - a full directory name
-%       ProcessLastOnly - process only the last image.
 %
 % Output: L%_00000.mat - connected components files under the directory
 %       DirName\LRGB
@@ -27,9 +26,7 @@ Min_Thresh = 0.15;       % minimal threshold for bw picture
 picDir    = fullfile(DirName, 'Pictures');
 dirOutput = dir(fullfile(picDir,'*.tif'));
 FileVec   = {dirOutput.name}';
-if ProcessLastOnly
-    FileVec = {FileVec{[1 end]}}';
-end
+
 %% making a directory for the output files
 [successMK,mgsMK,msgidMK] = mkdir(DirName,'LRGB');
 if ~successMK
@@ -58,11 +55,7 @@ load(fullfile(DirName,'Results', 'CircParams'));
 indMat(:,:,1) = repmat([1:rows]', 1, cols);
 indMat(:,:,2) = repmat([1:cols] , rows ,1);
 dist = sqrt((indMat(:,:,2)-x(1)).^2+(indMat(:,:,1)-y(1)).^2);
-if ProcessLastOnly
-    relevantArea = ones([rows cols]);
-else
-    relevantArea = dist<=r;
-end
+relevantArea = dist<=r;
 
 %% initialize a progress bar
 progress_bar = waitbar(0);
