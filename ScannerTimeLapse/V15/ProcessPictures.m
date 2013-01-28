@@ -21,6 +21,7 @@ function ProcessPictures(DirName)
 r = 440;    % the relevant radius in the plate in pixels
 x = 526; y=526;
 Min_Thresh = 0.15;       % minimal threshold for bw picture
+TH = 8/255;
 
 %% getting the list of the files
 picDir    = fullfile(DirName, 'Pictures');
@@ -78,10 +79,9 @@ for k=1:NumOfFiles
     %% cleaning the noises fast method
 %     clnImg = imsubtract(I, bg*0.5); 
 
-    TH = 8/255;
     Mask = im2bw( clnImg,TH);
     relevantImage =  medfilt2(Mask);
-    relevantImage1 = relevantArea.*im2double(relevantImage);
+    BW = relevantArea.*im2double(relevantImage);
     
     %% getting rid of small noises
     %SE = strel('disk',2);
@@ -89,8 +89,8 @@ for k=1:NumOfFiles
     
     %% labeling the different colonies with 'connencted components' algorithm
      %level(k) = max(graythresh(relevantImage),Min_Thresh);
-    level(k) = Min_Thresh;
-    BW   = relevantImage1;
+    level(k) = TH;
+%     BW   = relevantImage1;
     L = bwlabel(BW);
     
     %% saving the picture
