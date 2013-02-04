@@ -44,11 +44,8 @@ save(fullfile(Res_dir,'TimeAxis'),'TimeAxis');
 %% finding the colonies and their centre and radius at the fisrt frame
 FullFileName = fullfile(LRGB_dir, char(FileVec(1)));
 load (FullFileName);
-PrevColoniesNum = max(L(:));
-if PrevColoniesNum
-    [VecArea,VecBBox,VecCen] = ColoniesProperties(L);
-end
-
+[VecArea,VecBBox,VecCen] = ColoniesProperties(L);
+FirstDetection = ~any(VecArea(:));
 
 %% initialize a progress bar
 progress_bar = waitbar(0);
@@ -64,51 +61,33 @@ for k=2:NumOfFiles
     load (FullFileName);
     
     %%  finding the colonies
-    ColoniesNum = max(L(:));
-    if ColoniesNum
-        [Areas,BBoxes,Cens] = ColoniesProperties(L);
-        
-        if ~PrevColoniesNum            
-            PrevCM = [];
-        else
-            %%  matching the colonies to the colonies in the previous picture
-            ColonyExist = find(VecCen(:,1,k-1));
-            Colony1st   = zeros(size(VecCen,1),1);
-            PrevCM      = zeros(size(VecCen,1),2);
-            for g = 1:size(ColonyExist,1)
-                Colony1st(ColonyExist(g)) = ...
-                    find(VecBBox(ColonyExist(g),1,:),1,'first');
-                PrevCM(ColonyExist(g),:) = ...
-                    VecCen(ColonyExist(g),:,Colony1st(ColonyExist(g)));
-            end
-        end
-        
-        coupling = MatchColonies(L, Areas, PrevCM);
-        ordArea = couple(Areas, coupling);
-        ordBBox = couple(BBoxes, coupling);
-        ordCen  = couple(Cens, coupling);
-        
-        if PrevColoniesNum
-            %%  concatanating the data
-            VecArea = finargcat(2, VecArea, ordArea); 
-            VecArea(isnan(VecArea)) = 0;
-            VecBBox = finargcat(3, VecBBox, ordBBox);
-            VecBBox(isnan(VecBBox)) = 0;
-            VecCen  = finargcat(3, VecCen, ordCen);
-            VecCen(isnan(VecCen))   = 0;
-        else
-            if any(ordArea(:))
-                VecArea = zeros(size(ordArea),k);
-                VecBBox = zeros(size(ordBBox,1),4,k);
-                VecCen = zeros(size(ordCen,1),2,k);
-                VecArea(:,k) = ordArea;
-                VecBBox(:,:,k) = ordBBox;
-                VecCen(:,:,k) = ordCen;
-                PrevColoniesNum = any(VecArea(:));
-            end
-        end
-        
+    [Areas,BBoxes,Cens] = ColoniesProperties(L);
+    
+    %%  matching the colonies to the colonies in the previous picture
+    ColonyExist = find(VecCen(:,1,k-1));
+    Colony1st   = zeros(size(VecCen,1),1);
+    PrevCM      = zeros(size(VecCen,1),2);
+    for g = 1:size(ColonyExist,1)
+        Colony1st(ColonyExist(g)) = ...
+            find(VecBBox(ColonyExist(g),1,:),1,'first');
+        PrevCM(ColonyExist(g),:) = ...
+            VecCen(ColonyExist(g),:,Colony1st(ColonyExist(g)));
     end
+    coupling = MatchColonies(L, Areas, PrevCM);
+    ordArea = couple(Areas, coupling);
+    ordBBox = couple(BBoxes, coupling);
+    ordCen  = couple(Cens, coupling);
+    
+    %%  concatanating the data
+    if (FirstDetection && any(coupling))
+        ordArea = ordArea(2:end);
+        ordCen  = ordCen(2:end,:);
+        ordBBox = ordBBox(2:end,:);
+        FirstDetection = 0;
+    end
+    VecArea(1:size(ordArea,1),k)   = ordArea;
+    VecCen(1:size(ordCen,1),:,k)   = ordCen;
+    VecBBox(1:size(ordBBox,1),:,k) = ordBBox;
     
 end
 close(progress_bar);
