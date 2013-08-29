@@ -62,7 +62,7 @@ for k=1:size(VecArea,1)
         'XdataSource','TimeAxis','YdataSource',['VecArea(',num2str(k),',:)']);
     hold on;
 end
-[pathstr, NameDir, ext, versn] = fileparts(FileDir);
+[pathstr, name, ext] = fileparts(FileDir);
 title(['The area of each colony as a function of the time - ',...
        getDescription(FileDir)]);
 xlabel('Time [minutes]');

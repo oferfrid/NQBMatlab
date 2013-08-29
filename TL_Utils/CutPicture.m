@@ -63,11 +63,11 @@ end
 
 %% running over all the files
 %initialize a progress bar
-%progress_bar = waitbar(0);
+progress_bar = waitbar(0);
 NumOfFiles = size(FileVec,1);
 for k=1:NumOfFiles
     msg = ['Cutting picture ', num2str(k),'/',num2str(NumOfFiles)];
-    %waitbar(k/NumOfFiles, progress_bar, msg);
+    waitbar(k/NumOfFiles, progress_bar, msg);
     
     FName = char(FileVec(k));
     FullFileName = fullfile(OrgFolder, FName);
@@ -87,4 +87,4 @@ for k=1:NumOfFiles
         imwrite(Ptree,FullName,'tif');
     end
 end
-%close(progress_bar);
+close(progress_bar);

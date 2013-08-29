@@ -31,8 +31,8 @@ motionsFile = fullfile(DestDirName, 'motions.mat');
 motionExist = dir(motionsFile);
 if isempty(motionExist)
     %initialize a progress bar
-    %progress_bar = waitbar(0);
-    %progress = 0;
+    progress_bar = waitbar(0);
+    progress = 0;
     
     % going over all the files
     FullFileName = fullfile(SourceDirName, '*.tif');
@@ -51,8 +51,8 @@ if isempty(motionExist)
     clear Img_4 Img
     for k=2:NumOfFiles
 %        progress = progress + 1;
-        %waitbar(progress/NumOfFiles, progress_bar, ...
-%                sprintf('Calculating Motion: image %d/%d', k,NumOfFiles));
+        waitbar(k/NumOfFiles, progress_bar, ...
+                sprintf('Calculating Motion: image %d/%d', k,NumOfFiles));
     
         Img_4 = im2double(imread( fullfile( SourceDirName,char(FileVec(k)) ) ));
         Img = rgb2gray(Img_4(:,:,1:3));

@@ -28,7 +28,8 @@ if nargin == 1
 elseif nargin == 2
     forMovie = false;
 end
-[pathstr, FileDir, ext, versn] = fileparts(DirName);
+%[pathstr, FileDir, ext, versn] = fileparts(DirName);
+[pathstr, name, ext]= fileparts(DirName);
 
 dirOutput = dir(fullfile(DirName, 'Pictures', '*.tif'));
 FileVec = {dirOutput.name}';
