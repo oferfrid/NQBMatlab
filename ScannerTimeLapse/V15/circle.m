@@ -1,4 +1,4 @@
-function H=circle(center,radius,NOP,style)
+function H=circle(center,radius,NOP,style,handles)
 %---------------------------------------------------------------------------------------------
 % H=CIRCLE(CENTER,RADIUS,NOP,STYLE)
 % This routine draws a circle with center defined as
@@ -28,5 +28,5 @@ RHO=ones(1,NOP)*radius;
 [X,Y] = pol2cart(THETA,RHO);
 X=X+center(1);
 Y=Y+center(2);
-H=plot(X,Y,style);
+H=plot(handles,X,Y,style);
 axis square;

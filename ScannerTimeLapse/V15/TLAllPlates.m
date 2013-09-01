@@ -29,11 +29,6 @@ if nargin==0
     end
 end
 DirNum = length(DirVec);
-for i=1:length(DirVec)
-    if (length(DirVec{i})>0)
-        DirNum = i;
-    end
-end
 
 for k=1:DirNum
     disp('');

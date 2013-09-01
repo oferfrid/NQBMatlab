@@ -1,4 +1,4 @@
-function ColoniesGrowth = getColoniesGrowthRate(FileDir, lb, ub)
+function [ColoniesGrowth, ColoniesIndices] = getColoniesGrowthRate(FileDir, lb, ub)
 %% ColonisGrowth = getColoniesGrowthRate(FileDir)
 % -------------------------------------------------------------------------
 % Purpose: This function calculates the growth rate of each colony
@@ -12,12 +12,9 @@ function ColoniesGrowth = getColoniesGrowthRate(FileDir, lb, ub)
 %
 % Returns: ColoniesGrowth - vector of the times it take for each colony to
 %       reach from lb size to ub size.
+%       ColoniesIndices - Colony's index respectivly
 % -------------------------------------------------------------------------
 % Irit Levin. 11.2009
-
-%% Constants
-r = 440;       % the radius of the plate
-NearBorder = 15;        % proximity to the border
 
 %% Loading data and initializations
 DirName = fullfile(FileDir, 'Results');
@@ -29,13 +26,8 @@ load(fullfile(DirName,'ExcludedBacteria.txt'));
 
 %% excluding bacteria
 VecArea(ExcludedBacteria,:)   = 0;
-VecCen(ExcludedBacteria,:,:)  = 0;
 
-% Checking which colonies are too close to the border
-% colonies that have disapeared will be out of border (0-Xcm)^2+(0-Ycm)^2
-CM = VecCen(:,:,end);
-distBorder  = sqrt((x(1)-CM(:,1)).^2+(y(1)-CM(:,2)).^2);
-NotCloseToBorder = find(distBorder<(r-NearBorder));
+NotCloseToBorder = FindColoniesInWorkingArea(FileDir);
 bigEnoughColony = find(VecArea(:,end)>=ub);
 ColoniesIndices = intersect(NotCloseToBorder, bigEnoughColony);
 
