@@ -61,5 +61,4 @@ TimeAxis = makeTimeAxis(SourceDirName);
 save(fullfile(DestDirName,'TimeAxis'),'TimeAxis');
 
 %% cut picture
-fprintf(['Starting cut: ' DestDirName]);
 CutPicture(SourceDirName, DestDirName, plateVec , circlesVec);

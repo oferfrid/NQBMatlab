@@ -1,3 +1,5 @@
- addpath 'C:\Users\Public\Documents\Learn\BioLab\MATLAB\ScannerTimeLapse\V15'
- addpath 'C:\Users\Public\Documents\Learn\BioLab\MATLAB\TL_Utils'
- addpath 'C:\Users\Public\Documents\Learn\BioLab\MATLAB\TL_Utils\motion'
+addpath 'C:\Documents and Settings\Irit\My Documents\MATLAB\DEVELOP\TL_Utils\TL_Utils_V1_5'
+addpath 'C:\Documents and Settings\Irit\My Documents\MATLAB\DEVELOP\TL_Utils\TL_Utils_V1_5\motion'
+addpath 'C:\Documents and Settings\Irit\My Documents\MATLAB\DEVELOP\ScannerTimeLapse\V15'
+
+
