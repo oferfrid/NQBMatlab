@@ -20,6 +20,10 @@ function FindColoniesInTime(DirName)
 %       TimeAxis - a vector of the time from the begining in minutes
 % -------------------------------------------------------------------------
 % Irit Levin, 01.2008
+% Irit L.Reisman - 01.2013 Bug fix - when subtracting the background there
+%       are no colonies in the first image, and a line of zeros entered. 
+%       (It doesn't count for any statistics, but it caused a problem when 
+%       using the new close to border function.
 
 %% variables
 LRGB_dir = fullfile(DirName,'LRGB');
@@ -41,13 +45,7 @@ save(fullfile(Res_dir,'TimeAxis'),'TimeAxis');
 FullFileName = fullfile(LRGB_dir, char(FileVec(1)));
 load (FullFileName);
 [VecArea,VecBBox,VecCen] = ColoniesProperties(L);
-PrevL = L;
-ColoniesNum = max(L(:));
-if ColoniesNum
-    PrevCpl = [1:ColoniesNum]';
-else
-    PrevCpl = 0;
-end
+FirstDetection = ~any(VecArea(:));
 
 %% initialize a progress bar
 progress_bar = waitbar(0);
@@ -55,17 +53,17 @@ progress_bar = waitbar(0);
 %% finding the colonies in all the files, in the same area
 NumOfFiles = size(FileVec,1);
 for k=2:NumOfFiles   
-%%  reading the next file in the list
+    %%  reading the next file in the list
     msg = ['matching picture ', num2str(k),'/',num2str(NumOfFiles)];
     waitbar(k/NumOfFiles, progress_bar, msg);
     
     FullFileName = fullfile(LRGB_dir, char(FileVec(k)));
     load (FullFileName);
     
-%%  finding the colonies
+    %%  finding the colonies
     [Areas,BBoxes,Cens] = ColoniesProperties(L);
     
-%%  matching the colonies to the colonies in the previous picture
+    %%  matching the colonies to the colonies in the previous picture
     ColonyExist = find(VecCen(:,1,k-1));
     Colony1st   = zeros(size(VecCen,1),1);
     PrevCM      = zeros(size(VecCen,1),2);
@@ -80,24 +78,25 @@ for k=2:NumOfFiles
     ordBBox = couple(BBoxes, coupling);
     ordCen  = couple(Cens, coupling);
     
-%%  concatanating the data
-    VecArea = finargcat(2, VecArea, ordArea); 
-    VecArea(isnan(VecArea)) = 0;
-    VecBBox = finargcat(3, VecBBox, ordBBox);
-    VecBBox(isnan(VecBBox)) = 0;
-    VecCen  = finargcat(3, VecCen, ordCen);
-    VecCen(isnan(VecCen))   = 0;
+    %%  concatanating the data
+    if (FirstDetection && any(coupling))
+        ordArea = ordArea(2:end);
+        ordCen  = ordCen(2:end,:);
+        ordBBox = ordBBox(2:end,:);
+        FirstDetection = 0;
+    end
+    VecArea(1:size(ordArea,1),k)   = ordArea;
+    VecCen(1:size(ordCen,1),:,k)   = ordCen;
+    VecBBox(1:size(ordBBox,1),:,k) = ordBBox;
     
-%%  Saving the data
-    save(fullfile(Res_dir,'VecArea'),'VecArea');
-    save(fullfile(Res_dir,'VecBBox'),'VecBBox');
-    save(fullfile(Res_dir,'VecCen') ,'VecCen');
-    
-    PrevL = L;
-    PrevCpl = coupling;
 end
 close(progress_bar);
 
+%%  Saving the data
+save(fullfile(Res_dir,'VecArea'),'VecArea');
+save(fullfile(Res_dir,'VecBBox'),'VecBBox');
+save(fullfile(Res_dir,'VecCen') ,'VecCen');
+    
 %% Creating a list of the first pixel in each region, for the colour list
 Lrgb = label2rgb(L, 'jet', 'k', 'shuffle');
 PxlIdx = regionprops(L, 'PixelList');

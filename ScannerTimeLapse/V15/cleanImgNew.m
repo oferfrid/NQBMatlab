@@ -1,5 +1,5 @@
-function clnImg = cleanImgNew(I)
-%% Img = cleanImg(I)
+function clnImg = cleanImgNew(I,bg)
+%% Img = cleanImg(I,bg)
 % --------------------------------------------------------------
 % purpose: reading a picture file and sharpening it
 %
@@ -10,10 +10,7 @@ function clnImg = cleanImgNew(I)
 % --------------------------------------------------------------
 
 % disksize = 50;
-disksize = 50;
-background = imopen(I,strel('disk',disksize));
-clnImg = imsubtract(I,background)*5;
-
+clnImg = rgb2gray(imsubtract(I,bg));
 
 %%
 % figure;

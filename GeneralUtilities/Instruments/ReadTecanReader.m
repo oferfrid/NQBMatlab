@@ -79,18 +79,16 @@ end
     Results{s}.StartTimeText = datestr(Results{s}.StartTime,'dd/mm/yyyy HH:MM:SS');
 
 
-    
-    
-    
+  
         SheetData = Data{s};
         SheetTextData = TextData{s};
     
         for i=1:length(startData)
             endData = find(isnan(SheetData(startData(i):end,1)),1,'first');
             if isempty(endData)
-            Results{s}.Labels{i}.Time        = SheetData(startData(i):end,2)/60;
-            Results{s}.Labels{i}.Temperature = SheetData(startData(i):end,3);
-            Results{s}.Labels{i}.Measurments = SheetData(startData(i):end,4:end);
+            Results{s}.Labels{i}.Time        = SheetData(startData(i):end-1,2)/60;
+            Results{s}.Labels{i}.Temperature = SheetData(startData(i):end-1,3);
+            Results{s}.Labels{i}.Measurments = SheetData(startData(i):end-1,4:end);
             else
                 endind=endData+startData(i)-2;
             Results{s}.Labels{i}.Time        = SheetData(startData(i):endind,2)/60;
@@ -99,7 +97,8 @@ end
             end
            Results{s}.Labels{i}.Name = SheetTextData(startLabelTextData(i)-1,1);
            Results{s}.Labels{i}.Wells = SheetTextData(startLabelTextData(i),4:end);
-            
+           
+           
         end
     
  end
