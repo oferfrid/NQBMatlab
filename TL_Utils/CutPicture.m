@@ -1,4 +1,4 @@
-function CutPicture(OrgFolder, destFolder, PlatesVec, circleVec)
+function CutPicture(OrgFolder, destFolder, PlatesVec, circleVec,startInd)
 %% CutPicture(OrgFolder, destFolder, PlatesVec, circleVec)
 % ----------------------------------------------------------------------
 % Purpose: Cutting a picture that countain N petree dishes to N files.
@@ -31,6 +31,7 @@ PicSize = 1050;         % each picture is 1050 pixels
 
 %% Getting the file list and their dates
 dirOutput = dir(fullfile(OrgFolder, '*.tif'));
+dirOutput=dirOutput(startInd:end);
 FileVec   = {dirOutput.name}';
 load(fullfile(destFolder,'TimeAxis'));
 NumOfPlates = length(PlatesVec);

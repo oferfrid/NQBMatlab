@@ -1,4 +1,4 @@
-function motions = FindMotions(SourceDirName, DestDirName)
+function motions = FindMotions(SourceDirName, DestDirName,prevLastInd)
 % motions = FindMotions(SourceDirName, DestDirName)
 % -------------------------------------------------------------------------
 % Purpose: Align pictures.
@@ -29,17 +29,24 @@ CropRect = [870 800 900 800];
 % calculation motion if the file doesn't aleady exist
 motionsFile = fullfile(DestDirName, 'motions.mat');
 motionExist = dir(motionsFile);
-if isempty(motionExist)
+
     %initialize a progress bar
-    progress_bar = waitbar(0);
-    progress = 0;
+progress_bar = waitbar(0);
+progress = 0;
     
-    % going over all the files
-    FullFileName = fullfile(SourceDirName, '*.tif');
-    dirOutput  = dir(FullFileName);
-    FileVec    = {dirOutput.name}';
-    NumOfFiles = size(FileVec,1);
-    
+% going over all the files
+FullFileName = fullfile(SourceDirName, '*.tif');
+dirOutput  = dir(FullFileName);
+dirOutput=dirOutput(prevLastInd:end);
+FileVec    = {dirOutput.name}';
+NumOfFiles = size(FileVec,1);
+
+if (prevLastInd>1)
+     mot=load(motionsFile);
+     motions = mot.motions;
+end
+
+if (NumOfFiles>1)
     % calculate motion in multi-resolution using the selected motion
     % calculation method.
     % the pictures are very big so they are converted to grayscale and
@@ -50,8 +57,8 @@ if isempty(motionExist)
 %     figure; imshow(BaseCropped);
     clear Img_4 Img
     for k=2:NumOfFiles
-%        progress = progress + 1;
-        waitbar(k/NumOfFiles, progress_bar, ...
+        progress = progress + 1;
+        waitbar(progress/NumOfFiles, progress_bar, ...
                 sprintf('Calculating Motion: image %d/%d', k,NumOfFiles));
     
         Img_4 = im2double(imread( fullfile( SourceDirName,char(FileVec(k)) ) ));
@@ -66,8 +73,5 @@ if isempty(motionExist)
     end
     
     save(motionsFile,'motions');
-    %close(progress_bar);
-else
-    mot=load(motionsFile);
-    motions = mot.motions;
-end
+    close(progress_bar);
+end;
