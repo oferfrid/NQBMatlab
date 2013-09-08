@@ -30,7 +30,7 @@ end
 BW=1;
 
 % figure;
-%PlotPlate(TimeGap, DirName, BW, forMovie,handles);
-%PlotPlateAnalysis(TimeGap, DirName, forMovie,handles);
-%PlotPlateColoniesNumbers(TimeGap, DirName, forMovie,handles);
-%impixelinfo
+PlotPlate(TimeGap, DirName, BW, forMovie,handles);
+PlotPlateAnalysis(TimeGap, DirName, forMovie,handles);
+PlotPlateColoniesNumbers(TimeGap, DirName, forMovie,handles);
+impixelinfo

@@ -1,13 +1,16 @@
-function FilterBacteria(DirName, FilterBact)
+function FilterBacteria(DirName, FilterBact,excludeFlag)
 % FilterBacteria(DirName, FilterBact)
 % -------------------------------------------------------------------------
 % Purpose: creating the excluded bacteria list by the user
 % Arguments: DirName - full directory name
 %       excludedBact(optional) - An array of the numbers of 
-%        the bacteria to be excluded
+%       the bacteria to be excluded
+%       excludeFlag(optional)  - send 0 to include colony and 
+%                                otherwise exclude (default 1)
 % Output File: DirName\Results\ExcludedBacteria.txt
 % -------------------------------------------------------------------------
 % Irit L. Reisman. 03.2008
+% Update 3.9.2013 Nir Dick - Added excludeFlag argument
 
 %% getting the dirctory
 if ~exist('DirName', 'var')
@@ -15,6 +18,10 @@ if ~exist('DirName', 'var')
     if isequal(DirName,0)
         return;
     end
+end
+
+if ~exist('excludeFlag', 'var')
+    excludeFlag=1;
 end
 
 %% loading excluded bacteria file
@@ -67,7 +74,11 @@ if ~exist('FilterBact', 'var')
         selectedBacteria = input('Bactria you want to take out of exclution list (end=-1) :');
     end
 else
-    ExcludedBacteria = union(ExcludedBacteria, FilterBact);
+    if (excludeFlag)
+        ExcludedBacteria = union(ExcludedBacteria, FilterBact);
+    else
+        ExcludedBacteria = setdiff(ExcludedBacteria, FilterBact);
+    end
 end
 
 %% writing the excluded bacteria to a file
