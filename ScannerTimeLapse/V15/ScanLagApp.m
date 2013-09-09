@@ -11,6 +11,10 @@ function ScanLagApp(FileDir)
 % Close previous opened screen
 close(findobj('name', 'ScanLagAPP'));
 
+% find current icons directory
+             
+[cdir cname ctype]=fileparts(mfilename('fullpath'));
+
 % Create gui
 h.fig=figure('units','pixels',...
               'position',[50 50 1150 655],...
@@ -53,9 +57,9 @@ h.edc = uicontrol('style','text','unit','pix','position',[10 620 100 20],...
                  'backgroundcolor',figcolor);
                          
 h.ed = uicontrol('style','edit','unit','pix','position',[110 620 60 20],...
-                 'fontsize',10);
+                 'fontsize',10);           
              
-[icon map]=imread('Icons\Search.png');
+[icon map]=imread(strcat(cdir,'\Icons\Search.png'));
 
 h.search= uicontrol('style','pushbutton',...
                  'unit','pix',...
@@ -64,7 +68,7 @@ h.search= uicontrol('style','pushbutton',...
             
 
 % Create tool bar
-buildToolBar(h,FileDir,times);  
+buildToolBar(h,FileDir,times,cdir);  
 
 % Sohw graph
 initAreaGraph(h.graphax,FileDir,h.graphax,h.picax);
@@ -86,7 +90,7 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function buildToolBar(handles,FileDir,times)
+function buildToolBar(handles,FileDir,times,dir)
     set(handles.fig,'toolbar','figure');
     
     b = findall(handles.fig,'ToolTipString','Edit Plot');
@@ -94,19 +98,19 @@ function buildToolBar(handles,FileDir,times)
     
     
     ht = uitoolbar(handles.fig);
-    [icon map]=imread('Icons\NumbersIn.png');
+    [icon map]=imread(strcat(dir,'\Icons\NumbersIn.png'));
     numbersh = uipushtool('Parent',ht,'CData',icon,'Tag','NumbersIn',...
                           'UserData',1,'Separator','on');
     
-    [icon map]=imread('Icons\Analysis.png');
+    [icon map]=imread(strcat(dir,'\Icons\Analysis.png'));
     analysish = uipushtool('Parent',ht,'CData',icon,'Tag','PreviewMenuA',...
                      'TooltipString','Show analysis mode','Separator','on');
                  
-    [icon map]=imread('Icons\Picture.png');
+    [icon map]=imread(strcat(dir,'\Icons\Picture.png'));
     pictureh = uipushtool('Parent',ht,'CData',icon,'Tag','PreviewMenuP',...
                      'TooltipString','Show picture mode');
                  
-    [icon map]=imread('Icons\BW.png');
+    [icon map]=imread(strcat(dir,'\Icons\BW.png'));
     colorh = uipushtool('Parent',ht,'CData',icon,'Tag','ColorMenu',...
                         'UserData',1);
                  
@@ -119,13 +123,14 @@ function buildToolBar(handles,FileDir,times)
                    handles,FileDir,times));
                
     set(colorh,'ClickedCallback',...
-                   @(h,e)colorClickedCallback(h,e,handles,FileDir,times));
+                   @(h,e)colorClickedCallback(h,e,handles,FileDir,...
+                   times,dir));
                       
-    [icon map]=imread('Icons\Include.png');
+    [icon map]=imread(strcat(dir,'\Icons\Include.png'));
     includeh = uipushtool('Parent',ht,'CData',icon,'Tag','IncludeMenu',...
                           'Separator','on');
    
-    [icon map]=imread('Icons\Exclude.png');
+    [icon map]=imread(strcat(dir,'\Icons\Exclude.png'));
     excludeh = uipushtool('Parent',ht,'CData',icon,'Tag','ExcludeMenu');
     
     set(numbersh,'ClickedCallback',...
@@ -425,13 +430,13 @@ function numbersClickedCallback(h,e,handles,FileDir,times)
     set(handles.worktxt,'Visible','off');    
 end
 
-function colorClickedCallback(h,e,handles,FileDir,times)
+function colorClickedCallback(h,e,handles,FileDir,times,iconsdir)
     set(handles.worktxt,'Visible','on');
     colorUD=1-get(h,'UserData');
     if (colorUD)
-       [icon map]=imread('Icons\BW.png');
+       [icon map]=imread(strcat(iconsdir,'\Icons\BW.png'));
     else
-       [icon map]=imread('Icons\Color.png');
+       [icon map]=imread(strcat(iconsdir,'\Icons\Color.png'));
     end
     set(h,'CDATA',icon);
     set(h,'UserData',colorUD);
