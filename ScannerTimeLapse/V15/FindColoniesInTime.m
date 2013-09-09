@@ -110,6 +110,3 @@ for k=1:ColoniesNum
 end
 ordColour = couple(ColourVec, coupling);
 save(fullfile(Res_dir,'ordColour') ,'ordColour');
-
-%% Ploting the growth of the colonies
-ShowPlate(TimeAxis(end), DirName, 0);
