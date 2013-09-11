@@ -20,7 +20,9 @@ if nargin == 1
     forMovie = false;
 elseif nargin == 2
     forMovie = false;
-elseif nargin<4
+end
+
+if nargin<4
     handles=gca;
 end
 
