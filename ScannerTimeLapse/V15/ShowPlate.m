@@ -27,6 +27,11 @@ if nargin == 1
 elseif nargin == 2
     forMovie = false;
 end
+
+if nargin < 4
+    f=figure;
+    handles=gca;
+end
 BW=1;
 
 % figure;
