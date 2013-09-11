@@ -74,7 +74,7 @@ buildToolBar(h,FileDir,times,cdir);
 initAreaGraph(h.graphax,FileDir,h.graphax,h.picax);
 
 % Show pic
-initPics(h.picax,FileDir);
+initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
 
 fclose('all');
@@ -173,11 +173,11 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function initPics(handle,FileDir)
+function initPics(startTime,handle,FileDir)
     h=gca;
     axes(handle);
     
-    PlotPlate(0, FileDir, 1, 0,handle);
+    PlotPlate(startTime, FileDir, 1, 0,handle);
     initImg=findobj(handle, 'Tag', 'ImageColony');
     if (~isempty(initImg))
         set(initImg,'Tag','ImageColony0');

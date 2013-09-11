@@ -83,7 +83,7 @@ for k=1:NumOfFiles
                     x(2*PlatesVec(j)-1):x(2*PlatesVec(j)),:);
         dirName = [destFolder ,'_',num2str(PlatesVec(j))];
         picDir = fullfile(dirName, 'Pictures');
-        FileName = sprintf('P%1.0f_%05.0f.tif',PlatesVec(j),TimeAxis(k));
+        FileName = sprintf('P%1.0f_%05.0f.tif',PlatesVec(j),TimeAxis(startInd+k-1));
         FullName = fullfile(picDir ,FileName);
         imwrite(Ptree,FullName,'tif');
     end
