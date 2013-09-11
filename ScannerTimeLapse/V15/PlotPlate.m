@@ -29,6 +29,12 @@ elseif nargin == 3
     forMovie = false;
 end
 
+if nargin<5
+    handle=gca;
+end
+
+prevh=gca;
+axes(handle);
 
 dirOutput = dir(fullfile(DirName, 'Pictures', '*.tif'));
 FileVec = {dirOutput.name}';
@@ -85,5 +91,5 @@ title(handle,FigTitle);
 
 warning(s)
 % h = gcf;
-
+axes(prevh);
 % F = getframe(h);

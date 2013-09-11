@@ -23,6 +23,11 @@ if (nargin <3),
 elseif (nargin==3)
     style='b-';
 end;
+
+if (nargin <5)
+    handles=gca;
+end
+
 THETA=linspace(0,2*pi,NOP);
 RHO=ones(1,NOP)*radius;
 [X,Y] = pol2cart(THETA,RHO);
