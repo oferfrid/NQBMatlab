@@ -1,4 +1,4 @@
-function PlotPlateColoniesNumbers(TimeGap, DirName, forMovie)
+function PlotPlateColoniesNumbers(TimeGap, DirName, forMovie,handles)
 %% function PlotPlateColoniesNumbers(TimeGap, DirName, forMovie)
 % -------------------------------------------------------------------------
 % Purpose: Marks the colonies numbers on the plate
@@ -20,7 +20,13 @@ if nargin == 1
     forMovie = false;
 elseif nargin == 2
     forMovie = false;
+elseif nargin<4
+    handles=gca;
 end
+
+prevh=gca;
+axes(handles);
+
 
 %% loading the list of files
 LRGBDir = fullfile(DirName, 'LRGB');
@@ -79,10 +85,11 @@ if ColoniesNum
             colourText = 'm';
         end
             
-        ht=text (VecCen(ColoniesCM(k),1,FirstTime), VecCen(ColoniesCM(k),2,FirstTime),...
-              num2str(ColoniesCM(k)),'color',colourText ,'BackgroundColor','none',...
-              'FontSize',8, 'FontWeight', WeightText,...
-              'HorizontalAlignment','center','VerticalAlignment','middle');
+        ht=text (VecCen(ColoniesCM(k),1,FirstTime),...
+                 VecCen(ColoniesCM(k),2,FirstTime),...
+                 num2str(ColoniesCM(k)),'color',colourText ,'BackgroundColor','none',...
+                 'FontSize',8, 'FontWeight', WeightText,...
+                 'HorizontalAlignment','center','VerticalAlignment','middle');
     end
 end
 
@@ -91,6 +98,7 @@ description = getDescription(DirName);
 FigTitle = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
                    description, TimeGap, NColonies);
 title(FigTitle);
+axes(prevh);
 
 % F = getframe(h);
 % impixelinfo
