@@ -29,9 +29,6 @@ if nargin<4
     handle=gca;
 end
 
-prevh=gca;
-axes(handles);
-
 %% loading the list of files
 LRGBDir = fullfile(DirName, 'LRGB');
 dirOutput = dir(fullfile(LRGBDir, '*.mat'));
@@ -86,8 +83,6 @@ title(handles,FigTitle);
 
 %Nir - remove draw now 
 %drawnow;
-
-axes(prevh);
 % F = getframe(h);
 % impixelinfo
 end

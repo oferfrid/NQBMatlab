@@ -26,10 +26,6 @@ if nargin<4
     handles=gca;
 end
 
-prevh=gca;
-axes(handles);
-
-
 %% loading the list of files
 LRGBDir = fullfile(DirName, 'LRGB');
 dirOutput = dir(fullfile(LRGBDir, '*.mat'));
@@ -100,7 +96,6 @@ description = getDescription(DirName);
 FigTitle = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
                    description, TimeGap, NColonies);
 title(FigTitle);
-axes(prevh);
 
 % F = getframe(h);
 % impixelinfo
