@@ -24,8 +24,8 @@ figcolor=get(h.fig,'color');
 h.picax = axes('units','pixels',...
             'position',[50 70 500 500],...
             'fontsize',8,...
-            'nextplot','add','Tag','PICAX','xlim',[0 500],'ylim',[0 500],...
-            'ButtonDownFcn',@tryme,'xlim',[0 1051],'ylim',[0 1051]);
+            'nextplot','add','Tag','PICAX',...
+            'xlim',[0 1051],'ylim',[0 1051]);
         
 h.graphax = axes('units','pixels',...
                  'position',[600 70 500 500],...
@@ -71,10 +71,9 @@ h.search= uicontrol('style','pushbutton',...
 buildToolBar(h,FileDir,times,cdir);  
 
 % Sohw graph
-initAreaGraph(h.graphax,FileDir,h.graphax,h.picax);
+initAreaGraph(h,FileDir);
 
 % Show pic
-initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
 
 fclose('all');
@@ -165,45 +164,18 @@ function [min, max,times]=getSliderTimeData(FileDir)
      fclose('all'); 
 end
 
-%% function initPics(handle,FileDir)
-% -------------------------------------------------------------------------
-% Purpose: Build the toolbar for the ScanLagApp 
-%
-% Arguments: FileDir - Directory of time axis
-% -------------------------------------------------------------------------
-% Nir Dick Sept. 2013
-% -------------------------------------------------------------------------
-function initPics(startTime,handle,FileDir)
+function initAreaGraph(handles,FileDir)
     h=gca;
-    axes(handle);
-    
-    PlotPlate(startTime, FileDir, 1, 0,handle);
-    initImg=findobj(handle, 'Tag', 'ImageColony');
-    if (~isempty(initImg))
-        set(initImg,'Tag','ImageColony0');
-    end;
-                
-    fclose('all');
-    
-    if (~isempty(h))
-        axes(h);
-    end
-end
-
-function initAreaGraph(handle,FileDir,graphH,picH)
-    h=gca;
-    axes(handle);
+    axes(handles.graphax);
     ShowAreaGraph(FileDir);
     fclose('all');
     
-    allLines = findobj(graphH,'Type','line');
+    allLines = findobj(handles.graphax,'Type','line');
     
     if (~isempty(allLines))
-        lineNum = size(allLines,1);
-        for i=1:lineNum
-            set(allLines(i),'ButtonDownFcn',...
-                   @(objH, eventH)lineSelected(objH, eventH,picH,graphH));
-        end
+        set(allLines,'ButtonDownFcn',...
+               @(objH, eventH)lineSelected(objH, eventH,handles));
+
     end;
     
     if (~isempty(h))
@@ -274,15 +246,16 @@ function selectLine(colonyNumberStr,graphH)
             end;
         set(currLine,'Selected','on','LineWidth', 5);
     end;
+    uistack(currLine,'top');
 end
 
-function lineSelected(objH,eventH,picH,graphH)
+function lineSelected(objH,eventH,handles)
     tag=get(objH,'Tag');
     cNumStr=tag(7:end);
     
-    downplayPrevText(picH);
-    highlightTextByNum(cNumStr,picH);
-    selectLine(cNumStr,graphH);
+    downplayPrevText(handles.picax);
+    highlightTextByNum(cNumStr,handles.picax);
+    selectLine(cNumStr,handles.graphax);
 end
 
 function highlightTextByNum(cNumStr,picH)
@@ -488,7 +461,7 @@ function excludeClickedCallback(h,e,handles,FileDir,times)
     colonyNumber=getSelectedColonyByLine(handles.graphax);
     FilterBacteria(FileDir,[str2num(colonyNumber)],1);
     setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
-    initAreaGraph(handles.graphax,FileDir,handles.graphax,handles.picax);
+    initAreaGraph(handles,FileDir);
     handleColonySelection(str2num(colonyNumber),...
                                       handles.graphax,handles.picax);
 end
@@ -497,7 +470,7 @@ function includeClickedCallback(h,e,handles,FileDir,times)
     colonyNumber=getSelectedColonyByLine(handles.graphax);
     FilterBacteria(FileDir,[str2num(colonyNumber)],0);
     setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
-    initAreaGraph(handles.graphax,FileDir,handles.graphax,handles.picax);
+    initAreaGraph(handles,FileDir);
     handleColonySelection(str2num(colonyNumber),...
                                       handles.graphax,handles.picax);
 end
