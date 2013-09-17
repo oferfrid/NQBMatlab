@@ -74,6 +74,7 @@ buildToolBar(h,FileDir,times,cdir);
 initAreaGraph(h,FileDir);
 
 % Show pic
+initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
 
 fclose('all');
@@ -164,6 +165,40 @@ function [min, max,times]=getSliderTimeData(FileDir)
      fclose('all'); 
 end
 
+%% function initPics(handle,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: Build the toolbar for the ScanLagApp 
+%
+% Arguments: FileDir - Directory of time axis
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function initPics(startTime,handle,FileDir)
+    h=gca;
+    axes(handle);
+    
+    PlotPlate(startTime, FileDir, 1, 0,handle);
+    initImg=findobj(handle, 'Tag', 'ImageColony');
+    if (~isempty(initImg))
+        set(initImg,'Tag','ImageColony0');
+    end;
+                
+    fclose('all');
+    
+    if (~isempty(h))
+        axes(h);
+    end
+end
+
+%% function initAreaGraph(handles,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: Show the area graph
+%
+% Arguments: handles - Dall the ralevant handles
+%            FileDir - the directory of the results
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function initAreaGraph(handles,FileDir)
     h=gca;
     axes(handles.graphax);
@@ -172,51 +207,105 @@ function initAreaGraph(handles,FileDir)
     
     allLines = findobj(handles.graphax,'Type','line');
     
+    % Add selection listener to all the lines in the graph
     if (~isempty(allLines))
         set(allLines,'ButtonDownFcn',...
                @(objH, eventH)lineSelected(objH, eventH,handles));
 
     end;
     
+    % Go back to current axes
     if (~isempty(h))
         axes(h);
     end;
 end
 
+%% function sliderChange(ObjH, EventData, times,FileDir,handles) 
+% -------------------------------------------------------------------------
+% Purpose: This handler manage the slider's value changing event.
+%          (arise when dragging the slider)
+%
+% Arguments: times - list of all available times 
+%            FileDir - the directory of the results
+%            handles - the relevant handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function sliderChange(ObjH, EventData, times,FileDir,handles) 
     set(handles.worktxt,'Visible','on');
+    % handle the time change
     handleTimeChange(times,FileDir,handles);
     drawnow;
     set(handles.worktxt,'Visible','off');
 end
 
+%% function sliderChange(ObjH, EventData, times,FileDir,handles) 
+% -------------------------------------------------------------------------
+% Purpose: The ButtonDownFcn event handler of the slider
+%
+% Arguments: times - list of all available times 
+%            FileDir - the directory of the results
+%            handles - the relevant handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function sliderCallBack(ObjH, EventData, times,FileDir,handles)
     set(handles.worktxt,'Visible','on');
     handleTimeChange(times,FileDir,handles);
     set(handles.worktxt,'Visible','off');
 end
 
+%% function handleTimeChange(times,FileDir,handles)
+% -------------------------------------------------------------------------
+% Purpose: This function should be called when the time was changed in the
+% slider. The method get the current state and change the gui according to
+% it.
+%
+% Arguments: times - list of all available times 
+%            FileDir - the directory of the results
+%            handles - the relevant handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function handleTimeChange(times,FileDir,handles)
+    % Get the current state 
     state=getState(handles,times);
     previewOption=state.pic;
     textFlag=state.numbers;
     time=state.time;
+    
+    % Move the time line to the new state
     updateAreaGraphCurrLine(time,handles.graphax);
+    
+    % Get selected colony (in order to keep the selected one on the screen)
     selNumStr=getSelectedColonyByLine(handles.graphax);
     
     axes(handles.picax);
     
+    % Change the picture according to the state
     handlePlatePlot(handles,time,FileDir,state);
     
+    % delete old numbering
     deleteNumbersText(handles);
   
     if (textFlag)
+        % Print new numbering
         handleNumbersPlot(time,handles,FileDir,selNumStr);
     end
    
     fclose('all');
 end
 
+%% function updateAreaGraphCurrLine(time,graphAxes)
+% -------------------------------------------------------------------------
+% Purpose: This function update the position of the time line of the area
+% graph.
+%
+% Arguments: time - current time
+%            graphAxes - the graph axes
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function updateAreaGraphCurrLine(time,graphAxes)
     currLine = findobj(graphAxes, 'Tag', 'AreaCurrTimeLine');
     if (~isempty(currLine))
@@ -229,13 +318,31 @@ function updateAreaGraphCurrLine(time,graphAxes)
     set(pH,'Tag','AreaCurrTimeLine');
 end
 
-
+%% handleColonySelection(colonyNumber, graphH,picH)
+% -------------------------------------------------------------------------
+% Purpose: This function handles the event of selecting some colony number
+%
+% Arguments: colonyNumber - the selected colony number
+%            graphH       - the graph axes
+%            picH         - the picture handler
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function handleColonySelection(colonyNumber, graphH,picH)
     downplayPrevText(picH);
     highlightTextByNum(num2str(colonyNumber),picH);
     selectLine(num2str(colonyNumber),graphH);
 end
 
+%% selectLine(colonyNumberStr,graphH)
+% -------------------------------------------------------------------------
+% Purpose: Select wanted line (of wanted colony) in the area graph
+%
+% Arguments: colonyNumberStr - the colony's number
+%            graphH       - the graph axes
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function selectLine(colonyNumberStr,graphH)
     set (graphH,'Selected','off');
     prevLine = findobj(graphH,'Selected','on');
@@ -249,6 +356,14 @@ function selectLine(colonyNumberStr,graphH)
     uistack(currLine,'top');
 end
 
+%% function lineSelected(objH,eventH,handles)
+% -------------------------------------------------------------------------
+% Purpose: The handler of the the line selection event in the area graph
+%
+% Arguments: handles - relevant handles of the graph
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function lineSelected(objH,eventH,handles)
     tag=get(objH,'Tag');
     cNumStr=tag(7:end);
@@ -258,6 +373,15 @@ function lineSelected(objH,eventH,handles)
     selectLine(cNumStr,handles.graphax);
 end
 
+%% function highlightTextByNum(cNumStr,picH)
+% -------------------------------------------------------------------------
+% Purpose: Sign in gui that sent colony is selected.
+%
+% Arguments: cNumStr - the colony's number
+%            picH - the pictures axes.
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function highlightTextByNum(cNumStr,picH)
     currText=findobj(picH,'Type','text','String',cNumStr);
     
@@ -266,14 +390,39 @@ function highlightTextByNum(cNumStr,picH)
     end;
 end
 
+%% function highlightText(textH)
+% -------------------------------------------------------------------------
+% Purpose: Highlight text. current - a white square around the text
+%
+% Arguments: textH - the text to highlight
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function highlightText(textH)
     set(textH,'EdgeColor','white');
 end
 
+%% function downplayText(textH))
+% -------------------------------------------------------------------------
+% Purpose: cancel text highlighting
+%
+% Arguments: textH
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function downplayText(textH)
     set(textH,'EdgeColor','none');
 end
 
+%% function downplayPrevText(picH)
+% -------------------------------------------------------------------------
+% Purpose: cancel previous selected colony's highlighting (without knowing
+% what colony actually was selected.
+%
+% Arguments: picH - picture axes
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function downplayPrevText(picH)
     prevText=findobj(picH,'Type','text','EdgeColor','white');
     
@@ -282,7 +431,14 @@ function downplayPrevText(picH)
     end;
 end
 
-
+%% function getSelectedColonyByLine(handle)
+% -------------------------------------------------------------------------
+% Purpose: Get the selected colony's number by the area graph.
+%
+% Arguments: handle - graph axes
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function [selNumStr]=getSelectedColonyByLine(handle)
     selNumStr='none';
     selectedLine=findobj(handle,'Type','line','Selected','on');
@@ -292,33 +448,57 @@ function [selNumStr]=getSelectedColonyByLine(handle)
     end
 end
 
+%% function updatePlotPlate(times,FileDir,handles)
+% -------------------------------------------------------------------------
+% Purpose: Update the plate plotting by current state
+%
+% Arguments: times - times vec
+%            FileDir - the file directory
+%            handles - the handles of the gui
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function updatePlotPlate(times,FileDir,handles)
     state=getState(handles,times);
     val =round(get(handles.sl,'Value'));
     time=times(val);
     handlePlatePlot(handles,time,FileDir,state);
     textsNumH=findobj(handles.picax,'Type','text');
+    
+    % Since we didnt change the numbering, but plotted a new image,
+    % we need to move the numbers above the image
     uistack(textsNumH,'top');
 end
 
+%% function textNumberSelected(objH, eventH,graphH,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: the handler of selecting a number in the picture
+%
+% Arguments: graphH - graph axes
+%            FileDir - the data directory
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function textNumberSelected(objH, eventH,graphH,FileDir)
     selectionType=get(gcbf,'SelectionType');
     colonyNumber=str2num(get(objH,'String'));
     switch selectionType
-        case 'open',
-           textColor=get(objH,'Color');
-           
-           if (textColor==[1 1 0])
-
-           else
-
-           end
+        case 'open'
+            % nothing for double click
         case 'normal',
             picH=get(objH,'Parent');
             handleColonySelection(colonyNumber,graphH,picH); 
     end 
 end
 
+%% function deleteNumbersText(handles)
+% -------------------------------------------------------------------------
+% Purpose: clean all numbers text
+%
+% Arguments: handles - the handles of the gui
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function deleteNumbersText(handles)
     axesHandlesToChildObjects = findobj(handles.picax, 'Type', 'text');
     if ~isempty(axesHandlesToChildObjects)
@@ -326,26 +506,54 @@ function deleteNumbersText(handles)
     end
 end
 
+%% function handlePlatePlot(handles,time,FileDir,state)
+% -------------------------------------------------------------------------
+% Purpose: Update the plate plotting by current state
+%
+% Arguments: time - wanted time
+%            FileDir - the file directory
+%            handles - the handles of the gui
+%            state - the current state of the program
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function handlePlatePlot(handles,time,FileDir,state)
+    
+    % Delete current picture
     axesHandlesToChildObjects=findobj(...
                     handles.picax, 'Tag', 'ImageColony');
-    
     
     if (~isempty(axesHandlesToChildObjects))
         delete(axesHandlesToChildObjects);
     end;
     
+    % Check the state for what picture option the user want
     if (state.pic==0)
+        % Plot analysis
         PlotPlateAnalysis(time, FileDir, 0,handles.picax);
     elseif (state.pic==1)
+       % Plot picture
        isBW=state.bw;
        PlotPlate(time, FileDir, isBW, 0,handles.picax);  
     end;
 end
 
+%% function handleNumbersPlot(time,handles,FileDir,selNumStr)
+% -------------------------------------------------------------------------
+% Purpose: Handle the plotting of the numbers
+%
+% Arguments: time - wanted time
+%            FileDir - the file directory
+%            handles - the handles of the gui
+%            selNumStr - selected colony's number
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function handleNumbersPlot(time,handles,FileDir,selNumStr)
+    % Plot the numbers for current time
     PlotPlateColoniesNumbers(time, FileDir, 0);
 
+    % Set the handler for selection event for each number
     textNumbers = findobj(handles.picax, 'Type', 'text');
 
     if (~isempty(textNumbers))
@@ -354,7 +562,8 @@ function handleNumbersPlot(time,handles,FileDir,selNumStr)
         set(textNumbers,'ButtonDownFcn',...
                   @(objH, eventH)textNumberSelected(...
                             objH, eventH,handles.graphax,FileDir));
-                        
+        
+        % Highlight the selected
         selected=findobj(handles.picax, 'Type', 'text','String',selNumStr);
         if (~isempty(selected))
             highlightText(selected);
@@ -362,21 +571,37 @@ function handleNumbersPlot(time,handles,FileDir,selNumStr)
     end
 end
 
-function [currLRGBFileDir]=getCurrentLRGBfileDir(handles,time,FileDir)
-    % magic number - 5
-    spacing_arg = ['%0', num2str(5),'s'];
-    padded_string=sprintf(spacing_arg, num2str(time));
-    currLRGBFileDir=strcat(FileDir,'\LRGB\L1_',padded_string,'.mat');
-end
-
+%% function analysisClickedCallback(h,e,oldH,handles,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: Handle the choosing of the show analysis event
+%
+% Arguments: times - time axis
+%            FileDir - the file directory
+%            handles - the handles of the gui 
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function analysisClickedCallback(h,e,oldH,handles,FileDir,times)
     set(h,'UserData',1);
     set(oldH,'UserData',0);
     updatePlotPlate(times,FileDir,handles);
     colorH=findobj('Tag','ColorMenu');
+    
+    % disable the BW/COLOR button (since it's relevant to picture option
+    % only)
     set(colorH,'Enable','off');
 end
 
+%% function pictureClickedCallback(h,e,oldH,handles,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: Handle the choosing of the show picture event
+%
+% Arguments: times - time axis
+%            FileDir - the file directory
+%            handles - the handles of the gui 
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function pictureClickedCallback(h,e,oldH,handles,FileDir,times)
     set(h,'UserData',1);
     set(oldH,'UserData',0);
@@ -386,14 +611,29 @@ function pictureClickedCallback(h,e,oldH,handles,FileDir,times)
     set(colorH,'Enable','on');
 end
 
+%% function numbersClickedCallback(h,e,handles,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: Handle the showing and hiding of numbers
+%
+% Arguments: times - time axis
+%            FileDir - the file directory
+%            handles - the handles of the gui 
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function numbersClickedCallback(h,e,handles,FileDir,times)
     set(handles.worktxt,'Visible','on');
+    
+    % change the wanted state
     numbersUD=1-get(h,'UserData');
+    
+    % Sow numbwes option
     if (numbersUD)
         selNumStr=getSelectedColonyByLine(handles.graphax);
         axes(handles.picax);
         state=getState(handles,times);
         handleNumbersPlot(state.time,handles,FileDir,selNumStr);
+    % Hide numbers option
     else
         deleteNumbersText(handles);
     end
@@ -403,9 +643,22 @@ function numbersClickedCallback(h,e,handles,FileDir,times)
     set(handles.worktxt,'Visible','off');    
 end
 
+%% function colorClickedCallback(h,e,handles,FileDir,times,iconsdir)
+% -------------------------------------------------------------------------
+% Purpose: Handle the choosing of BW/Color option whan showing the picture
+%
+% Arguments: times - time axis
+%            FileDir - the file directory
+%            handles - the handles of the gui 
+%            iconsdir - directory of icons
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function colorClickedCallback(h,e,handles,FileDir,times,iconsdir)
     set(handles.worktxt,'Visible','on');
     colorUD=1-get(h,'UserData');
+    
+    % switch between icons
     if (colorUD)
        [icon map]=imread(strcat(iconsdir,'\Icons\BW.png'));
     else
@@ -413,11 +666,28 @@ function colorClickedCallback(h,e,handles,FileDir,times,iconsdir)
     end
     set(h,'CDATA',icon);
     set(h,'UserData',colorUD);
+    
+    % Update picture
     updatePlotPlate(times,FileDir,handles);
     set(handles.worktxt,'Visible','off'); 
 end
 
-function [state]=getState(handles,times)        
+%% function getState(handles,times)
+% -------------------------------------------------------------------------
+% Purpose: This function build a state data structure representing the
+% wanted state of the system. the state containt the current time, the
+% pictur / analysis preview option and, the BW / Color options for the
+% pcture preview and the hide/show flag of the numbering.
+%
+% Arguments: times - time axis
+%            handles - the handles of the gui 
+%
+% Return: The state struct
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function [state]=getState(handles,times) 
+    % preview mode (picture/analysis)
     prevmode=findobj(handles.fig,'-regexp','Tag','PreviewMenu.+',...
                                                             'UserData',1);
     prevModeStr=get(prevmode,'Tag');
@@ -427,22 +697,36 @@ function [state]=getState(handles,times)
         state.pic=1;
     end
     
+    % show numbers?
     numbersFlag=findobj(handles.fig,'Tag','NumbersIn');
     state.numbers=get(numbersFlag,'UserData');
     
+    % BW /Color
     numbersFlag=findobj(handles.fig,'Tag','ColorMenu');
     state.bw=1-get(numbersFlag,'UserData');
     
+    % time
     val =round(get(handles.sl,'Value'));
     state.time=times(val);
 end
 
+%% function search(objH,e,handles)
+% -------------------------------------------------------------------------
+% Purpose: This is the searching event handler
+%
+% Arguments: handles - the handles of the gui 
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function search(objH,e,handles)
+    % Get the searched "colony" 
     str=get(handles.ed,'string');
     [colonyNumber,status]=str2num(str);
+    % if the text is a number, search for the colony with that number
     if (status)
         colonyflag=findobj(handles.picax,'Type','text','string',str);
         if (size(colonyflag,1)>0)
+            % Select it
             handleColonySelection(colonyNumber,handles.graphax,handles.picax);
         end
     end
@@ -450,6 +734,16 @@ function search(objH,e,handles)
     set(handles.ed,'string','');
 end
 
+%% function setcolonyTextColor(colonyNumStr,handles,color)
+% -------------------------------------------------------------------------
+% Purpose: color colony's text in wanted color
+%
+% Arguments: colonyNumStr - the wanted colony
+%            handles - gui handles
+%            color - wanted color
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function setcolonyTextColor(colonyNumStr,handles,color)
     colonyTextH=findobj(handles.picax,'Type','text','string',colonyNumStr);
     if (~isempty(colonyTextH))
@@ -457,19 +751,53 @@ function setcolonyTextColor(colonyNumStr,handles,color)
     end
 end
 
+%% function excludeClickedCallback(h,e,handles,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: The excluding event handler
+%
+% Arguments: FileDir - data directory
+%            handles - gui handles
+%            times - time axis
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function excludeClickedCallback(h,e,handles,FileDir,times)
+    % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
+    
+    % Exclude colony
     FilterBacteria(FileDir,[str2num(colonyNumber)],1);
+    
+    % Color the number so it will sign that it was excluded
     setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
+    
+    % update area graph
     initAreaGraph(handles,FileDir);
     handleColonySelection(str2num(colonyNumber),...
                                       handles.graphax,handles.picax);
 end
 
+%% function includeClickedCallback(h,e,handles,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: The including event handler
+%
+% Arguments: FileDir - data directory
+%            handles - gui handles
+%            times - time axis
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
 function includeClickedCallback(h,e,handles,FileDir,times)
+    % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
+    
+    % Include colony
     FilterBacteria(FileDir,[str2num(colonyNumber)],0);
+    
+    % Color the number so it will sign that it was'nt excluded
     setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
+    
+    % update area graph
     initAreaGraph(handles,FileDir);
     handleColonySelection(str2num(colonyNumber),...
                                       handles.graphax,handles.picax);
