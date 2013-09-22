@@ -1,5 +1,5 @@
 %Nir - add handles
-function himage = PlotPlateAnalysis(TimeGap, DirName, forMovie,handles)
+function himage = PlotPlateAnalysis(TimeGap, DirName, forMovie,handle)
 %% function PlotPlateAnalysis(TimeGap, DirName, forMovie)
 % -------------------------------------------------------------------------
 % Purpose: showing the result file of the plate 
@@ -7,7 +7,7 @@ function himage = PlotPlateAnalysis(TimeGap, DirName, forMovie,handles)
 % Arguments: TimeGap - Time since first picture.
 %           FileDir(optional) - Directory of the files.
 %           forMovie(optional) - true if this is for movie making purposes
-%
+%           handle - the handle for plotting
 % Returns: himage - The handle to the LRGB layer
 % -------------------------------------------------------------------------
 % Irit L. Reisman 01.09.2011
@@ -67,19 +67,19 @@ end
 %% showing the LRGB
 % h = gcf;
 hold on;
-himage = imshow(LrgbSized,'InitialMagnification','fit','Parent',handles);
+himage = imshow(LrgbSized,'InitialMagnification','fit','Parent',handle);
 
 % Nir - add Tag ImageColony
 set(himage,'Tag','ImageColony');
 set(himage, 'AlphaData', 0.5);
-circle([x,y],r ,500,'r-',handles);
+circle([x,y],r ,500,'r-',handle);
 
 %% Title
 NColonies = NumberOfColonies(DirName);
 description = getDescription(DirName);
 FigTitle = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
                    description, TimeGap, NColonies);
-title(handles,FigTitle);
+title(handle,FigTitle);
 
 %Nir - remove draw now 
 %drawnow;
