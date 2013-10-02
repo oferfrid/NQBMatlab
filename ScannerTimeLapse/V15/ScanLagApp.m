@@ -77,7 +77,7 @@ initAreaGraph(h,FileDir);
 initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
 
-fclose('all');
+%fclose('all');
 end
 
 %% function buildToolBar(handles,FileDir,times)
@@ -93,9 +93,12 @@ end
 function buildToolBar(handles,FileDir,times,dir)
     set(handles.fig,'toolbar','figure');
     
+    % Remove unwanted icons
+    
     b = findall(handles.fig,'ToolTipString','Edit Plot');
     set(b,'Visible','Off');
     
+    % Add icons to the toolbar
     
     ht = uitoolbar(handles.fig);
     [icon map]=imread(strcat(dir,'\Icons\NumbersIn.png'));
@@ -146,7 +149,7 @@ end
 
 %% function [min, max,times]=getSliderTimeData(FileDir)
 % -------------------------------------------------------------------------
-% Purpose: Build the toolbar for the ScanLagApp 
+% Purpose: Get the time data for the silder when building it 
 %
 % Arguments: FileDir - Directory of time axis
 % Outputs: min - the minimum value for the slider
@@ -162,14 +165,16 @@ function [min, max,times]=getSliderTimeData(FileDir)
      FileNum  = find(times,1,'last');   
      min=1;
      max=FileNum;
-     fclose('all'); 
+     %fclose('all'); 
 end
 
 %% function initPics(handle,FileDir)
 % -------------------------------------------------------------------------
-% Purpose: Build the toolbar for the ScanLagApp 
+% Purpose: show the first plate image (i.e. black picture with empty plate)
 %
-% Arguments: FileDir - Directory of time axis
+% Arguments: startTime - Directory of time axis
+%            handle - the first scan time
+%            FileDir - Directory of the data files
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
@@ -183,7 +188,7 @@ function initPics(startTime,handle,FileDir)
         set(initImg,'Tag','ImageColony0');
     end;
                 
-    fclose('all');
+    %fclose('all');
     
     if (~isempty(h))
         axes(h);
@@ -203,7 +208,7 @@ function initAreaGraph(handles,FileDir)
     h=gca;
     axes(handles.graphax);
     ShowAreaGraph(FileDir);
-    fclose('all');
+    %fclose('all');
     
     allLines = findobj(handles.graphax,'Type','line');
     
@@ -271,7 +276,7 @@ function handleTimeChange(times,FileDir,handles)
     % Get the current state 
     state=getState(handles,times);
     previewOption=state.pic;
-    textFlag=state.numbers;
+    numberingFlag=state.numbers;
     time=state.time;
     
     % Move the time line to the new state
@@ -288,12 +293,12 @@ function handleTimeChange(times,FileDir,handles)
     % delete old numbering
     deleteNumbersText(handles);
   
-    if (textFlag)
+    if (numberingFlag)
         % Print new numbering
         handleNumbersPlot(time,handles,FileDir,selNumStr);
     end
    
-    fclose('all');
+    % fclose('all');
 end
 
 %% function updateAreaGraphCurrLine(time,graphAxes)
@@ -508,7 +513,7 @@ end
 
 %% function handlePlatePlot(handles,time,FileDir,state)
 % -------------------------------------------------------------------------
-% Purpose: Update the plate plotting by current state
+% Purpose: Update the plate plotted by current state
 %
 % Arguments: time - wanted time
 %            FileDir - the file directory
@@ -675,9 +680,9 @@ end
 %% function getState(handles,times)
 % -------------------------------------------------------------------------
 % Purpose: This function build a state data structure representing the
-% wanted state of the system. the state containt the current time, the
-% pictur / analysis preview option and, the BW / Color options for the
-% pcture preview and the hide/show flag of the numbering.
+% wanted state of the system. the state contains the current time, the
+% picture / analysis preview option and, the BW / Color options for the
+% picture preview and the hide/show flag of the numbering.
 %
 % Arguments: times - time axis
 %            handles - the handles of the gui 
