@@ -201,12 +201,22 @@ end
 %
 % Arguments: handles - Dall the ralevant handles
 %            FileDir - the directory of the results
+%            keepScaleFlag - an indication if tosave previous scaling or
+%            not.
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function initAreaGraph(handles,FileDir)
+function initAreaGraph(handles,FileDir,keepScaleFlag)
+
+    if nargin<3
+        keepScaleFlag=0;
+    end
     h=gca;
     axes(handles.graphax);
+    
+    prevxlim=get(handles.graphax,'xlim')
+    prevylim=get(handles.graphax,'ylim')
+    
     ShowAreaGraph(FileDir);
     %fclose('all');
     
@@ -218,6 +228,11 @@ function initAreaGraph(handles,FileDir)
                @(objH, eventH)lineSelected(objH, eventH,handles));
 
     end;
+    
+    if (~isempty(prevxlim)&&~isempty(prevylim)&&keepScaleFlag)
+        set(handles.graphax,'xlim',prevxlim,'ylim',prevylim);
+    end
+            
     
     % Go back to current axes
     if (~isempty(h))
@@ -777,7 +792,7 @@ function excludeClickedCallback(h,e,handles,FileDir,times)
     setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
     
     % update area graph
-    initAreaGraph(handles,FileDir);
+    initAreaGraph(handles,FileDir,1);
     handleColonySelection(str2num(colonyNumber),...
                                       handles.graphax,handles.picax);
 end
@@ -803,7 +818,7 @@ function includeClickedCallback(h,e,handles,FileDir,times)
     setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
     
     % update area graph
-    initAreaGraph(handles,FileDir);
+    initAreaGraph(handles,FileDir,1);
     handleColonySelection(str2num(colonyNumber),...
                                       handles.graphax,handles.picax);
 end
