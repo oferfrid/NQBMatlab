@@ -35,6 +35,8 @@ h.graphax = axes('units','pixels',...
 [min, max,times]=getSliderTimeData(FileDir);
 sliderStep = [1, 1]/(max-min);
 
+set(h.fig,'KeyPressFcn',@(src,e)KeyPressFcn(src,e,h,FileDir,times));
+
                 
 h.worktxt = uicontrol('style','text','units','pixels',...
                       'position',[500,600,50,20],'string','working!',...
@@ -214,8 +216,8 @@ function initAreaGraph(handles,FileDir,keepScaleFlag)
     h=gca;
     axes(handles.graphax);
     
-    prevxlim=get(handles.graphax,'xlim')
-    prevylim=get(handles.graphax,'ylim')
+    prevxlim=get(handles.graphax,'xlim');
+    prevylim=get(handles.graphax,'ylim');
     
     ShowAreaGraph(FileDir);
     %fclose('all');
@@ -782,19 +784,34 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function excludeClickedCallback(h,e,handles,FileDir,times)
+    excludeSelected(handles,FileDir);
+end
+
+%% function excludeSelected(handles,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: exclude selected colony
+%
+% Arguments: FileDir - data directory
+%            handles - gui handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function excludeSelected(handles,FileDir)
     % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
     
-    % Exclude colony
-    FilterBacteria(FileDir,[str2num(colonyNumber)],1);
-    
-    % Color the number so it will sign that it was excluded
-    setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
-    
-    % update area graph
-    initAreaGraph(handles,FileDir,1);
-    handleColonySelection(str2num(colonyNumber),...
-                                      handles.graphax,handles.picax);
+    if ~strcmp(colonyNumber,'none')
+        % Exclude colony
+        FilterBacteria(FileDir,[str2num(colonyNumber)],1);
+
+        % Color the number so it will sign that it was excluded
+        setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
+
+        % update area graph
+        initAreaGraph(handles,FileDir,1);
+        handleColonySelection(str2num(colonyNumber),...
+                                          handles.graphax,handles.picax);
+    end
 end
 
 %% function includeClickedCallback(h,e,handles,FileDir,times)
@@ -808,18 +825,60 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function includeClickedCallback(h,e,handles,FileDir,times)
+    includeSelected(handles,FileDir);
+end
+
+%% function includeSelected(handles,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: include selected colony
+%
+% Arguments: FileDir - data directory
+%            handles - gui handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function includeSelected(handles,FileDir)
     % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
+   
+    if ~strcmp(colonyNumber,'none')
+        % Include colony
+        FilterBacteria(FileDir,[str2num(colonyNumber)],0);
+
+        % Color the number so it will sign that it was'nt excluded
+        setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
+
+        % update area graph
+        initAreaGraph(handles,FileDir,1);
+        handleColonySelection(str2num(colonyNumber),...
+                                          handles.graphax,handles.picax);
+    end
+end
+
+%% function KeyPressFcn(src,e,h,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: The figure's key pressed event handler. Here the keyboard
+% shortcuts are being defined.
+%
+% Arguments: FileDir - data directory
+%            h - gui handles
+%            times - time axis
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function KeyPressFcn(src,e,h,FileDir,times)
+    mod=e.Modifier;
+    key=e.Key;
     
-    % Include colony
-    FilterBacteria(FileDir,[str2num(colonyNumber)],0);
+    % Check for eclude option
+    if ((strcmp(key,'e'))&&(size(mod,1)==1)&&(size(mod,2)==1)&&...
+         strcmp(mod,'control'))
+        excludeSelected(h,FileDir);
+    % Check for include option
+    elseif ((strcmp(key,'i'))&&(size(mod,1)==1)&&(size(mod,2)==1)&&...
+         strcmp(mod,'control'))
+        includeSelected(h,FileDir);
+    end
     
-    % Color the number so it will sign that it was'nt excluded
-    setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
-    
-    % update area graph
-    initAreaGraph(handles,FileDir,1);
-    handleColonySelection(str2num(colonyNumber),...
-                                      handles.graphax,handles.picax);
 end
 
