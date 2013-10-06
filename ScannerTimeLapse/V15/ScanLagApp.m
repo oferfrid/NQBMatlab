@@ -35,6 +35,8 @@ h.graphax = axes('units','pixels',...
 [min, max,times]=getSliderTimeData(FileDir);
 sliderStep = [1, 1]/(max-min);
 
+set(h.fig,'KeyPressFcn',@(src,e)KeyPressFcn(src,e,h,FileDir,times));
+
                 
 h.worktxt = uicontrol('style','text','units','pixels',...
                       'position',[500,600,50,20],'string','working!',...
@@ -77,7 +79,7 @@ initAreaGraph(h,FileDir);
 initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
 
-fclose('all');
+%fclose('all');
 end
 
 %% function buildToolBar(handles,FileDir,times)
@@ -93,9 +95,12 @@ end
 function buildToolBar(handles,FileDir,times,dir)
     set(handles.fig,'toolbar','figure');
     
+    % Remove unwanted icons
+    
     b = findall(handles.fig,'ToolTipString','Edit Plot');
     set(b,'Visible','Off');
     
+    % Add icons to the toolbar
     
     ht = uitoolbar(handles.fig);
     [icon map]=imread(strcat(dir,'\Icons\NumbersIn.png'));
@@ -146,7 +151,7 @@ end
 
 %% function [min, max,times]=getSliderTimeData(FileDir)
 % -------------------------------------------------------------------------
-% Purpose: Build the toolbar for the ScanLagApp 
+% Purpose: Get the time data for the silder when building it 
 %
 % Arguments: FileDir - Directory of time axis
 % Outputs: min - the minimum value for the slider
@@ -162,14 +167,16 @@ function [min, max,times]=getSliderTimeData(FileDir)
      FileNum  = find(times,1,'last');   
      min=1;
      max=FileNum;
-     fclose('all'); 
+     %fclose('all'); 
 end
 
 %% function initPics(handle,FileDir)
 % -------------------------------------------------------------------------
-% Purpose: Build the toolbar for the ScanLagApp 
+% Purpose: show the first plate image (i.e. black picture with empty plate)
 %
-% Arguments: FileDir - Directory of time axis
+% Arguments: startTime - Directory of time axis
+%            handle - the first scan time
+%            FileDir - Directory of the data files
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
@@ -183,7 +190,7 @@ function initPics(startTime,handle,FileDir)
         set(initImg,'Tag','ImageColony0');
     end;
                 
-    fclose('all');
+    %fclose('all');
     
     if (~isempty(h))
         axes(h);
@@ -196,14 +203,24 @@ end
 %
 % Arguments: handles - Dall the ralevant handles
 %            FileDir - the directory of the results
+%            keepScaleFlag - an indication if tosave previous scaling or
+%            not.
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function initAreaGraph(handles,FileDir)
+function initAreaGraph(handles,FileDir,keepScaleFlag)
+
+    if nargin<3
+        keepScaleFlag=0;
+    end
     h=gca;
     axes(handles.graphax);
+    
+    prevxlim=get(handles.graphax,'xlim');
+    prevylim=get(handles.graphax,'ylim');
+    
     ShowAreaGraph(FileDir);
-    fclose('all');
+    %fclose('all');
     
     allLines = findobj(handles.graphax,'Type','line');
     
@@ -213,6 +230,11 @@ function initAreaGraph(handles,FileDir)
                @(objH, eventH)lineSelected(objH, eventH,handles));
 
     end;
+    
+    if (~isempty(prevxlim)&&~isempty(prevylim)&&keepScaleFlag)
+        set(handles.graphax,'xlim',prevxlim,'ylim',prevylim);
+    end
+            
     
     % Go back to current axes
     if (~isempty(h))
@@ -271,7 +293,7 @@ function handleTimeChange(times,FileDir,handles)
     % Get the current state 
     state=getState(handles,times);
     previewOption=state.pic;
-    textFlag=state.numbers;
+    numberingFlag=state.numbers;
     time=state.time;
     
     % Move the time line to the new state
@@ -288,12 +310,12 @@ function handleTimeChange(times,FileDir,handles)
     % delete old numbering
     deleteNumbersText(handles);
   
-    if (textFlag)
+    if (numberingFlag)
         % Print new numbering
         handleNumbersPlot(time,handles,FileDir,selNumStr);
     end
    
-    fclose('all');
+    % fclose('all');
 end
 
 %% function updateAreaGraphCurrLine(time,graphAxes)
@@ -508,7 +530,7 @@ end
 
 %% function handlePlatePlot(handles,time,FileDir,state)
 % -------------------------------------------------------------------------
-% Purpose: Update the plate plotting by current state
+% Purpose: Update the plate plotted by current state
 %
 % Arguments: time - wanted time
 %            FileDir - the file directory
@@ -675,9 +697,9 @@ end
 %% function getState(handles,times)
 % -------------------------------------------------------------------------
 % Purpose: This function build a state data structure representing the
-% wanted state of the system. the state containt the current time, the
-% pictur / analysis preview option and, the BW / Color options for the
-% pcture preview and the hide/show flag of the numbering.
+% wanted state of the system. the state contains the current time, the
+% picture / analysis preview option and, the BW / Color options for the
+% picture preview and the hide/show flag of the numbering.
 %
 % Arguments: times - time axis
 %            handles - the handles of the gui 
@@ -762,19 +784,34 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function excludeClickedCallback(h,e,handles,FileDir,times)
+    excludeSelected(handles,FileDir);
+end
+
+%% function excludeSelected(handles,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: exclude selected colony
+%
+% Arguments: FileDir - data directory
+%            handles - gui handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function excludeSelected(handles,FileDir)
     % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
     
-    % Exclude colony
-    FilterBacteria(FileDir,[str2num(colonyNumber)],1);
-    
-    % Color the number so it will sign that it was excluded
-    setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
-    
-    % update area graph
-    initAreaGraph(handles,FileDir);
-    handleColonySelection(str2num(colonyNumber),...
-                                      handles.graphax,handles.picax);
+    if ~strcmp(colonyNumber,'none')
+        % Exclude colony
+        FilterBacteria(FileDir,[str2num(colonyNumber)],1);
+
+        % Color the number so it will sign that it was excluded
+        setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
+
+        % update area graph
+        initAreaGraph(handles,FileDir,1);
+        handleColonySelection(str2num(colonyNumber),...
+                                          handles.graphax,handles.picax);
+    end
 end
 
 %% function includeClickedCallback(h,e,handles,FileDir,times)
@@ -788,18 +825,60 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function includeClickedCallback(h,e,handles,FileDir,times)
+    includeSelected(handles,FileDir);
+end
+
+%% function includeSelected(handles,FileDir)
+% -------------------------------------------------------------------------
+% Purpose: include selected colony
+%
+% Arguments: FileDir - data directory
+%            handles - gui handles
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function includeSelected(handles,FileDir)
     % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
+   
+    if ~strcmp(colonyNumber,'none')
+        % Include colony
+        FilterBacteria(FileDir,[str2num(colonyNumber)],0);
+
+        % Color the number so it will sign that it was'nt excluded
+        setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
+
+        % update area graph
+        initAreaGraph(handles,FileDir,1);
+        handleColonySelection(str2num(colonyNumber),...
+                                          handles.graphax,handles.picax);
+    end
+end
+
+%% function KeyPressFcn(src,e,h,FileDir,times)
+% -------------------------------------------------------------------------
+% Purpose: The figure's key pressed event handler. Here the keyboard
+% shortcuts are being defined.
+%
+% Arguments: FileDir - data directory
+%            h - gui handles
+%            times - time axis
+% -------------------------------------------------------------------------
+% Nir Dick Sept. 2013
+% -------------------------------------------------------------------------
+function KeyPressFcn(src,e,h,FileDir,times)
+    mod=e.Modifier;
+    key=e.Key;
     
-    % Include colony
-    FilterBacteria(FileDir,[str2num(colonyNumber)],0);
+    % Check for eclude option
+    if ((strcmp(key,'e'))&&(size(mod,1)==1)&&(size(mod,2)==1)&&...
+         strcmp(mod,'control'))
+        excludeSelected(h,FileDir);
+    % Check for include option
+    elseif ((strcmp(key,'i'))&&(size(mod,1)==1)&&(size(mod,2)==1)&&...
+         strcmp(mod,'control'))
+        includeSelected(h,FileDir);
+    end
     
-    % Color the number so it will sign that it was'nt excluded
-    setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
-    
-    % update area graph
-    initAreaGraph(handles,FileDir);
-    handleColonySelection(str2num(colonyNumber),...
-                                      handles.graphax,handles.picax);
 end
 
