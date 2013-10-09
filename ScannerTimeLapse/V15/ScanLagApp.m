@@ -8,6 +8,11 @@ function ScanLagApp(FileDir)
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 
+global state;
+state.bw=0;
+state.numbers=1;
+state.pic=1;
+
 % Close previous opened screen
 close(findobj('name', 'ScanLagAPP'));
 
@@ -33,6 +38,7 @@ h.graphax = axes('units','pixels',...
                  'nextplot','add','Tag','GRAPHAX');
              
 [min, max,times]=getSliderTimeData(FileDir);
+state.time=times(max);
 sliderStep = [1, 1]/(max-min);
 
 set(h.fig,'KeyPressFcn',@(src,e)KeyPressFcn(src,e,h,FileDir,times));
@@ -79,7 +85,6 @@ initAreaGraph(h,FileDir);
 initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
 
-%fclose('all');
 end
 
 %% function buildToolBar(handles,FileDir,times)
@@ -105,7 +110,7 @@ function buildToolBar(handles,FileDir,times,dir)
     ht = uitoolbar(handles.fig);
     [icon map]=imread(strcat(dir,'\Icons\NumbersIn.png'));
     numbersh = uipushtool('Parent',ht,'CData',icon,'Tag','NumbersIn',...
-                          'UserData',1,'Separator','on');
+                          'Separator','on');
     
     [icon map]=imread(strcat(dir,'\Icons\Analysis.png'));
     analysish = uipushtool('Parent',ht,'CData',icon,'Tag','PreviewMenuA',...
@@ -116,8 +121,7 @@ function buildToolBar(handles,FileDir,times,dir)
                      'TooltipString','Show picture mode');
                  
     [icon map]=imread(strcat(dir,'\Icons\BW.png'));
-    colorh = uipushtool('Parent',ht,'CData',icon,'Tag','ColorMenu',...
-                        'UserData',1);
+    colorh = uipushtool('Parent',ht,'CData',icon,'Tag','ColorMenu');
                  
     set(analysish,'ClickedCallback',...
                    @(h,e)analysisClickedCallback(h,e,pictureh,...
@@ -167,7 +171,6 @@ function [min, max,times]=getSliderTimeData(FileDir)
      FileNum  = find(times,1,'last');   
      min=1;
      max=FileNum;
-     %fclose('all'); 
 end
 
 %% function initPics(handle,FileDir)
@@ -189,8 +192,6 @@ function initPics(startTime,handle,FileDir)
     if (~isempty(initImg))
         set(initImg,'Tag','ImageColony0');
     end;
-                
-    %fclose('all');
     
     if (~isempty(h))
         axes(h);
@@ -220,7 +221,6 @@ function initAreaGraph(handles,FileDir,keepScaleFlag)
     prevylim=get(handles.graphax,'ylim');
     
     ShowAreaGraph(FileDir);
-    %fclose('all');
     
     allLines = findobj(handles.graphax,'Type','line');
     
@@ -254,7 +254,13 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function sliderChange(ObjH, EventData, times,FileDir,handles) 
+    global state;
     set(handles.worktxt,'Visible','on');
+    
+    % update state's time
+    val =round(get(ObjH,'Value'));
+    state.time=times(val);
+    
     % handle the time change
     handleTimeChange(times,FileDir,handles);
     drawnow;
@@ -272,7 +278,13 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function sliderCallBack(ObjH, EventData, times,FileDir,handles)
+    global state;
     set(handles.worktxt,'Visible','on');
+    
+    % update state's time
+    val =round(get(ObjH,'Value'));
+    state.time=times(val);
+    
     handleTimeChange(times,FileDir,handles);
     set(handles.worktxt,'Visible','off');
 end
@@ -315,7 +327,7 @@ function handleTimeChange(times,FileDir,handles)
         handleNumbersPlot(time,handles,FileDir,selNumStr);
     end
    
-    % fclose('all');
+     fclose('all');
 end
 
 %% function updateAreaGraphCurrLine(time,graphAxes)
@@ -604,8 +616,8 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function analysisClickedCallback(h,e,oldH,handles,FileDir,times)
-    set(h,'UserData',1);
-    set(oldH,'UserData',0);
+    global state;
+    state.pic=0;
     updatePlotPlate(times,FileDir,handles);
     colorH=findobj('Tag','ColorMenu');
     
@@ -625,9 +637,8 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function pictureClickedCallback(h,e,oldH,handles,FileDir,times)
-    set(h,'UserData',1);
-    set(oldH,'UserData',0);
-    state=getState(handles,times);
+    global state;
+    state.pic=1;
     updatePlotPlate(times,FileDir,handles);
     colorH=findobj('Tag','ColorMenu');
     set(colorH,'Enable','on');
@@ -644,23 +655,21 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function numbersClickedCallback(h,e,handles,FileDir,times)
+    global state;
     set(handles.worktxt,'Visible','on');
     
     % change the wanted state
-    numbersUD=1-get(h,'UserData');
+    state.numbers=1-state.numbers;
     
     % Sow numbwes option
-    if (numbersUD)
+    if (state.numbers)
         selNumStr=getSelectedColonyByLine(handles.graphax);
         axes(handles.picax);
-        state=getState(handles,times);
         handleNumbersPlot(state.time,handles,FileDir,selNumStr);
     % Hide numbers option
     else
         deleteNumbersText(handles);
     end
-    
-    set(h,'UserData',numbersUD);
 
     set(handles.worktxt,'Visible','off');    
 end
@@ -677,17 +686,18 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function colorClickedCallback(h,e,handles,FileDir,times,iconsdir)
+    global state;
     set(handles.worktxt,'Visible','on');
-    colorUD=1-get(h,'UserData');
+    
+    state.bw=1-state.bw;
     
     % switch between icons
-    if (colorUD)
+    if (state.bw)
        [icon map]=imread(strcat(iconsdir,'\Icons\BW.png'));
     else
        [icon map]=imread(strcat(iconsdir,'\Icons\Color.png'));
     end
     set(h,'CDATA',icon);
-    set(h,'UserData',colorUD);
     
     % Update picture
     updatePlotPlate(times,FileDir,handles);
@@ -708,28 +718,9 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function [state]=getState(handles,times) 
-    % preview mode (picture/analysis)
-    prevmode=findobj(handles.fig,'-regexp','Tag','PreviewMenu.+',...
-                                                            'UserData',1);
-    prevModeStr=get(prevmode,'Tag');
-    if (strcmp(prevModeStr,'PreviewMenuA'))
-        state.pic=0;
-    else
-        state.pic=1;
-    end
-    
-    % show numbers?
-    numbersFlag=findobj(handles.fig,'Tag','NumbersIn');
-    state.numbers=get(numbersFlag,'UserData');
-    
-    % BW /Color
-    numbersFlag=findobj(handles.fig,'Tag','ColorMenu');
-    state.bw=1-get(numbersFlag,'UserData');
-    
-    % time
-    val =round(get(handles.sl,'Value'));
-    state.time=times(val);
+function [state1]=getState(handles,times)
+    global state;
+    state1=state;
 end
 
 %% function search(objH,e,handles)
