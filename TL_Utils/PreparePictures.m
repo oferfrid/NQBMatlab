@@ -1,16 +1,17 @@
 function PreparePictures(DestDirName, board, plateVec,...
-                                                   SourceDirName,startTime)
+                                        SourceDirName,logDir,startTime)
 % PreparePictures( DestDirName, board, plateVec, SourceDirName )
 % -------------------------------------------------------------------------
 % Purpose: makes all the necessary preparations for TimeLapse to work
 % Description: Alignes the pictures, finds the plates and cuts the picture.
+%              If no previous time axis exists the whole new time axis 
+%              will be processed.
 % Arguments: DestDirName - directory full name
 %       plateVec - plates to cut
 %       board - The board used for the scan
 %       SourceDirName (optional) - source files dir
-%       continueExp(optional) - Indicate whatever we continue with the experiment
-%       such that previous pictures will not be deleted.
-%       1 - yes (default), 0 - no
+%       logDir - the directory of the log file. default - empty string
+%       startTime - a lower bound for the time axis. default - empty string
 % Output files: DestDirName/circlesVec.mat
 %       DestDirName/motions.mat
 %       DestDirName/TimeAxis.mat
@@ -41,20 +42,30 @@ end
 
 if nargin <= 4
     startTime='';
+    logDir='';
+elseif (nargin==5)
+    startTime='';
 end
 
 ConfigurationFile;
 
 %% time axis
-% Nir - Moving time axis to the begining and loading prev time axis
-% and find the time from it to work
+% Calculate the range of pictures process.
+% If no previous expirement exists (i.e. no time axis), start the
+% processing from the begining of the experiment.
+% If previous time axis exists but its last time is later then current time
+% axis late time, start processing from the begining of the experiment.
+% If previous time axis exists and its last time is before current
+% experiment last time, process images between previous last time to
+% current last time.
+
 prevTimeAxisExists = dir(fullfile(DestDirName,'TimeAxis.mat'));
 
 if (~isempty(prevTimeAxisExists))
     prevTimeAxis=load(fullfile(DestDirName,'TimeAxis'),'TimeAxis');
     prevSize=size(prevTimeAxis.TimeAxis,2);
     
-    TimeAxis = makeTimeAxis(SourceDirName,startTime);
+    TimeAxis = makeTimeAxis(SourceDirName,startTime,logDir);
     save(fullfile(DestDirName,'TimeAxis'),'TimeAxis');    
     currSize=size(TimeAxis,2);
     
@@ -66,7 +77,7 @@ if (~isempty(prevTimeAxisExists))
         cutStartInd=1;
     end
 else
-    TimeAxis = makeTimeAxis(SourceDirName,startTime);
+    TimeAxis = makeTimeAxis(SourceDirName,startTime,logDir);
     save(fullfile(DestDirName,'TimeAxis'),'TimeAxis');
     prevLastInd=1;
     cutStartInd=1;
