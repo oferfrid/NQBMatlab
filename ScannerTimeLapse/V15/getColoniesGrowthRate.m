@@ -1,4 +1,6 @@
-function [ColoniesGrowth, ColoniesIndices] = getColoniesGrowthRate(FileDir, lb, ub)
+function [ColoniesIndices,ColoniesGrowth,AreaGap,...
+                              NotBigEnough,RemovedMerged]=...
+                                    getColoniesGrowthRate(FileDir, lb, ub)
 %% ColonisGrowth = getColoniesGrowthRate(FileDir)
 % -------------------------------------------------------------------------
 % Purpose: This function calculates the growth rate of each colony
@@ -12,29 +14,68 @@ function [ColoniesGrowth, ColoniesIndices] = getColoniesGrowthRate(FileDir, lb, 
 %
 % Returns: ColoniesGrowth - vector of the times it take for each colony to
 %       reach from lb size to ub size.
-%       ColoniesIndices - Colony's index respectivly
+%       indicesBeforeMerged - Colony's index respectivly
 % -------------------------------------------------------------------------
-% Irit Levin. 11.2009
+% Nir Dick. 9.2013
 
-%% Loading data and initializations
-DirName = fullfile(FileDir, 'Results');
-load(fullfile(DirName,'VecArea'));
-load(fullfile(DirName,'TimeAxis'));
-load(fullfile(DirName,'CircParams'));
-load(fullfile(DirName,'VecCen'));
-load(fullfile(DirName,'ExcludedBacteria.txt'));
+    %% Loading data and initializations
+    DirName = fullfile(FileDir, 'Results');
+    load(fullfile(DirName,'VecArea'));
+    load(fullfile(DirName,'ExcludedBacteria.txt'));
+    load(fullfile(DirName,'TimeAxis'));
 
-%% excluding bacteria
-VecArea(ExcludedBacteria,:)   = 0;
+    allColonies = FindColoniesInWorkingArea(FileDir);
+    
+    % Return an array of not big enough colonies
+    NotBigEnough=find(VecArea(:,end)<ub);
+    NotBigEnough=intersect(NotBigEnough,allColonies);
+    
+    % Remove excluded and not big enough
+    indicesBeforeMerged=setdiff(allColonies,ExcludedBacteria);
+    indicesBeforeMerged=setdiff(indicesBeforeMerged,NotBigEnough);
+    
+    %% Remove colonies that merged between lb to ub and for the rest 
+    % calculate rate
+    RemovedMerged=[];
+    ColoniesGrowth=[];
+    ColoniesIndices=[];
+    AreaGap=[];
+    allMerged=getMergedColonies(DirName);
+    CINum=length(indicesBeforeMerged);
+    for j=1:CINum
+        currCol=indicesBeforeMerged(j);
+        mergeTimeIdx=allMerged(currCol);
+        
+        removeMerged=0;
+        
+        % Check if current colony merged while growing from lb to ub
+        if mergeTimeIdx>0  
+            % Doesn't make sense, but stil....
+            if (mergeTimeIdx==1)
+                removeMerged=1;
+            else
+                % Get area of current colony before merging time
+                currArea=VecArea(currCol,mergeTimeIdx-1);
+                if currArea<ub
+                    removeMerged=1;
+                end
+            end
+            
+        end
+        
+        % Add current colony to the removed colonies for merging reasons
+        if (removeMerged)
+            RemovedMerged=[RemovedMerged;currCol];
+        % Add current colony to the result arrays
+        else
+            lbIndex = find(VecArea(currCol,:)>=lb,1,'first');
+            ubIndex = find(VecArea(currCol,:)>=ub,1,'first');
+            ColoniesIndices=[ColoniesIndices;currCol];
+            ColoniesGrowth=...
+                [ColoniesGrowth;TimeAxis(ubIndex)-TimeAxis(lbIndex)];
+            AreaGap=...
+               [AreaGap;VecArea(currCol,ubIndex)-VecArea(currCol,lbIndex)];
+        end
+    end
 
-NotCloseToBorder = FindColoniesInWorkingArea(FileDir);
-bigEnoughColony = find(VecArea(:,end)>=ub);
-ColoniesIndices = intersect(NotCloseToBorder, bigEnoughColony);
-
-%% Claculating the growth rate
-ColoniesGrowth = zeros(length(ColoniesIndices),1);
-for k=1:length(ColoniesIndices)
-    lbIndex = find(VecArea(ColoniesIndices(k),:)>=lb,1,'first');
-    ubIndex = find(VecArea(ColoniesIndices(k),:)>=ub,1,'first');
-    ColoniesGrowth(k) = TimeAxis(ubIndex)-TimeAxis(lbIndex);
 end
