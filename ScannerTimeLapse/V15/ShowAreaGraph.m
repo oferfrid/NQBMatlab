@@ -1,5 +1,5 @@
 % Nir - changed
-function ShowAreaGraph(FileDir, XScaleHr)
+function ShowAreaGraph(FileDir, XScaleHr,handle)
 %% ShowAreaGraph(FileDir)
 % -------------------------------------------------------------------------
 % Purpose: displaying the Area Vs Time graph
@@ -15,6 +15,10 @@ function ShowAreaGraph(FileDir, XScaleHr)
 %% arguments
 if nargin<2
     XScaleHr = 0;
+end
+
+if (nargin<3)
+    handle=gca;
 end
 
 %% loading the data
@@ -57,7 +61,7 @@ end
 
 for k=1:NColonies
     % Nir - added tag
-    plot(TimeAxis/scl ,VecArea(k,:),...
+    plot(handle,TimeAxis/scl ,VecArea(k,:),...
         'Color' ,ordColour(k,:), 'Marker' ,char(mark(k)), ...
         'MarkerSize', 2, 'MarkerEdgeColor', MarkerFC(k),...
         'XdataSource','TimeAxis','YdataSource',...
@@ -65,8 +69,8 @@ for k=1:NColonies
     hold on;
 end
 
-title(['The area of each colony as a function of the time - ',...
+title(handle,['The area of each colony as a function of the time - ',...
        getDescription(FileDir)]);
-xlabel(['Time ' sclUnits]);
-ylabel('Area (pixels)');
+xlabel(handle,['Time ' sclUnits]);
+ylabel(handle,'Area (pixels)');
 hold off;
