@@ -1,15 +1,32 @@
 function setMaskApp(DirName)
-    handles=createGUI(DirName);
+    global state;
     
-    if exist(fullfile(DirName,'Results','mask.mask'),'file')
-    else
-        loadCircleState(handles,DirName);
+    resultsDir=fullfile(DirName,'Results');
+    if ~exist(resultsDir,'dir')
+        mkdir(resultsDir);
     end
     
-
+    handles=createGUI(DirName);
+    fullMaskName=fullfile(DirName,'Results','mask.mat');
+    
+    if exist(fullMaskName,'file')
+        state.mask_opt=1;
+        finalMask = load(fullMaskName);
+        state.mask=finalMask.mask;  
+        showMaskedImage(handles.picax,state.mask)
+        enableAreaMaskButtons(handles);
+    else
+        state.mask_opt=0;
+        loadCircleState(handles,DirName);
+        disableAreaMaskButtons(handles);
+    end
 end
 
 function [handles]=createGUI(DirName)
+
+    global state;
+
+     ProcessPictures(DirName,1);
     
     [cdir cname ctype]=fileparts(mfilename('fullpath'));
     
@@ -18,7 +35,7 @@ function [handles]=createGUI(DirName)
 
     % figure
     handles.fig=figure('units','pixels',...
-                 'position',[50 50 750 750],...
+                 'position',[50 50 600 600],...
                  'name','SetMaskApp',...
                  'resize','off');
              
@@ -43,28 +60,33 @@ function [handles]=createGUI(DirName)
     [icon map]=imread(strcat(cdir,'\Icons\ExcludeArea.png'));
     ExAreaButton = uipushtool('Parent',ht,'CData',icon,...
                                   'Enable','off','Tag','ControlMaskExclude');
-    
+                              
     figcolor=get(handles.fig,'color');  
     
     imgLength=length(colonyImage);
     
     % axes
     handles.picax = axes('units','pixels',...
-                   'position',[0 0 750 750],...
+                   'position',[0 0 600 600],...
                    'fontsize',8,...
                    'nextplot','add','Tag','PICAX',...
                    'xlim',[0 imgLength],'ylim',[0 imgLength]);
                
     CImage = imread(fullfile(DirName,'Pictures',imagesNames(end,1).name));
-    Image =  rgb2gray(CImage(:, :, 1:3));
-    BGImage =  rgb2gray(colonyImage(:, :, 1:3));
-    ClearImage  = imsubtract(Image ,BGImage);
     axes(handles.picax);
+    %set(imageH,'visible','off');
+    
+    LRGB_Dir = fullfile(DirName,'LRGB');
+    dirOutput = dir(fullfile(LRGB_Dir,'*.mat'));
+    FileVec   = {dirOutput.name}';
+    image=load(fullfile(LRGB_Dir,char(FileVec(end))));
+    state.lrgb=image.L;
+    tmp=edge(double(state.lrgb),'canny');
+    CImage(find(tmp~=0))=255;
     imageH=imshow(CImage,[]);
     set(imageH,'Tag','Image0');
-    imageH=imshow(CImage,[]);
-    set(imageH,'Tag','Image');
-               
+     
+     
    set(maskAreaButton,'ClickedCallback',...
                   @(objH,eventH)handleMaskAreaButton(...
                                           objH,eventH,handles,CImage));
@@ -73,15 +95,14 @@ function [handles]=createGUI(DirName)
                                       objH,eventH,handles,CImage,DirName));
                                       
    set(InAreaButton,'ClickedCallback',...
-               @(objH,eventH)handleAddPolygon(objH,eventH,handles,CImage));
+               @(objH,eventH)handleAddPolygon(objH,eventH,handles));
               
    set(ExAreaButton,'ClickedCallback',...
-            @(objH,eventH)handleRemovePolygon(objH,eventH,handles,CImage));
+            @(objH,eventH)handleRemovePolygon(objH,eventH,handles));
 end
 
 function loadCircleState(handles,DirName)
     global state;
-    state.mask_opt=0;
     axes(handles.picax);
     
     CircFile  = dir(fullfile(DirName,'Results','CircParams.mat'));
@@ -104,10 +125,10 @@ function handleMaskAreaButton(objH,eventH,handles,ClearImage)
 
     if (state.mask_opt~=1)
         state.mask_opt=1;    
-        currImageH=findobj(handles.picax,'Tag','Image');
+        currImageH=findobj(handles.picax,'Tag','Image0');
         state.mask=state.circ.createMask(currImageH);        
         enableAreaMaskButtons(handles);
-        showMaskedImage(handles.picax,ClearImage,state.mask);
+        showMaskedImage(handles.picax,state.mask);
     end
 end
 
@@ -145,55 +166,51 @@ function disableAreaMaskButtons(handles)
     set(h,'Enable','off');
 end
 
-function showMaskedImage(picaxes,rawImage,finalMask)
-    onesMask=ones(size(finalMask));
-    tmp=(onesMask-finalMask).*0.7+finalMask;
-    rgbImage = cat(3, tmp, tmp, tmp);
-     
-    prevImage=findobj(picaxes,'Tag','Image');
-    
+function showMaskedImage(picaxes,mask)
     axes(picaxes);
-    
-    imageH=imshow(im2double(rawImage).*rgbImage);
-    set(imageH,'Tag','Image');
-    
-    if ~isempty(prevImage)
-        delete(prevImage);
+    image=getimage(findobj(picaxes,'Tag','Image0'));
+    currImageH=findobj(picaxes,'Tag','Image');
+    if ~isempty(currImageH)
+        delete(currImageH);
     end
-    
+    image(:,:,1)=double(image(:,:,1))+50*double(mask);
+    image(:,:,2)=double(image(:,:,2))+50*double(mask);
+    image(:,:,3)=double(image(:,:,3))+50*double(mask);
+    h=imshow(image);
+    set(h,'Tag','Image');
 end
 
-function handleAddPolygon(objH,eventH,handles,rawImage)
-    addPolygon(handles,rawImage);
+function handleAddPolygon(objH,eventH,handles)
+    addPolygon(handles);
 end
 
-function addPolygon(handles,rawImage)
+function addPolygon(handles)
     global state;
     onesMask=ones(size(state.mask));
-    currImageH=findobj(handles.picax,'Tag','Image');
+    currImageH=findobj(handles.picax,'Tag','Image0');
     poly=impoly(handles.picax);
     
     if ~isempty(poly)
         currMask=poly.createMask(currImageH);
         state.mask = (onesMask-currMask).*state.mask+currMask;
-        showMaskedImage(handles.picax,rawImage,state.mask);
+        showMaskedImage(handles.picax,state.mask);
     end
 end
 
-function handleRemovePolygon(objH,eventH,handles,rawImage)
-    removePolygon(handles,rawImage);
+function handleRemovePolygon(objH,eventH,handles)
+    removePolygon(handles);
 end
 
-function removePolygon(handles,rawImage)
+function removePolygon(handles)
     global state;
     onesMask=ones(size(state.mask));
-    currImageH=findobj(handles.picax,'Tag','Image');
+    currImageH=findobj(handles.picax,'Tag','Image0');
     poly=impoly(handles.picax);
     
     if ~isempty(poly)
         currMask=poly.createMask(currImageH);
         state.mask = (onesMask-currMask).*state.mask+zeros(size(currMask));
-        showMaskedImage(handles.picax,rawImage,state.mask);
+        showMaskedImage(handles.picax,state.mask);
     end
 end
 
@@ -204,9 +221,22 @@ function saveMask(objectH,eventH,DirName)
         r=position(1,4)/2;
         x=position(1,1)+r;
         y=position(1,2)+r;
-        save(fullfile(DirName,'Results','CircParams'),'x','y','r');  
+        save(fullfile(DirName,'Results','CircParams'),'x','y','r');
+        
+        % if mask exists save it as prev mask
+        fullMaskName=fullfile(DirName,'Results','mask.mat');
+        if exist(fullMaskName,'file')
+            fullPrevName=fullfile(DirName,'Results','prevmask.mat');
+            delete(fullPrevName);
+            movefile(fullMaskName,fullPrevName);
+        end
     else
+        mask=state.mask;
+        save(fullfile(DirName,'Results','mask'),'mask');
     end
 end
 
+function [image]=getImage(axes)
+    image=getimage(findobj(axes,'Tag','Image0'));
+end
 

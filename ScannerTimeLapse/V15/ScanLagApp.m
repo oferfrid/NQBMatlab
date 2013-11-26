@@ -109,8 +109,7 @@ function buildToolBar(handles,FileDir,times,dir)
     
     ht = uitoolbar(handles.fig);
     [icon map]=imread(strcat(dir,'\Icons\NumbersIn.png'));
-    numbersh = uipushtool('Parent',ht,'CData',icon,'Tag','NumbersIn',...
-                          'Separator','on');
+    numbersh = uipushtool('Parent',ht,'CData',icon,'Tag','NumbersIn');
     
     [icon map]=imread(strcat(dir,'\Icons\Analysis.png'));
     analysish = uipushtool('Parent',ht,'CData',icon,'Tag','PreviewMenuA',...
@@ -210,7 +209,7 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function initAreaGraph(handles,FileDir,keepScaleFlag)
-
+    global state;
     if nargin<3
         keepScaleFlag=0;
     end
@@ -220,7 +219,7 @@ function initAreaGraph(handles,FileDir,keepScaleFlag)
     prevxlim=get(handles.graphax,'xlim');
     prevylim=get(handles.graphax,'ylim');
     
-    ShowAreaGraph(FileDir);
+    ShowAreaGraph(FileDir,0,gca);
     
     allLines = findobj(handles.graphax,'Type','line');
     
