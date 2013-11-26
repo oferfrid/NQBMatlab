@@ -117,6 +117,7 @@ function loadCircleState(handles,DirName)
     end
     
     state.circ = imellipse(gca, [x-r y-r 2*r 2*r]);
+    set(state.circ,'Tag',DirName);
     setFixedAspectRatioMode(state.circ, 1)
 end
 
