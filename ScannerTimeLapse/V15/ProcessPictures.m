@@ -1,4 +1,4 @@
-function ProcessPictures(DirName)
+function ProcessPictures(DirName,lastPicFlag)
 %%
 % ProcessPictures(DirName)
 %--------------------------------------------------------------------------
@@ -9,6 +9,8 @@ function ProcessPictures(DirName)
 %       which is the result of 'connected components' algorithm
 %
 % Arguments: DirName - a full directory name
+%            lastPicFlag - signing if we want to run this procces only for
+%            the last picture. 0 (default) - no, otherwise - yes.
 %
 % Output: L%_00000.mat - connected components files under the directory
 %       DirName\LRGB
@@ -16,6 +18,11 @@ function ProcessPictures(DirName)
 %       for the movie under DirName\tmpCleanImg
 %--------------------------------------------------------------------------
 % Irit Levin, 01.2008
+% Nir Dick - using a mask if exists instead of the circle
+
+if nargin<2
+    lastPicFlag=0;
+end
 
 %% constatnts
 r = 440;    % the relevant radius in the plate in pixels
@@ -49,21 +56,36 @@ clnImg_Dir = fullfile(DirName,'tmpCleanImg');
 
 %% looking at the relevant area in the plate
 % creating an indices matrix, and a distance from the centre matrix
-FullFileName = fullfile(picDir, char(FileVec(1)));
-I = rgb2gray(double(imread(FullFileName))/255);
-load(fullfile(DirName,'Results', 'CircParams'));
-[rows, cols]  = size(I);
-indMat(:,:,1) = repmat([1:rows]', 1, cols);
-indMat(:,:,2) = repmat([1:cols] , rows ,1);
-dist = sqrt((indMat(:,:,2)-x(1)).^2+(indMat(:,:,1)-y(1)).^2);
-relevantArea = dist<=r;
+    FullFileName = fullfile(picDir, char(FileVec(1)));
+    I = rgb2gray(double(imread(FullFileName))/255);
+    [rows, cols]  = size(I);
+if lastPicFlag
+    relevantArea=ones(rows,cols);
+else
+    fullMaskName=fullfile(DirName,'Results','mask.mat');
+    
+    if exist(fullMaskName,'file')
+        relevantArea = load(fullMaskName);
+        relevantArea = relevantArea.mask;
+    % Working with a circled area
+    else
+        load(fullfile(DirName,'Results', 'CircParams'));
+        indMat(:,:,1) = repmat([1:rows]', 1, cols);
+        indMat(:,:,2) = repmat([1:cols] , rows ,1);
+        dist = sqrt((indMat(:,:,2)-x(1)).^2+(indMat(:,:,1)-y(1)).^2);
+        relevantArea = dist<=r;
+    end
+end
 
 %% initialize a progress bar
 progress_bar = waitbar(0);
 
 %% cleaning all frames
+bg = imread(FullFileName); %%% 19.1.
+if lastPicFlag
+    FileVec=FileVec(end);
+end
 NumOfFiles = size(FileVec,1);
-bg = imread(FullFileName); %%% 19.1.09
 
 for k=1:NumOfFiles
     %% reading the next file in the list

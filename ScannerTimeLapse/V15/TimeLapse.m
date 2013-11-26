@@ -32,6 +32,8 @@ function TimeLapse(DirName, Description)
 %   2) seperating the processing of the pictures and the matching of the
 %      colonies in time, into 2 functions.
 % -----------------------------------------------------------------------
+% Nir Dick - Remove area graph since we have the scanLagApp
+% -----------------------------------------------------------------------
 
 %% constatnts
 ConfigurationFile;
@@ -94,9 +96,6 @@ FindColoniesInTime(DirName);
 % disp('-----------------------------------------------------------------');
 % disp('MAKING MOVIE');
 % makePlateMovie(DirName);
-
-%% Ploting the growth of the colonies
-ShowAreaGraph(DirName);
 
 writeLog(logFile, '');
 fclose('all');
