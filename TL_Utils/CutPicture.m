@@ -27,7 +27,7 @@ disp([datestr(now)   '   Cutting Pictures']);
 % Cen is the array of the centers of the plates
 CEN(:,1) = circleVec(:,1);
 CEN(:,2) = circleVec(:,2);
-PicSize = 1050;         % each picture is 1050 pixels
+PicSize = 2200;         % each picture is 1050 pixels
 
 %% Getting the file list and their dates
 dirOutput = dir(fullfile(OrgFolder, '*.tif'));

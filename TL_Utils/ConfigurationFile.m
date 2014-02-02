@@ -1,4 +1,3 @@
-addpath 'C:\Users\sivan-nqb\Desktop\nir\NQBMatlab-SubstructBG\TL_Utils'
-addpath 'C:\Users\sivan-nqb\Desktop\nir\NQBMatlab-SubstructBG\TL_Utils\motion'
+addpath 'C:\Users\sivan-nqb\Desktop\NQBmatlab\TL_Utils\motion'
 
 

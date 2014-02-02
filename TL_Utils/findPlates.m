@@ -122,7 +122,7 @@ for i=1:6
     msg = sprintf('finding plate %d/6', i);
     waitbar((i-1)/6, progressBar , msg);
     
-    [res maxRs]=findCirc(RRange,XsRange(i,:),YsRange(i,:),Img,0.2,1);
+    [res maxRs]=findCirc(RRange,XsRange(i,:),YsRange(i,:),Img,0.2,5);
     
     circlesVec(i,:) = [res(1,1), res(1,2), res(1,3)];
       circle([circlesVec(i,1),circlesVec(i,2)],circlesVec(i,3) ,500,'r-');%
