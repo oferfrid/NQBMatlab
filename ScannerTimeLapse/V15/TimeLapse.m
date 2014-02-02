@@ -38,8 +38,8 @@ function TimeLapse(DirName, Description)
 %% constatnts
 ConfigurationFile;
 VER = 1.5;  % version
-r = 436;    % the relevant radius in the plate in pixels
-x = 526; y=526;
+r = 870;    % the relevant radius in the plate in pixels
+x = 1100; y=1100;
 
 %% getting the list of the files
 if nargin == 1

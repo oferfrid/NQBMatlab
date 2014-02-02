@@ -25,8 +25,8 @@ if nargin<2
 end
 
 %% constatnts
-r = 440;    % the relevant radius in the plate in pixels
-x = 526; y=526;
+r = 870;    % the relevant radius in the plate in pixels
+x = 1100; y=1100;
 Min_Thresh = 0.15;       % minimal threshold for bw picture
 TH = 8/255;
 

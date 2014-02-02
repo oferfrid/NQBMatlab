@@ -68,10 +68,12 @@ for k=2:NumOfFiles
     Colony1st   = zeros(size(VecCen,1),1);
     PrevCM      = zeros(size(VecCen,1),2);
     for g = 1:size(ColonyExist,1)
-        Colony1st(ColonyExist(g)) = ...
-            find(VecBBox(ColonyExist(g),1,:),1,'first');
-        PrevCM(ColonyExist(g),:) = ...
-            VecCen(ColonyExist(g),:,Colony1st(ColonyExist(g)));
+%         Colony1st(ColonyExist(g)) = ...
+%             find(VecBBox(ColonyExist(g),1,:),1,'first');
+%         PrevCM(ColonyExist(g),:) = ...
+%             VecCen(ColonyExist(g),:,Colony1st(ColonyExist(g)));
+          PrevCM(ColonyExist(g),:) = ...
+              VecCen(ColonyExist(g),:,k-1);
     end
     coupling = MatchColonies(L, Areas, PrevCM);
     ordArea = couple(Areas, coupling);

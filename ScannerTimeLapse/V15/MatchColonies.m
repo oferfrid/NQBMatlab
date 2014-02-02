@@ -18,8 +18,8 @@ function coupling = MatchColonies(L, Areas, PrevCM)
 % Irit Levin. September 2006.
 
 % Constants
-Min_Area       = 10;        % minimal area for thr colony to be added
-
+Min_Area       = 40;        % minimal area for thr colony to be added
+circthresh = 0.6;
 % Initializations
 PrevNColonies = size(PrevCM,1);
 NComponents = max(L(:));                
@@ -39,7 +39,13 @@ end
 
 % adding the new colonies that are bigger then the minimal threshold
 NewColony = find(OldColony == 0);
+stat  = regionprops(L, 'eccentricity');
+EccentricityVec = [stat.Eccentricity];
+circularCol=EccentricityVec<circthresh;
+
 if ~isempty(NewColony)
     NewBigCol = NewColony(Areas(NewColony) >= Min_Area);
-    coupling  = [coupling; NewBigCol];
+    NewCirc = NewColony(circularCol(NewColony));
+    NewCol=intersect(NewBigCol,NewCirc);    
+    coupling  = [coupling; NewCol];
 end
