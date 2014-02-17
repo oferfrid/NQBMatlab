@@ -34,7 +34,7 @@ if exist(fullMaskName,'file')
     [localR,localC]=meshgrid(1:2*NearBorder+1,1:2*NearBorder+1);
     local=(localR-NearBorder-1).^2+(localC-NearBorder-1).^2<=...
                                                    (NearBorder*NearBorder);
-    maxVal=sum(sum(local))
+    maxVal=sum(sum(local));
     
     load(fullMaskName);
     conved=conv2(double(mask),double(local),'same');
