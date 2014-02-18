@@ -39,9 +39,6 @@ function [handles]=createGUI(DirName)
                  'name','SetMaskApp',...
                  'resize','off');
              
-    b = findall(handles.fig,'ToolTipString','Save Figure');
-    set(b,'ClickedCallback',@(objectH,eventH)saveMask(objectH,eventH,DirName));
-             
     % toolbar
     set(handles.fig,'toolbar','figure');
     ht = uitoolbar(handles.fig);
@@ -89,7 +86,7 @@ function [handles]=createGUI(DirName)
      
    set(maskAreaButton,'ClickedCallback',...
                   @(objH,eventH)handleMaskAreaButton(...
-                                          objH,eventH,handles,CImage));
+                                          objH,eventH,handles));
    set(maskCircleButton,'ClickedCallback',...
                   @(objH,eventH)handleMaskCircButton(...
                                       objH,eventH,handles,CImage,DirName));
@@ -99,6 +96,10 @@ function [handles]=createGUI(DirName)
               
    set(ExAreaButton,'ClickedCallback',...
             @(objH,eventH)handleRemovePolygon(objH,eventH,handles));
+        
+   % Save
+   b = findall(handles.fig,'ToolTipString','Save Figure');
+   set(b,'ClickedCallback',@(objectH,eventH)saveMask(objectH,eventH,DirName,handles));
 end
 
 function loadCircleState(handles,DirName)
@@ -117,11 +118,12 @@ function loadCircleState(handles,DirName)
     end
     
     state.circ = imellipse(gca, [x-r y-r 2*r 2*r]);
+    addNewPositionCallback(state.circ,@(p)trackChange(p,handles));
     set(state.circ,'Tag',DirName);
     setFixedAspectRatioMode(state.circ, 1)
 end
 
-function handleMaskAreaButton(objH,eventH,handles,ClearImage)
+function handleMaskAreaButton(objH,eventH,handles)
     global state;
 
     if (state.mask_opt~=1)
@@ -130,6 +132,7 @@ function handleMaskAreaButton(objH,eventH,handles,ClearImage)
         state.mask=state.circ.createMask(currImageH);        
         enableAreaMaskButtons(handles);
         showMaskedImage(handles.picax,state.mask);
+        changeSavedSign(0,handles);
     end
 end
 
@@ -146,6 +149,7 @@ function handleMaskCircButton(objH,eventH,handles,ClearImage,DirName)
         imageH=imshow(ClearImage,[]);
         set(imageH,'Tag','Image');
         loadCircleState(handles,DirName);
+        changeSavedSign(0,handles);
     end
 end
 
@@ -195,6 +199,7 @@ function addPolygon(handles)
         currMask=poly.createMask(currImageH);
         state.mask = (onesMask-currMask).*state.mask+currMask;
         showMaskedImage(handles.picax,state.mask);
+        changeSavedSign(0,handles);
     end
 end
 
@@ -212,32 +217,60 @@ function removePolygon(handles)
         currMask=poly.createMask(currImageH);
         state.mask = (onesMask-currMask).*state.mask+zeros(size(currMask));
         showMaskedImage(handles.picax,state.mask);
+        changeSavedSign(0,handles);
     end
 end
 
-function saveMask(objectH,eventH,DirName)
+function saveMask(objectH,eventH,DirName,handles)
    	global state;
     if (state.mask_opt==0)
-        position = getPosition(state.circ);
-        r=position(1,4)/2;
-        x=position(1,1)+r;
-        y=position(1,2)+r;
-        save(fullfile(DirName,'Results','CircParams'),'x','y','r');
         
-        % if mask exists save it as prev mask
-        fullMaskName=fullfile(DirName,'Results','mask.mat');
-        if exist(fullMaskName,'file')
-            fullPrevName=fullfile(DirName,'Results','prevmask.mat');
-            delete(fullPrevName);
-            movefile(fullMaskName,fullPrevName);
+        position = getPosition(state.circ);
+        
+        % check if the user transormed the circle to an ellipse
+        height=position(1,4);
+        width=position(1,3);
+        if width~=height
+            % Move to mask state
+            handleMaskAreaButton(objectH,eventH,handles);
+            saveMasktoFile(state.mask,DirName);
+        else 
+            r=position(1,4)/2;
+            x=position(1,1)+r;
+            y=position(1,2)+r;
+            save(fullfile(DirName,'Results','CircParams'),'x','y','r');
+
+            % if mask exists save it as prev mask
+            fullMaskName=fullfile(DirName,'Results','mask.mat');
+            if exist(fullMaskName,'file')
+                fullPrevName=fullfile(DirName,'Results','prevmask.mat');
+                delete(fullPrevName);
+                movefile(fullMaskName,fullPrevName);
+            end
         end
     else
-        mask=state.mask;
-        save(fullfile(DirName,'Results','mask'),'mask');
+        saveMasktoFile(state.mask,DirName);
     end
+    
+    changeSavedSign(1,handles);
 end
 
 function [image]=getImage(axes)
     image=getimage(findobj(axes,'Tag','Image0'));
 end
 
+function saveMasktoFile(mask,DirName)
+    save(fullfile(DirName,'Results','mask'),'mask');
+end
+
+function changeSavedSign(isSaved,handles)
+    if (isSaved)
+        set(handles.fig,'name','setMaskApp')
+    else
+        set(handles.fig,'name','setMaskApp [not saved]')
+    end
+end
+
+function trackChange(p,handles)
+    changeSavedSign(0,handles);
+end
