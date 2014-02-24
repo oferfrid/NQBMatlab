@@ -38,4 +38,4 @@ BW=1;
 PlotPlate(TimeGap, DirName, BW, forMovie,handles);
 PlotPlateAnalysis(TimeGap, DirName, forMovie,handles);
 PlotPlateColoniesNumbers(TimeGap, DirName, forMovie,handles);
-impixelinfo
+% impixelinfo

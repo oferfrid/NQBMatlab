@@ -95,6 +95,8 @@ NColonies = NumberOfColonies(DirName);
 description = getDescription(DirName);
 FigTitle = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
                    description, TimeGap, NColonies);
+% FigTitle = sprintf('%5d minutes, Number of colonies: %4d',TimeGap, NColonies);
+                   
 title(FigTitle);
 
 % F = getframe(h);

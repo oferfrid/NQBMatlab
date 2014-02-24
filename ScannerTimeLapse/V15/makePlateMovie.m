@@ -24,18 +24,27 @@ FileVec = {dirOutput.name}';
 
 %% capturing each frame after ShowPlate
 NumOfPics = length(FileVec);
-aviobj = avifile(fullfile(DirName, 'Results', 'PlateMovie.avi'));
+% aviobj = avifile(fullfile(DirName, 'Results', 'PlateMovie.avi'));
+writerObj = VideoWriter(fullfile(DirName, 'Results', 'PlateMovie.mp4'),'MPEG-4');
+writerObj.FrameRate = 10;
+open(writerObj);
 for k = 1: NumOfPics
-    figure;
+    fig  = figure;
+    hndl = gca;
     msg      = sprintf('make movie: picture %d/%d', k, NumOfPics);
     disp(msg);
     FileName = char(FileVec(k));
     TimeGap  = str2num(FileName(4:8));
-    F        = ShowPlate(TimeGap, DirName, 1);
-    aviobj   = addframe(aviobj,F);
+%     F        = ShowPlate(TimeGap, DirName, 1);
+    ShowPlate(TimeGap, DirName, 1,hndl);
+    F        = getframe(fig);
+    writeVideo(writerObj,F);
+%     aviobj   = addframe(aviobj,F);
     close;
 end
-aviobj = close(aviobj);
+close(writerObj);
+
+
 %% showing and saving the movie
 % movie(F,1);
 % movie2avi(F,fullfile(DirName, 'Results', 'PlateMovie.avi'), 'fps', 8);
