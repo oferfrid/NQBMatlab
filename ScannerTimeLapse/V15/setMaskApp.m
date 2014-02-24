@@ -1,3 +1,12 @@
+
+%% function setMaskApp(DirName)
+% -------------------------------------------------------------------------
+% Purpose: Run the set mask application
+%
+% Arguments: DirName - the base directory of pictures and results
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function setMaskApp(DirName)
     global state;
     
@@ -22,6 +31,16 @@ function setMaskApp(DirName)
     end
 end
 
+%% function createGUI(DirName)
+% -------------------------------------------------------------------------
+% Purpose: create the gui of the application
+%
+% Arguments: DirName - the base directory of pictures and results
+%
+% output: handles - the gui's handlers
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function [handles]=createGUI(DirName)
 
     global state;
@@ -38,9 +57,6 @@ function [handles]=createGUI(DirName)
                  'position',[50 50 600 600],...
                  'name','SetMaskApp',...
                  'resize','off');
-             
-    b = findall(handles.fig,'ToolTipString','Save Figure');
-    set(b,'ClickedCallback',@(objectH,eventH)saveMask(objectH,eventH,DirName));
              
     % toolbar
     set(handles.fig,'toolbar','figure');
@@ -89,7 +105,7 @@ function [handles]=createGUI(DirName)
      
    set(maskAreaButton,'ClickedCallback',...
                   @(objH,eventH)handleMaskAreaButton(...
-                                          objH,eventH,handles,CImage));
+                                          objH,eventH,handles));
    set(maskCircleButton,'ClickedCallback',...
                   @(objH,eventH)handleMaskCircButton(...
                                       objH,eventH,handles,CImage,DirName));
@@ -99,8 +115,21 @@ function [handles]=createGUI(DirName)
               
    set(ExAreaButton,'ClickedCallback',...
             @(objH,eventH)handleRemovePolygon(objH,eventH,handles));
+        
+   % Save
+   b = findall(handles.fig,'ToolTipString','Save Figure');
+   set(b,'ClickedCallback',@(objectH,eventH)saveMask(objectH,eventH,DirName,handles));
 end
 
+%% function loadCircleState(handles,DirName)
+% -------------------------------------------------------------------------
+% Purpose: loading the dragable ellipse data stored in CircParams.mat file
+%
+% Arguments: DirName - the base directory of pictures and results
+%            handles - the handles for the gui
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function loadCircleState(handles,DirName)
     global state;
     axes(handles.picax);
@@ -117,11 +146,21 @@ function loadCircleState(handles,DirName)
     end
     
     state.circ = imellipse(gca, [x-r y-r 2*r 2*r]);
+    addNewPositionCallback(state.circ,@(p)trackChange(p,handles));
     set(state.circ,'Tag',DirName);
     setFixedAspectRatioMode(state.circ, 1)
 end
 
-function handleMaskAreaButton(objH,eventH,handles,ClearImage)
+%% function handleMaskAreaButton(objH,eventH,handles)
+% -------------------------------------------------------------------------
+% Purpose: Change the application such that it will show the a 0-1 binary
+% ellipse using the data in mask.mat file
+%
+% Arguments: handles - the handles for the gui
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
+function handleMaskAreaButton(objH,eventH,handles)
     global state;
 
     if (state.mask_opt~=1)
@@ -130,9 +169,21 @@ function handleMaskAreaButton(objH,eventH,handles,ClearImage)
         state.mask=state.circ.createMask(currImageH);        
         enableAreaMaskButtons(handles);
         showMaskedImage(handles.picax,state.mask);
+        changeSavedSign(0,handles);
     end
 end
 
+%% function handleMaskCircButton(objH,eventH,handles,ClearImage,DirName)
+% -------------------------------------------------------------------------
+% Purpose: Change the application such that it will show the draggable
+% ellipse stored in the CircParams.mat file
+%
+% Arguments: handles - the handles for the gui
+%            ClearImage - the background image
+%            DirName - the base directory of pictures and results
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function handleMaskCircButton(objH,eventH,handles,ClearImage,DirName)
     global state;
 
@@ -146,9 +197,18 @@ function handleMaskCircButton(objH,eventH,handles,ClearImage,DirName)
         imageH=imshow(ClearImage,[]);
         set(imageH,'Tag','Image');
         loadCircleState(handles,DirName);
+        changeSavedSign(0,handles);
     end
 end
 
+%% function enableAreaMaskButtons(handles)
+% -------------------------------------------------------------------------
+% Purpose: Enable the add/remove buttons for change the area matrix
+%
+% Arguments: handles - the handles for the gui
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function enableAreaMaskButtons(handles)
     h=findobj(handles.fig,'Tag','ControlMaskInclude');
     set(h,'Enable','on');
@@ -158,6 +218,14 @@ function enableAreaMaskButtons(handles)
     set(h,'Enable','on');
 end
 
+%% function disableAreaMaskButtons(handles)
+% -------------------------------------------------------------------------
+% Purpose: Disable the add/remove buttons for change the area matrix
+%
+% Arguments: handles - the handles for the gui
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function disableAreaMaskButtons(handles)
     h=findobj(handles.fig,'Tag','ControlMaskInclude');
     set(h,'Enable','off');
@@ -167,6 +235,15 @@ function disableAreaMaskButtons(handles)
     set(h,'Enable','off');
 end
 
+%% function showMaskedImage(picaxes,mask)
+% -------------------------------------------------------------------------
+% Purpose: Show the the image with brighted masked area
+%
+% Arguments: picaxes - the background picture
+%            mask    - 0/1 binary mask
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function showMaskedImage(picaxes,mask)
     axes(picaxes);
     image=getimage(findobj(picaxes,'Tag','Image0'));
@@ -181,10 +258,26 @@ function showMaskedImage(picaxes,mask)
     set(h,'Tag','Image');
 end
 
+%% function handleAddPolygon(objH,eventH,handles)
+% -------------------------------------------------------------------------
+% Purpose: Encapsulating add polygon for event listener
+%
+% Arguments: handles - gui handlers
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function handleAddPolygon(objH,eventH,handles)
     addPolygon(handles);
 end
 
+%% function addPolygon(handles)
+% -------------------------------------------------------------------------
+% Purpose: Add an area polygon to the mask
+%
+% Arguments: handles - gui handlers
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function addPolygon(handles)
     global state;
     onesMask=ones(size(state.mask));
@@ -195,13 +288,30 @@ function addPolygon(handles)
         currMask=poly.createMask(currImageH);
         state.mask = (onesMask-currMask).*state.mask+currMask;
         showMaskedImage(handles.picax,state.mask);
+        changeSavedSign(0,handles);
     end
 end
 
+%% function handleRemovePolygon(objH,eventH,handles)
+% -------------------------------------------------------------------------
+% Purpose: Encapsulating remove polygon for event listener
+%
+% Arguments: handles - gui handlers
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function handleRemovePolygon(objH,eventH,handles)
     removePolygon(handles);
 end
 
+%% function addPolygon(handles)
+% -------------------------------------------------------------------------
+% Purpose: Remove an area polygon from the mask
+%
+% Arguments: handles - gui handlers
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function removePolygon(handles)
     global state;
     onesMask=ones(size(state.mask));
@@ -212,32 +322,107 @@ function removePolygon(handles)
         currMask=poly.createMask(currImageH);
         state.mask = (onesMask-currMask).*state.mask+zeros(size(currMask));
         showMaskedImage(handles.picax,state.mask);
+        changeSavedSign(0,handles);
     end
 end
 
-function saveMask(objectH,eventH,DirName)
+%% function saveMask(objectH,eventH,DirName,handles)
+% -------------------------------------------------------------------------
+% Purpose: Save the mask. If the user changes the aspect ratio of the
+% draggable circle to an ellipse ater saving the draggable ellipse will
+% become an area mask.
+%
+% Arguments:    DirName - base directory
+%               handles - gui handlers
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
+function saveMask(objectH,eventH,DirName,handles)
    	global state;
     if (state.mask_opt==0)
-        position = getPosition(state.circ);
-        r=position(1,4)/2;
-        x=position(1,1)+r;
-        y=position(1,2)+r;
-        save(fullfile(DirName,'Results','CircParams'),'x','y','r');
         
-        % if mask exists save it as prev mask
-        fullMaskName=fullfile(DirName,'Results','mask.mat');
-        if exist(fullMaskName,'file')
-            fullPrevName=fullfile(DirName,'Results','prevmask.mat');
-            delete(fullPrevName);
-            movefile(fullMaskName,fullPrevName);
+        position = getPosition(state.circ);
+        
+        % check if the user transormed the circle to an ellipse
+        height=position(1,4);
+        width=position(1,3);
+        if width~=height
+            % Move to mask state
+            handleMaskAreaButton(objectH,eventH,handles);
+            saveMasktoFile(state.mask,DirName);
+        else 
+            r=position(1,4)/2;
+            x=position(1,1)+r;
+            y=position(1,2)+r;
+            save(fullfile(DirName,'Results','CircParams'),'x','y','r');
+
+            % if mask exists save it as prev mask
+            fullMaskName=fullfile(DirName,'Results','mask.mat');
+            if exist(fullMaskName,'file')
+                fullPrevName=fullfile(DirName,'Results','prevmask.mat');
+                delete(fullPrevName);
+                movefile(fullMaskName,fullPrevName);
+            end
         end
     else
-        mask=state.mask;
-        save(fullfile(DirName,'Results','mask'),'mask');
+        saveMasktoFile(state.mask,DirName);
     end
+    
+    changeSavedSign(1,handles);
 end
 
+%% function getImage(axes)
+% -------------------------------------------------------------------------
+% Purpose: get the base image inside the axes
+%
+% Arguments:    axes - the axes of the gui
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
 function [image]=getImage(axes)
     image=getimage(findobj(axes,'Tag','Image0'));
 end
 
+%% function saveMasktoFile(mask,DirName)
+% -------------------------------------------------------------------------
+% Purpose: Save the mask to the DirName/Results directory
+%
+% Arguments:    mask - the binary mask
+%               DirName - the base directory 
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
+function saveMasktoFile(mask,DirName)
+    save(fullfile(DirName,'Results','mask'),'mask');
+end
+
+%% function changeSavedSign(isSaved,handles)
+% -------------------------------------------------------------------------
+% Purpose: Set the name of the application to setAppMask [not saved] if
+% unsaved changes exist
+%
+% Arguments:    isSaved - 0 for false 1 or true
+%               handles - handlers for the gui 
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
+function changeSavedSign(isSaved,handles)
+    if (isSaved)
+        set(handles.fig,'name','setMaskApp')
+    else
+        set(handles.fig,'name','setMaskApp [not saved]')
+    end
+end
+
+%% function trackChange(p,handles)
+% -------------------------------------------------------------------------
+% Purpose: sign that there are unsaved changes
+%
+% Arguments:    p - new position, not used
+%               handles - handlers for the gui 
+% -------------------------------------------------------------------------
+% Nir Dick Feb. 2014
+% -------------------------------------------------------------------------
+function trackChange(p,handles)
+    changeSavedSign(0,handles);
+end
