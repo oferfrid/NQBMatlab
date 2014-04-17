@@ -1,5 +1,5 @@
 function  PreparePictures(DestDirName, board, plateVec,...
-                                        SourceDirName,logDir,startTime)
+                                        SourceDirName,logFile,startTime)
 % PreparePictures( DestDirName, board, plateVec, SourceDirName )
 % -------------------------------------------------------------------------
 % Purpose: makes all the necessary preparations for TimeLapse to work
@@ -10,7 +10,7 @@ function  PreparePictures(DestDirName, board, plateVec,...
 %       plateVec - plates to cut
 %       board - The board used for the scan
 %       SourceDirName (optional) - source files dir
-%       logDir - the directory of the log file. default - empty string
+%       logFile - the directory and name of the log file. default - empty string
 %       startTime - a lower bound for the time axis. default - empty string
 % Output files: DestDirName/circlesVec.mat
 %       DestDirName/motions.mat
@@ -42,7 +42,7 @@ end
 
 if nargin <= 4
     startTime='';
-    logDir='';
+    logFile='';
 elseif (nargin==5)
     startTime='';
 end
@@ -65,7 +65,7 @@ if (~isempty(prevTimeAxisExists))
     prevTimeAxis=load(fullfile(DestDirName,'TimeAxis'),'TimeAxis');
     prevSize=size(prevTimeAxis.TimeAxis,2);
     
-    TimeAxis = makeTimeAxis(SourceDirName,startTime,logDir);
+    TimeAxis = makeTimeAxis(SourceDirName,startTime,logFile);
     save(fullfile(DestDirName,'TimeAxis'),'TimeAxis');    
     currSize=size(TimeAxis,2);
     
@@ -77,7 +77,7 @@ if (~isempty(prevTimeAxisExists))
         cutStartInd=1;
     end
 else
-    TimeAxis = makeTimeAxis(SourceDirName,startTime,logDir);
+    TimeAxis = makeTimeAxis(SourceDirName,startTime,logFile);
     save(fullfile(DestDirName,'TimeAxis'),'TimeAxis');
     prevLastInd=1;
     cutStartInd=1;
