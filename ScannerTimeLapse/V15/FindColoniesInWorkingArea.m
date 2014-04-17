@@ -22,7 +22,6 @@ CenFile    = fullfile(DirName, 'VecCen');
 CircFile   = fullfile(DirName, 'CircParams');
 
 Cen  = load(CenFile);
-circ = load(CircFile);
 
 VecCen = Cen.VecCen;
 
@@ -54,7 +53,8 @@ if exist(fullMaskName,'file')
             end
         end
     end
-else       
+else
+    circ = load(CircFile);
     %% Checking which colony is too close to the border
     NumColonies = size(VecCen,1);
     CM = zeros(NumColonies,2);
