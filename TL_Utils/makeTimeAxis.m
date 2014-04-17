@@ -1,4 +1,4 @@
-function TimeAxis = makeTimeAxis(FileDir,startTime,logDir)
+function TimeAxis = makeTimeAxis(FileDir,startTime,logFile)
 % TimeAxis = makeTimeAxis(FileDir)
 %--------------------------------------------------------------------------
 % Purpose : creating the Time Axis from the original files
@@ -7,9 +7,8 @@ function TimeAxis = makeTimeAxis(FileDir,startTime,logDir)
 % Arguments : FileDir - the directory of the pictures
 %             startTime - a string that represent a lower bound for the
 %                         time axis. deafult - empty string.
-%             logDir - a directory for the log file of the experimant, in
-%                      case we want to take the starting time from it.
-%                      default - FileDir
+%             logFile - directory and name for the log file of the experimant,
+%                       default - FileDir/LogFile.txt
 % Returns : TimeAxis - the time in minutes from the first picture
 %--------------------------------------------------------------------------
 % Irit Levin. 14.05.2007
@@ -17,16 +16,18 @@ function TimeAxis = makeTimeAxis(FileDir,startTime,logDir)
 % Updates: 
 % Ofer Fridman 11.09 - VecDate = [dirOutput.datenum]
 % Nir Dick 9.9.2013 - adding startTime, logDir
+% Nir Dick 1.4.2014 - repalcing logDir in logFile
 
 if (nargin==1)
     startTime='';
-    logDir=FileDir;
-elseif ((nargin==2)||strcmp(logDir,''))
-    logDir=FileDir;
+end
+
+if ((nargin<=2)||strcmp(logFile,''))
+    logFile=fullfile(FileDir,'LogFile.txt');
 end
     
 if strcmp(startTime,'')
-    fid = fopen(fullfile(logDir, 'LogFile.txt'));
+    fid = fopen(logFile);
     firstLine=fgets(fid);
     fclose(fid);
         
