@@ -37,7 +37,16 @@ FileVec = {dirOutput.name}';
 %% Loading the timeAxis, Centres, plate parameters, excluded bact
 ResultsDir= fullfile(DirName, 'Results'); 
 load(fullfile(ResultsDir, 'TimeAxis'));
-load(fullfile(ResultsDir, 'CircParams'));
+
+fullMaskName=fullfile(DirName,'Results','mask.mat');
+if exist(fullMaskName,'file')
+    relevantArea = load(fullMaskName);
+    mask_edge(relevantArea.mask,'r-',handle)
+% Working with a circled area
+else
+    load(fullfile(ResultsDir, 'CircParams'));
+    circle([x,y],r ,500,'r-',handle);
+end;
 
 %% Reading the picture, and the data files
 FileNum  = find(TimeAxis <= TimeGap, 1, 'last');
@@ -72,7 +81,6 @@ himage = imshow(LrgbSized,'InitialMagnification','fit','Parent',handle);
 % Nir - add Tag ImageColony
 set(himage,'Tag','ImageColony');
 set(himage, 'AlphaData', 0.5);
-circle([x,y],r ,500,'r-',handle);
 
 %% Title
 NColonies = NumberOfColonies(DirName);
