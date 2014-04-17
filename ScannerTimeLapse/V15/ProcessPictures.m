@@ -1,4 +1,4 @@
-function ProcessPictures(DirName,lastPicFlag)
+function ProcessPictures(DirName,lastPicFlag,TH)
 %%
 % ProcessPictures(DirName)
 %--------------------------------------------------------------------------
@@ -11,7 +11,8 @@ function ProcessPictures(DirName,lastPicFlag)
 % Arguments: DirName - a full directory name
 %            lastPicFlag - signing if we want to run this procces only for
 %            the last picture. 0 (default) - no, otherwise - yes.
-%
+%            TH - treshold, default - 8/255, fit to epsons. 
+%            4/255 - cannon
 % Output: L%_00000.mat - connected components files under the directory
 %       DirName\LRGB
 %       clnP%_00000.jpg - the clean image in a jpg format, saved temporarly
@@ -24,11 +25,14 @@ if nargin<2
     lastPicFlag=0;
 end
 
+if nargin<3
+   TH=8/255;
+end
+
 %% constatnts
 r = 440;    % the relevant radius in the plate in pixels
 x = 526; y=526;
 Min_Thresh = 0.15;       % minimal threshold for bw picture
-TH = 8/255;
 
 %% getting the list of the files
 picDir    = fullfile(DirName, 'Pictures');
