@@ -20,13 +20,13 @@ function ProcessPictures(DirName,lastPicFlag,TH)
 %--------------------------------------------------------------------------
 % Irit Levin, 01.2008
 % Nir Dick - using a mask if exists instead of the circle
-
+DirName
 if nargin<2
     lastPicFlag=0;
 end
 
 if nargin<3
-   TH=8/255;
+   TH=0.2;
 end
 
 %% constatnts
@@ -91,6 +91,14 @@ if lastPicFlag
 end
 NumOfFiles = size(FileVec,1);
 
+% Calculate stretch limits of lat pic
+lastFileName = fullfile(picDir, char(FileVec(end)));
+lastImg = imread(lastFileName);
+cleanLast=cleanImgNew(lastImg,bg);
+cleanLast=im2double(cleanLast);
+cleanLast=cleanLast.*relevantArea;
+limits=stretchlim(cleanLast);
+    
 for k=1:NumOfFiles
     %% reading the next file in the list
     msg = sprintf('Processing picture %d/%d', k,NumOfFiles);
@@ -102,8 +110,10 @@ for k=1:NumOfFiles
     %% cleaning the noises
     clnImg = cleanImgNew(I,bg);
     
-    %% cleaning the noises fast method
-%     clnImg = imsubtract(I, bg*0.5); 
+    %% Adjusting image by limits
+    clnImg=im2double(clnImg);
+    clnImg=imadjust(clnImg,limits,[]);
+    
 
     Mask = im2bw( clnImg,TH);
     relevantImage =  medfilt2(Mask);
@@ -133,7 +143,7 @@ for k=1:NumOfFiles
     imwrite(clnImg ,FullName ,'jpg');
     % Threshold vector
     FullName = fullfile(DirName,'Results', 'ThresholdVec');
-    save(FullName,'level');
 end
+save(FullName,'level');
 close(progress_bar);
 

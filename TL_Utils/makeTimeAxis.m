@@ -7,6 +7,7 @@ function TimeAxis = makeTimeAxis(FileDir,startTime,logFile)
 % Arguments : FileDir - the directory of the pictures
 %             startTime - a string that represent a lower bound for the
 %                         time axis. deafult - empty string.
+%                         Please keep the 'YYYY/mm/dd HH:MM:SS' format
 %             logFile - directory and name for the log file of the experimant,
 %                       default - FileDir/LogFile.txt
 % Returns : TimeAxis - the time in minutes from the first picture
@@ -37,12 +38,12 @@ if strcmp(startTime,'')
     startTime=firstLine(startIndex:endIndex);
 end
 
-startTime=datenum(startTime);
+startTime=datenum(startTime,'YYYY/mm/dd HH:MM:SS');
 
 %% Getting the file list and their dates
 disp([datestr(now)   '   Time Axis']);
 dirOutput = dir(fullfile(FileDir, '*.tif'));
 
 VecDate   = [dirOutput.datenum];
-FirstFile = VecDate(1)
+FirstFile = VecDate(1);
 TimeAxis  = round((VecDate-startTime)*24*60);

@@ -38,16 +38,6 @@ FileVec = {dirOutput.name}';
 ResultsDir= fullfile(DirName, 'Results'); 
 load(fullfile(ResultsDir, 'TimeAxis'));
 
-fullMaskName=fullfile(DirName,'Results','mask.mat');
-if exist(fullMaskName,'file')
-    relevantArea = load(fullMaskName);
-    mask_edge(relevantArea.mask,'r-',handle)
-% Working with a circled area
-else
-    load(fullfile(ResultsDir, 'CircParams'));
-    circle([x,y],r ,500,'r-',handle);
-end;
-
 %% Reading the picture, and the data files
 FileNum  = find(TimeAxis <= TimeGap, 1, 'last');
 currLName    = fullfile(LRGBDir,char(FileVec(FileNum)));
@@ -76,6 +66,13 @@ end
 %% showing the LRGB
 % h = gcf;
 hold on;
+
+[r c d] = size(LrgbSized);
+mask = getRelevantAreaMask(DirName,r,c);
+LrgbSized=double(LrgbSized).*cat(3,mask,mask,mask);
+edgeB=edge(mask,'canny');
+edgeVec= find(edgeB~=0);
+LrgbSized(edgeVec)=255;
 himage = imshow(LrgbSized,'InitialMagnification','fit','Parent',handle);
 
 % Nir - add Tag ImageColony

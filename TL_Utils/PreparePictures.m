@@ -12,6 +12,7 @@ function  PreparePictures(DestDirName, board, plateVec,...
 %       SourceDirName (optional) - source files dir
 %       logFile - the directory and name of the log file. default - empty string
 %       startTime - a lower bound for the time axis. default - empty string
+%       Please keep the 'YYYY/mm/dd HH:MM:SS' format.
 % Output files: DestDirName/circlesVec.mat
 %       DestDirName/motions.mat
 %       DestDirName/TimeAxis.mat

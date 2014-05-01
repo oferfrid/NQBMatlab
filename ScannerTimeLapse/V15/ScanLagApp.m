@@ -41,6 +41,9 @@ h.graphax = axes('units','pixels',...
 state.time=times(max);
 sliderStep = [1, 1]/(max-min);
 
+state.limitsBW=getStretchLimits(FileDir,state.time,1);
+state.limitsC=getStretchLimits(FileDir,state.time,0);
+
 set(h.fig,'KeyPressFcn',@(src,e)KeyPressFcn(src,e,h,FileDir,times));
 
                 
@@ -84,7 +87,6 @@ initAreaGraph(h,FileDir);
 % Show pic
 initPics(times(1),h.picax,FileDir);
 handleTimeChange(times,FileDir,h);
-
 end
 
 %% function buildToolBar(handles,FileDir,times)
@@ -566,8 +568,11 @@ function handlePlatePlot(handles,time,FileDir,state)
         PlotPlateAnalysis(time, FileDir, 0,handles.picax);
     elseif (state.pic==1)
        % Plot picture
-       isBW=state.bw;
-       PlotPlate(time, FileDir, isBW, 0,handles.picax);  
+       if state.bw
+           PlotPlate(time, FileDir, state.bw, 0,handles.picax,state.limitsBW);  
+       else
+           PlotPlate(time, FileDir, state.bw, 0,handles.picax,state.limitsC); 
+       end
     end;
 end
 
@@ -692,9 +697,9 @@ function colorClickedCallback(h,e,handles,FileDir,times,iconsdir)
     
     % switch between icons
     if (state.bw)
-       [icon map]=imread(strcat(iconsdir,'\Icons\BW.png'));
-    else
        [icon map]=imread(strcat(iconsdir,'\Icons\Color.png'));
+    else
+       [icon map]=imread(strcat(iconsdir,'\Icons\BW.png'));
     end
     set(h,'CDATA',icon);
     
@@ -870,5 +875,23 @@ function KeyPressFcn(src,e,h,FileDir,times)
         includeSelected(h,FileDir);
     end
     
+end
+
+%% function getStretchLimits(DirName,time,isBW)
+% -------------------------------------------------------------------------
+% Purpose: Return the stretch limits of the cleaned image in a specific
+% time point.
+%
+% Arguments: DirName - data directory
+%            time - specific time
+%            isBW - 1 - grayscale 0 - color
+% Return: The stretch limits.
+% -------------------------------------------------------------------------
+% Nir Dick 4.2014
+% -------------------------------------------------------------------------
+function [limits]=getStretchLimits(DirName,time,isBW)
+    clnImg=getCleanImage(DirName,isBW, time);
+    clnImgRelevant=getImageRelevantArea(DirName,clnImg,isBW);
+    limits=stretchlim(clnImgRelevant);
 end
 

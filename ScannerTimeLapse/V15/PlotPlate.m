@@ -1,4 +1,4 @@
-function PlotPlate(TimeGap, DirName, BW, forMovie,handle)
+function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
 %% function PlotPlate(TimeGap, DirName, forMovie)
 % -------------------------------------------------------------------------
 % Purpose: showing the result file of the plate with the marked colonies
@@ -33,6 +33,10 @@ if nargin<5
     handle=gca;
 end
 
+if nargin <6
+    limits='';
+end
+
 %prevh=gca;
 %axes(handle);
 
@@ -46,26 +50,11 @@ FileNum  = find(TimeAxis <= TimeGap, 1, 'last');
 
 %% Reading the picture, and the data files
 PName    = char(FileVec(FileNum));
+    
+clnImg=getCleanImage(DirName,BW,TimeGap);
 
-if BW
-    % if the cleaned image is still saved, reads it from the file instead of
-    % cleaning it (which takes a lot of time
-    dirRes = dir(fullfile(DirName, 'tmpCleanImg'));
-    tmpClnImgExist = size(dirRes,1);
-    if tmpClnImgExist
-        FullPName = fullfile(DirName, 'tmpCleanImg', ['cln' PName]);
-        FullPName(end-2:end) = 'jpg';
-        clnImg = im2double(imread(FullPName));
-    else
-        FullPName = fullfile(DirName,'Pictures',PName);
-        I = rgb2gray(im2double(imread(FullPName)));
-        clnImg = cleanImg(I);
-    end
-else
-    FullPName = fullfile(DirName,'Pictures',PName);
-    clnImg = im2double(imread(FullPName));
-end
-
+% clean the unrelevant area of the image
+clnImgRelevant=getImageRelevantArea(DirName,clnImg,BW);
 
 %% showing the plate
 
@@ -74,9 +63,16 @@ if forMovie
     clnImg = imresize(clnImg, 0.5);
 end
 
+if isempty(limits)
+    limits = stretchlim(clnImgRelevant);
+end
+
+clnImg = imadjust(clnImg, limits,[]);
 % Nir - handle added and Tag and axis image
 himage=imshow(clnImg,[],'Parent',handle);
 set(himage,'Tag','ImageColony');
+set(himage, 'AlphaData', 0.5);
+
 
 %% Title
 NColonies = NumberOfColonies(DirName);
