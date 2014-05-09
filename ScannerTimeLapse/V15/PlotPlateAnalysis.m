@@ -69,7 +69,6 @@ hold on;
 
 [r c d] = size(LrgbSized);
 mask = getRelevantAreaMask(DirName,r,c);
-LrgbSized=double(LrgbSized).*cat(3,mask,mask,mask);
 edgeB=edge(mask,'canny');
 edgeVec= find(edgeB~=0);
 LrgbSized(edgeVec)=255;
