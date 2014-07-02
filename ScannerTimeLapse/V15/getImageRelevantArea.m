@@ -9,7 +9,7 @@
 % -------------------------------------------------------------------------
 % Nir Dick 4.2014
 % -------------------------------------------------------------------------
-function [ imgRelevant ] = getImageRelevantArea(DirName,I,isBW)
+function [ imgRelevant areaMask] = getImageRelevantArea(DirName,I,isBW)
     if isBW
         [rows cols] = size(I);
         areaMask=getRelevantAreaMask(DirName,rows,cols);
