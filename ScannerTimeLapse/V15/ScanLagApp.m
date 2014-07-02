@@ -891,7 +891,7 @@ end
 % -------------------------------------------------------------------------
 function [limits]=getStretchLimits(DirName,time,isBW)
     clnImg=getCleanImage(DirName,isBW, time);
-    clnImgRelevant=getImageRelevantArea(DirName,clnImg,isBW);
-    limits=stretchlim(clnImgRelevant);
+    [clnImgRelevant areaMask]=getImageRelevantArea(DirName,clnImg,isBW);
+    limits=stretchlim(clnImgRelevant(areaMask>0));
 end
 
