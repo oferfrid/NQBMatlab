@@ -20,7 +20,7 @@ function ProcessPictures(DirName,lastPicFlag,TH)
 %--------------------------------------------------------------------------
 % Irit Levin, 01.2008
 % Nir Dick - using a mask if exists instead of the circle
-DirName
+
 if nargin<2
     lastPicFlag=0;
 end
@@ -97,8 +97,7 @@ lastImg = imread(lastFileName);
 cleanLast=cleanImgNew(lastImg,bg);
 cleanLast=im2double(cleanLast);
 cleanLast=cleanLast.*relevantArea;
-limits=stretchlim(cleanLast);
-    
+limits=stretchlim(cleanLast(relevantArea>0))
 for k=1:NumOfFiles
     %% reading the next file in the list
     msg = sprintf('Processing picture %d/%d', k,NumOfFiles);
@@ -146,4 +145,5 @@ for k=1:NumOfFiles
 end
 save(FullName,'level');
 close(progress_bar);
+end
 
