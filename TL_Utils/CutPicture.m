@@ -76,7 +76,7 @@ for k=1:NumOfFiles
     RGB = RGB(:,:,1:3);
     % aligning picture
     RGB = imdilate(RGB,translate(strel(1),...
-             [-round(acc_v(k)) -round(acc_u(k))]));
+             [-round(acc_v(startInd+k-1)) -round(acc_u(startInd+k-1))]));
     % each file is cut into N files
     for j=1:NumOfPlates%2:size(X,1)
         Ptree = RGB(y(2*PlatesVec(j)-1):y(2*PlatesVec(j)),...
