@@ -80,6 +80,18 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
     SrcImgNum=length(SrcImgNames);
     numOfImages=SrcImgNum-startingIdx+1;
     
+    % Check for difference between source and motion
+    if motionSize>0      
+        motionSource=SrcImgNames(1:motionSize);
+        if ~isequal(motionSource,motionNames)
+            diff=setdif(motionNames,motionSource);
+            msg=['Difference between motions file and source images: ' ...
+                diff];
+            error('Prepare:CropROI', 
+                    'It seems that a new image that');
+        end
+    end
+    
     % Loading first image
     disp([datestr(now)   '   Align and Cut']);
 
@@ -127,18 +139,6 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
             % Check if we need to calculate motion to
             % next (actually current i) image 
             if i<=motionSize
-                % Check that both base and next images names appear in the
-                % motion file in the right place
-                if ~(strcmp(SrcImgNames{i-1},motionNames{i-1}))
-                    error('Prepare:AlignandCut',...
-                          ['Base names : ' SrcImgNames{i-1} ' ' motionNames{i-1}]);
-                end
-
-                if ~(strcmp(SrcImgNames{i},motionNames{i}))
-                    error('Prepare:AlignandCut',...
-                          ['Next names : ' SrcImgNames{i} ' ' motionNames{i}]);
-                end
-
                 % get next motion
                 u=all_u(i);
                 v=all_v(i);
