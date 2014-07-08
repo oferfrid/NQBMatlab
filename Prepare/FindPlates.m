@@ -1,8 +1,8 @@
-function rects = FindPlates( inputImage,BordHint)
-    %rects = FindPlates( inputImage,BordHint)
+function rects = FindPlates( inputImage,BoardHint)
+    %rects = FindPlates( inputImage,BoardHint)
     % return the bounding rectangel of the plates in the image
     % inputImage: the source image from the scanner
-    % BordHint: a list of all relative centers and radiuses of the bord.
+    % BoardHint: a list of all relative centers and radiuses of the Board.
     % created by Ofer Fridman 08/07/2014
     ImageSize = [size(inputImage,2) size(inputImage,1)];% in px
 
@@ -13,16 +13,16 @@ function rects = FindPlates( inputImage,BordHint)
     
 
 
-    centers= nan(size(BordHint,1),2);
-    radii = nan(size(BordHint,1),1);
-    rects = cell(size(BordHint,1),1);
-    for i=1:size(BordHint,1)
+    centers= nan(length(BoardHint.Radius),2);
+    radii = nan(length(BoardHint.Radius),1);
+    rects = cell(length(BoardHint.Radius),1);
+    for i=1:length(BoardHint.Radius)
 
         EdgeThreshold = 0.5;
         EdgeThresholdLim = [0.17 0.7];
         
-        HintCenter  = BordHint(i,1:2).*ImageSize;
-        HintRadius = sqrt(BordHint(i,3).^2*(ImageSize(1)*ImageSize(2)));
+        HintCenter  = BoardHint.Centers(i).*ImageSize;
+        HintRadius = sqrt(BoardHint.Radius(i).^2*(ImageSize(1)*ImageSize(2)));
         RadiusTolerence=0.02;
         MinMaxRadius = round(HintRadius *[1-RadiusTolerence 1+RadiusTolerence]);
         

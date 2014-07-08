@@ -1,8 +1,8 @@
-function BordHint = GetBordHint( inputImage,NumberOfPlates,PlateDiamiter)
-    %BordHint = GetBordHint( inputImage,NumberOfPlates,PlateDiamiter)
-    % returns  a list of all relative centers and radiuses of the bord.
+function BoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
+    %BoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
+    % returns  a list of all relative centers and radiuses of the Board.
     % inputImage: the source image from the scanner
-    % NumberOfPlates: the number of plates in the bord
+    % NumberOfPlates: the number of plates in the Board
     % PlateDiamiter: in mm
     % this function postulate an A4 scanner sise.
     % created by Ofer Fridman 08/07/2014
@@ -19,14 +19,18 @@ ReletiveRadius =  sqrt( radii.^2/(ImageSize(1)*ImageSize(2)));
 
 [~,index] = sortrows(round(ReletiveCenters./sigfig)*sigfig,[1 2]);
 
-BordHint = [ ReletiveCenters(index,:) ReletiveRadius(index)];
+AlignmentArea=[870/ImageSize(1) 800/ImageSize(2) 900/ImageSize(1) 800/ImageSize(2)];
+
+BoardHint.Centers = ReletiveCenters(index,:);
+BoardHint.Radius = ReletiveRadius(index);
+BoardHint.AlignmentArea = AlignmentArea;
 end
 
 function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamiter)
   %[centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamiter)
-    % returns  a centers and radiuses plates in the bord.
+    % returns  a centers and radiuses plates in the Board.
     % inputImage: the source image from the scanner
-    % NumberOfPlates: the number of plates in the bord
+    % NumberOfPlates: the number of plates in the Board
     % PlateDiamiter: in mm
     % this function postulate an A4 scanner sise.
     % created by Ofer Fridman 08/07/2014
@@ -76,6 +80,8 @@ function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamite
  if iterations == 20
      MException('FindPlates:NoConvergence','Number of iterations exceeded');
  end
+ 
+
   
 end
 

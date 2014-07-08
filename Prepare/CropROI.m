@@ -1,7 +1,4 @@
 function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
-    
-    alignmentArea=[870 800 900 800]; % todo: reslution indipendent!
-
     %% Prepare destination doorectories
     DATA_FILE_NAME='data.mat';
     MOTIONS_FILE_SUFFIX='_motions.mat';
@@ -58,11 +55,16 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
        motionSize=size(all_u,1);
     end
     
-    %% Calc ROI borders
+    %% Calc ROI Boarders
     % load first image
     firstImageStr=fullfile(SourceDir,SrcImgNames{1});
     inputImage=imread(firstImageStr);
     inputImage=inputImage(:,:,1:3);
+    
+    ImageSize = [size(inputImage,2) size(inputImage,1)];% in px
+    
+    load(BoardHint,'BoardHint');    
+    alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
     rects = FindPlates(inputImage,BoardHint);
     
     %% Align and cut images
