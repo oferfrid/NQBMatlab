@@ -4,14 +4,13 @@ function rects = FindPlates( inputImage,BordHint)
     % inputImage: the source image from the scanner
     % BordHint: a list of all relative centers and radiuses of the bord.
     % created by Ofer Fridman 08/07/2014
-    
     ImageSize = [size(inputImage,2) size(inputImage,1)];% in px
 
     Sensitivity = 0.99;
     Method = 'PhaseCode';
     ObjectPolarity = 'Dark';
-    EdgeThreshold = 0.5;
-    EdgeThresholdLim = [0.17 0.7];
+    
+    
 
 
     centers= nan(size(BordHint,1),2);
@@ -19,10 +18,12 @@ function rects = FindPlates( inputImage,BordHint)
     rects = cell(size(BordHint,1),1);
     for i=1:size(BordHint,1)
 
-
+        EdgeThreshold = 0.5;
+        EdgeThresholdLim = [0.17 0.7];
+        
         HintCenter  = BordHint(i,1:2).*ImageSize;
         HintRadius = sqrt(BordHint(i,3).^2*(ImageSize(1)*ImageSize(2)));
-        RadiusTolerence=0.03;
+        RadiusTolerence=0.02;
         MinMaxRadius = round(HintRadius *[1-RadiusTolerence 1+RadiusTolerence]);
         
         CropExtra = 1.05;
@@ -33,8 +34,9 @@ function rects = FindPlates( inputImage,BordHint)
         PlateImage = imcrop(inputImage,PlateRect);
 
         OutDelta = nan;
+        MaxIteration = 20;
          iterations = 0; 
-         while (OutDelta~=0 || iterations<=20)
+         while (OutDelta~=0 && iterations<MaxIteration)
              iterations = iterations+1;
              [center,radi] = imfindcircles(PlateImage,MinMaxRadius,...
                         'Sensitivity',Sensitivity,...
@@ -54,8 +56,8 @@ function rects = FindPlates( inputImage,BordHint)
              end
          end
 
-         if iterations == 20
-             MException('FindPlates:NoConvergence','Number of iterations exceeded');
+         if iterations == MaxIteration
+             throw (MException('FindPlates:NoConvergence','No Convergence Number of iterations exceeded'));
          end
     centers(i,:) = [center(1)+PlateRect(1) center(2)+PlateRect(2) ];
     radii(i) = radi;

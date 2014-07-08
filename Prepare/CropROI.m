@@ -166,6 +166,7 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
         %% Save relevant data
 
         % Save motion file
+        motions = cell(length(SrcImgNames),3);
         motions(:,1)=SrcImgNames;
         motions(:,2)=num2cell(final_u);
         motions(:,3)=num2cell(final_v);

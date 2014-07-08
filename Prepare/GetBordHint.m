@@ -72,7 +72,7 @@ function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamite
 
 
      end
-end
+
  if iterations == 20
      MException('FindPlates:NoConvergence','Number of iterations exceeded');
  end
