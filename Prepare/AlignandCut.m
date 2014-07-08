@@ -1,4 +1,4 @@
-function AlignandCut(SourceName,DestDirNames,Plates2Cut,CropInf)
+function AlignAndCut(SourceName,DestDirNames,Plates2Cut,rect)
 
     alignmentArea=[870 800 900 800];
 
@@ -7,11 +7,10 @@ function AlignandCut(SourceName,DestDirNames,Plates2Cut,CropInf)
     MOTIONS_FILE_SUFFIX='_motions.mat';
     
     numOfDests=length(DestDirNames);
-    dataFiles=cell(1,numOfDests);
-    destsImgNum=zeros(numOfDests);
+    destsImgNum=zeros(1,numOfDests);
     for k=1:numOfDests
         % Create the destination directories if needed
-        currDestDir=DestDirNames(k);
+        currDestDir=DestDirNames{1,k};
         [successMK,mgsMK,msgidMK] = mkdir(currDestDir);
         if ~successMK
             error(msgidMK, mgsMK);
@@ -22,12 +21,19 @@ function AlignandCut(SourceName,DestDirNames,Plates2Cut,CropInf)
         dataFlag=dir(dataFileStr);
         if ~isempty(dataFlag)
             currData=load(dataFileStr);
-            dataFiles{1,k}=currData.data;
-            destsImgNum=size(currData,1);
+            currData=currData.data;
+            destsImgNum(k)=size(currData,1);
         end
     end
     
     %% Get the source data
+    
+    flag= strfind(SourceName,'.');
+    SourceDir=SourceName;
+    if ~isempty(flag)
+        [SourceDir dummy1 dummy2]=fileparts(SourceName);
+    end;
+    
     % Load source images
     SourceImages=dir(SourceName);
     [dummy idx]=sort({SourceImages.date});
@@ -35,17 +41,15 @@ function AlignandCut(SourceName,DestDirNames,Plates2Cut,CropInf)
     SrcImgNames={SrtdSrcImages.name};
     
     % Load motions data
-    all_u=0;
-    all_v=0;
-    motionNames={};
-    motionSize=0;
-    
-    FirstImgName=SrcImgNames(1);
-    motionFileName=[FirstImgName MOTIONS_FILE_SUFFIX];
-    motionsFileStr=fullfile(currDestDir,motionFileName);
+    FirstImgName=SrcImgNames{1};
+    [dummy fname ex]=fileparts(FirstImgName); 
+    motionFileName=[fname MOTIONS_FILE_SUFFIX];
+    motionsFileStr=fullfile(SourceDir,motionFileName);
     motionsFlag=dir(motionsFileStr);
     
-    if ~isEmpty(motionsFlag)
+    motionSize=0;
+    
+    if length(motionsFlag)>0
        motionsTmp=load(motionsFileStr);
        motions=motionsTmp.motions;
        all_u=cell2mat(motions(:,2));
@@ -57,88 +61,118 @@ function AlignandCut(SourceName,DestDirNames,Plates2Cut,CropInf)
     %% Align and cut images
     
     % Get the starting point (this is the minimum of images number in 
-    % the destination folders
+    % all destination folders
     startingIdx=min(destsImgNum);
     if startingIdx==0
         startingIdx=1;     
     end
     
-    % Loading first image
-    disp([datestr(now)   '   Align and Cut']);
-    
-    %initialize a progress bar
-    progress_bar = waitbar(0);
-    progress = 0;
-    
-    % Align and cut from base to the end
     startNext=startingIdx+1;
     SrcImgNum=length(SrcImgNames);
-    numOfImages=SrcImgNum-startNext;
-    if (motionSize<SrcImgNum)
-        diff=SrcImgNum-motionSize;
-        all_u=padarray(all_u,diff,'post');
-        all_v=padarray(all_v,diff,'post');
-    end
+    numOfImages=SrcImgNum-startingIdx+1;
     
-    % Load base image
-    imgCurr=imread(fullfile(srcDirName,SrcImgNames{startingIdx}));
-    imgCurrD = im2double(imgCurr);
-    imgCurrGray = rgb2gray(imgCurrD(:,:,1:3));
-    BaseCropped = imcrop(imgCurrGray, alignmentArea);
-    alignedImg=imgCurr;
-    cum_u=sum(all_u(1:startingIdx));
-    cum_v=sum(all_v(1:startingIdx));
-    
-    for i=startNext:SrcImgNum
-        % Base crop
-        CropImage()
-        
-        progress = progress + 1;
-        waitbar(progress/NumOfFiles, progress_bar, ...
-        sprintf('Calculating Motion: image %d/%d', i,numOfImages));
+    % Loading first image
+    disp([datestr(now)   '   Align and Cut']);
 
-        imgNext=imread(fullfile(srcDirName,SrcImgNames{i}));
-        imgNextD = im2double(imgNext);
-        imgNextGray = rgb2gray(imgNextD(:,:,1:3));
-        NextCropped = imcrop(imgNextGray, alignmentArea);
+    %initialize a progress bar
+    progress_bar = waitbar(0);
+    progress = startNext;
         
-        % Check if we need to calculate motion to
-        % next (actually current i) image 
-        if i<=motionSize
-            % Check that both base and next images names appear in the
-            % motion file in the right place
-            if ~(strcmp(SrcImgNames{i-1},motionNames{i-1}))
-                error('Prepare:AlignandCut',...
-                      ['Base names : ' SrcImgNames{i-1} ' ' motionNames{i-1}]);
-            end
-            
-            if ~(strcmp(SrcImgNames{i},motionNames{i}))
-                error('Prepare:AlignandCut',...
-                      ['Next names : ' SrcImgNames{i} ' ' motionNames{i}]);
-            end
-            
-            % get next motion
-            u=all_u(i);
-            v=all_v(i);
-        else
-            % align current next
-            [u v] = fullPyrMotion_trans(BaseCropped, NextCropped);
-            all_u(i)=u;
-            all_v(i)=v;
+    if (numOfImages>1)
+        final_u=zeros(SrcImgNum,1);
+        final_v=zeros(SrcImgNum,1);
+        final_data_names=cell(SrcImgNum,numOfDests);
+
+        if (motionSize>0)
+            final_u(2:startingIdx)=all_u(2:startingIdx);
+            final_v(2:startingIdx)=all_v(2:startingIdx);
         end
-        
-        cum_u=cum_u+u;
-        cum_v=cum_v+v;
-        
-        BaseCropped = NextCropped;
-        imgCurr=imgNext;
-            
-       % align image
-       alignedImg=imdilate(imgCurr,translate(strel(1),...
-                           [-round(cum_v) -round(cum_u)]));    
+
+        cum_u=sum(final_u(1:startingIdx));
+        cum_v=sum(final_v(1:startingIdx));
+
+         % Align and cut from base to the end
+        imgCurr=imread(fullfile(SourceDir,SrcImgNames{startingIdx}));
+        imgCurr=imgCurr(:,:,1:3);
+        imgCurrD = im2double(imgCurr);
+        imgCurrGray = rgb2gray(imgCurrD(:,:,1:3));
+        BaseCropped = imcrop(imgCurrGray, alignmentArea);
+        alignedImg=imgCurr;
+
+        for i=startNext:SrcImgNum
+            % Base crop
+            [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i-1},...
+                                Plates2Cut,startingIdx,destsImgNum,rects);
+            final_data_names(i-1,:)= destNames;
+
+            progress = progress + 1;
+            waitbar(progress/numOfImages, progress_bar, ...
+            sprintf('Calculating Motion: image %d/%d', i,numOfImages));
+
+            imgNext=imread(fullfile(SourceDir,SrcImgNames{i}));
+            imgNext=imgNext(:,:,1:3);
+            imgNextD = im2double(imgNext);
+            imgNextGray = rgb2gray(imgNextD(:,:,1:3));
+            NextCropped = imcrop(imgNextGray, alignmentArea);
+
+            % Check if we need to calculate motion to
+            % next (actually current i) image 
+            if i<=motionSize
+                % Check that both base and next images names appear in the
+                % motion file in the right place
+                if ~(strcmp(SrcImgNames{i-1},motionNames{i-1}))
+                    error('Prepare:AlignandCut',...
+                          ['Base names : ' SrcImgNames{i-1} ' ' motionNames{i-1}]);
+                end
+
+                if ~(strcmp(SrcImgNames{i},motionNames{i}))
+                    error('Prepare:AlignandCut',...
+                          ['Next names : ' SrcImgNames{i} ' ' motionNames{i}]);
+                end
+
+                % get next motion
+                u=all_u(i);
+                v=all_v(i);
+            else
+                % align current next
+                [u v] = fullPyrMotion_trans(BaseCropped, NextCropped);
+                final_u(i)=u;
+                final_v(i)=v;
+            end
+
+            cum_u=cum_u+u;
+            cum_v=cum_v+v;
+
+            BaseCropped = NextCropped;
+            imgCurr=imgNext;
+
+           % align image
+           alignedImg=imdilate(imgCurr,translate(strel(1),...
+                               [-round(cum_v) -round(cum_u)]));    
+        end
+
+        % Handle last image
+        [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i},...
+                            Plates2Cut,startingIdx,destsImgNum,rects);
+        final_data_names(i,:)= destNames;
+
+        %% Save relevant data
+
+        % Save motion file
+        motions(:,1)=SrcImgNames;
+        motions(:,2)=num2cell(final_u);
+        motions(:,3)=num2cell(final_v);
+        save(motionsFileStr,'motions');
+
+        % Save data file in each destination
+        for i=1:numOfDests
+            data(:,1)=final_data_names(:,i);
+            data(:,2)={SrtdSrcImages.datenum};
+            dataFileStr=fullfile(DestDirNames{i},DATA_FILE_NAME);
+            save(dataFileStr,'data');
+        end
     end
     
-    %% Save relevant data
-        
+    close(progress_bar)
 end
 
