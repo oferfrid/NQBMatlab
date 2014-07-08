@@ -1,6 +1,6 @@
 function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
     
-    alignmentArea=[870 800 900 800];
+    alignmentArea=[870 800 900 800]; % todo: reslution indipendent!
 
     %% Prepare destination doorectories
     DATA_FILE_NAME='data.mat';
@@ -31,18 +31,18 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
     flag= strfind(SourceName,'.');
     SourceDir=SourceName;
     if ~isempty(flag)
-        [SourceDir dummy1 dummy2]=fileparts(SourceName);
+        [SourceDir, ~ ,~]=fileparts(SourceName);
     end;
     
     % Load source images
     SourceImages=dir(SourceName);
-    [dummy idx]=sort({SourceImages.date});
+    [~ ,idx]=sort({SourceImages.date});
     SrtdSrcImages=SourceImages(idx);
     SrcImgNames={SrtdSrcImages.name};
     
     % Load motions data
     FirstImgName=SrcImgNames{1};
-    [dummy fname ex]=fileparts(FirstImgName); 
+    [~, fname, ~]=fileparts(FirstImgName); 
     motionFileName=[fname MOTIONS_FILE_SUFFIX];
     motionsFileStr=fullfile(SourceDir,motionFileName);
     motionsFlag=dir(motionsFileStr);
