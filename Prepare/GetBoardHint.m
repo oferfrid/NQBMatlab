@@ -24,6 +24,8 @@ AlignmentArea=[870/ImageSize(1) 800/ImageSize(2) 900/ImageSize(1) 800/ImageSize(
 BoardHint.Centers = ReletiveCenters(index,:);
 BoardHint.Radius = ReletiveRadius(index);
 BoardHint.AlignmentArea = AlignmentArea;
+BoardHint.RelativeMaskRadius = 0.8;
+
 end
 
 function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamiter)

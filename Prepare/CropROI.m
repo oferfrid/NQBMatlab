@@ -65,7 +65,7 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
     
     load(BoardHint,'BoardHint');    
     alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
-    rects = FindPlates(inputImage,BoardHint);
+    [rects PlateCirc] = FindPlates(inputImage,BoardHint);
     
     %% Align and cut images
     
@@ -177,10 +177,12 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
 
             % Save data file in each destination
             for i=1:numOfDests
-                data(:,1)=final_data_names(:,i);
-                data(:,2)={SrtdSrcImages.datenum};
+                FilesProp(:,1)=final_data_names(:,i);
+                FilesProp(:,2)={SrtdSrcImages.datenum};
                 dataFileStr=fullfile(DestDirNames{i},DATA_FILE_NAME);
-                save(dataFileStr,'data');
+                CircleMask = PlateCirc{i};
+                CircleMask.R = CircleMask.R*BoardHint.RelativeMaskRadius;
+                save(dataFileStr,'FilesProp','CircleMask');
             end
         end
 

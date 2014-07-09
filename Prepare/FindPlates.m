@@ -1,4 +1,4 @@
-function rects = FindPlates( inputImage,BoardHint)
+function [Rects PlateCirc] = FindPlates( inputImage,BoardHint)
     %rects = FindPlates( inputImage,BoardHint)
     % return the bounding rectangel of the plates in the image
     % inputImage: the source image from the scanner
@@ -13,9 +13,8 @@ function rects = FindPlates( inputImage,BoardHint)
     
 
 
-    centers= nan(length(BoardHint.Radius),2);
-    radii = nan(length(BoardHint.Radius),1);
-    rects = cell(length(BoardHint.Radius),1);
+    PlateCirc =  cell(length(BoardHint.Radius),1);
+    Rects = cell(length(BoardHint.Radius),1);
     for i=1:length(BoardHint.Radius)
 
         EdgeThreshold = 0.5;
@@ -59,10 +58,12 @@ function rects = FindPlates( inputImage,BoardHint)
          if iterations == MaxIteration
              throw (MException('FindPlates:NoConvergence','No Convergence Number of iterations exceeded'));
          end
-    centers(i,:) = [center(1)+PlateRect(1) center(2)+PlateRect(2) ];
-    radii(i) = radi;
-    rects{i} = [centers(i,1)-radii(i),centers(i,2)-radii(i),2*radii(i),2*radii(i) ];
-
+         PlateCirc{i}.X = center(1)+PlateRect(1);
+         PlateCirc{i}.Y = center(2)+PlateRect(2);
+         PlateCirc{i}.R = radi;
+         Rects{i} = [PlateCirc{i}.X-PlateCirc{i}.R,PlateCirc{i}.Y-PlateCirc{i}.R,2*PlateCirc{i}.R,2*PlateCirc{i}.R ];
+    
     end
+
 end
 
