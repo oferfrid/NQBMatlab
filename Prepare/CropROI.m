@@ -81,108 +81,110 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
     numOfImages=SrcImgNum-startingIdx+1;
     
     % Check for difference between source and motion
+    valid=1;
     if motionSize>0      
-        motionSource=SrcImgNames(1:motionSize);
+        motionSource=SrcImgNames(1:motionSize)';
         if ~isequal(motionSource,motionNames)
-            diff=setdif(motionNames,motionSource);
-            msg=['Difference between motions file and source images: ' ...
-                diff];
-            error('Prepare:CropROI', 
-                    'It seems that a new image that');
+            diff=setdiff(motionSource,motionNames);
+            disp 'Difference between motions file and source images: ';
+            disp(diff);
+            valid=0;
         end
     end
     
-    % Loading first image
-    disp([datestr(now)   '   Align and Cut']);
+    if valid
+        % Loading first image
+        disp([datestr(now)   '   Align and Cut']);
 
-    %initialize a progress bar
-    progress_bar = waitbar(0);
-    progress = startNext;
-        
-    if (numOfImages>1)
-        final_u=zeros(SrcImgNum,1);
-        final_v=zeros(SrcImgNum,1);
-        final_data_names=cell(SrcImgNum,numOfDests);
+        %initialize a progress bar
+        progress_bar = waitbar(0);
+        progress = startNext;
 
-        if (motionSize>0)
-            final_u(2:startingIdx)=all_u(2:startingIdx);
-            final_v(2:startingIdx)=all_v(2:startingIdx);
-        end
+        if (numOfImages>1)
+            final_u=zeros(SrcImgNum,1);
+            final_v=zeros(SrcImgNum,1);
+            final_data_names=cell(SrcImgNum,numOfDests);
 
-        cum_u=sum(final_u(1:startingIdx));
-        cum_v=sum(final_v(1:startingIdx));
-
-         % Align and cut from base to the end
-        imgCurr=imread(fullfile(SourceDir,SrcImgNames{startingIdx}));
-        imgCurr=imgCurr(:,:,1:3);
-        imgCurrD = im2double(imgCurr);
-        imgCurrGray = rgb2gray(imgCurrD(:,:,1:3));
-        BaseCropped = imcrop(imgCurrGray, alignmentArea);
-        alignedImg=imgCurr;
-
-        for i=startNext:SrcImgNum
-            % Base crop
-            [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i-1},...
-                                Plates2Cut,startingIdx,destsImgNum,rects);
-            final_data_names(i-1,:)= destNames;
-
-            progress = progress + 1;
-            waitbar(progress/numOfImages, progress_bar, ...
-            sprintf('Calculating Motion: image %d/%d', i,numOfImages));
-
-            imgNext=imread(fullfile(SourceDir,SrcImgNames{i}));
-            imgNext=imgNext(:,:,1:3);
-            imgNextD = im2double(imgNext);
-            imgNextGray = rgb2gray(imgNextD(:,:,1:3));
-            NextCropped = imcrop(imgNextGray, alignmentArea);
-
-            % Check if we need to calculate motion to
-            % next (actually current i) image 
-            if i<=motionSize
-                % get next motion
-                u=all_u(i);
-                v=all_v(i);
-            else
-                % align current next
-                [u v] = fullPyrMotion_trans(BaseCropped, NextCropped);
-                final_u(i)=u;
-                final_v(i)=v;
+            if (motionSize>0)
+                final_u(2:startingIdx)=all_u(2:startingIdx);
+                final_v(2:startingIdx)=all_v(2:startingIdx);
             end
 
-            cum_u=cum_u+u;
-            cum_v=cum_v+v;
+            cum_u=sum(final_u(1:startingIdx));
+            cum_v=sum(final_v(1:startingIdx));
 
-            BaseCropped = NextCropped;
-            imgCurr=imgNext;
+             % Align and cut from base to the end
+            imgCurr=imread(fullfile(SourceDir,SrcImgNames{startingIdx}));
+            imgCurr=imgCurr(:,:,1:3);
+            imgCurrD = im2double(imgCurr);
+            imgCurrGray = rgb2gray(imgCurrD(:,:,1:3));
+            BaseCropped = imcrop(imgCurrGray, alignmentArea);
+            alignedImg=imgCurr;
 
-           % align image
-           alignedImg=imdilate(imgCurr,translate(strel(1),...
-                               [-round(cum_v) -round(cum_u)]));    
+            for i=startNext:SrcImgNum
+                % Base crop
+                [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i-1},...
+                                    Plates2Cut,startingIdx,destsImgNum,rects);
+                final_data_names(i-1,:)= destNames;
+
+                progress = progress + 1;
+                waitbar(progress/numOfImages, progress_bar, ...
+                sprintf('Calculating Motion: image %d/%d', i,numOfImages));
+
+                imgNext=imread(fullfile(SourceDir,SrcImgNames{i}));
+                imgNext=imgNext(:,:,1:3);
+                imgNextD = im2double(imgNext);
+                imgNextGray = rgb2gray(imgNextD(:,:,1:3));
+                NextCropped = imcrop(imgNextGray, alignmentArea);
+
+                % Check if we need to calculate motion to
+                % next (actually current i) image 
+                if i<=motionSize
+                    % get next motion
+                    u=all_u(i);
+                    v=all_v(i);
+                else
+                    % align current next
+                    [u v] = fullPyrMotion_trans(BaseCropped, NextCropped);
+                    final_u(i)=u;
+                    final_v(i)=v;
+                end
+
+                cum_u=cum_u+u;
+                cum_v=cum_v+v;
+
+                BaseCropped = NextCropped;
+                imgCurr=imgNext;
+
+               % align image
+               alignedImg=imdilate(imgCurr,translate(strel(1),...
+                                   [-round(cum_v) -round(cum_u)]));    
+            end
+
+            % Handle last image
+            [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i},...
+                                Plates2Cut,startingIdx,destsImgNum,rects);
+            final_data_names(i,:)= destNames;
+
+            %% Save relevant data
+
+            % Save motion file
+            motions = cell(length(SrcImgNames),3);
+            motions(:,1)=SrcImgNames;
+            motions(:,2)=num2cell(final_u);
+            motions(:,3)=num2cell(final_v);
+            save(motionsFileStr,'motions');
+
+            % Save data file in each destination
+            for i=1:numOfDests
+                data(:,1)=final_data_names(:,i);
+                data(:,2)={SrtdSrcImages.datenum};
+                dataFileStr=fullfile(DestDirNames{i},DATA_FILE_NAME);
+                save(dataFileStr,'data');
+            end
         end
 
-        % Handle last image
-        [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i},...
-                            Plates2Cut,startingIdx,destsImgNum,rects);
-        final_data_names(i,:)= destNames;
-
-        %% Save relevant data
-
-        % Save motion file
-        motions = cell(length(SrcImgNames),3);
-        motions(:,1)=SrcImgNames;
-        motions(:,2)=num2cell(final_u);
-        motions(:,3)=num2cell(final_v);
-        save(motionsFileStr,'motions');
-
-        % Save data file in each destination
-        for i=1:numOfDests
-            data(:,1)=final_data_names(:,i);
-            data(:,2)={SrtdSrcImages.datenum};
-            dataFileStr=fullfile(DestDirNames{i},DATA_FILE_NAME);
-            save(dataFileStr,'data');
-        end
+        close(progress_bar)
     end
-    
-    close(progress_bar)
 end
 
