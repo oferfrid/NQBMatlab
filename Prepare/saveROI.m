@@ -6,7 +6,7 @@ function [destNames]=saveROI(Image,DestDirNames,ImageName,...
     destNames=cell(1,numOfDests);
     
     [pathstr,name,ext]=fileparts(ImageName);
-    nameFormat=[name '_%d' ext];
+    nameFormat=[name '_%d.tif'];
     for k=1:numOfDests
         % Get roi
         roi=imcrop(Image,rects{k});
