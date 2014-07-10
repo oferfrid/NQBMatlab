@@ -1,6 +1,6 @@
-function Images2Colonies(SourceDir,lastPicFlag,TH)
+function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     if nargin<2
-        lastPicFlag=0;
+        lastPicFlag=false;
     end
     
     if nargin<3
@@ -21,8 +21,8 @@ function Images2Colonies(SourceDir,lastPicFlag,TH)
     background=imread(firstImageStr);    
     
     % Determine stretching limits using last image
-    dataLength=length(FilesProp);
-    lastImageName=FilesProp{dataLength,1};
+    numberOfImages=length(FilesProp);
+    lastImageName=FilesProp{numberOfImages,1};
     lastImageStr=fullfile(SourceDir,lastImageName);
     lastImage=imread(lastImageStr);
     clnLastImg=cleanImage(lastImage,background);
@@ -31,10 +31,14 @@ function Images2Colonies(SourceDir,lastPicFlag,TH)
     
     % Load relevant area's mask todo: is that needed?
     [rows, cols, ~]=size(background);
+    
     if lastPicFlag
         relevantArea=ones(rows,cols);
+        Images2Process = [1 numberOfImages];
     else
+        
         relevantArea=GetMask(data,rows,cols);
+        Images2Process = 1:numberOfImages;
     end
     
     % initialize a progress bar
@@ -42,9 +46,9 @@ function Images2Colonies(SourceDir,lastPicFlag,TH)
     % Process each picture in the data file
     Min_Area       = 10;        % minimal area for thr colony to be added
     coloniesFirstCM = [];
-    for k=1:dataLength
-        msg = sprintf('Processing picture %d/%d', k,dataLength);
-        waitbar(k/dataLength, progress_bar, msg);
+    for k=Images2Process
+        msg = sprintf('Processing picture %d/%d', k,numberOfImages);
+        waitbar(k/numberOfImages, progress_bar, msg);
         
         % Load current image
         currImageName=data.FilesProp{k,1};
@@ -88,8 +92,14 @@ function Images2Colonies(SourceDir,lastPicFlag,TH)
             coloniesFirstCM(NewColonyIndex).Y=round(NewColoniesStat(i).Centroid(2));
         end
     end
-     close(progress_bar);
+    close(progress_bar);
+
+      if lastPicFlag
+        Out = curentL;
+      else
+         save(fullfile(SourceDir,DATA_FILE_NAME),'Area','BBox','Centroid','-append');
     
+      end
     % Save result files
 end
 

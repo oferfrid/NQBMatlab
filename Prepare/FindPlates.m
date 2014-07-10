@@ -10,9 +10,6 @@ function [Rects PlateCirc] = FindPlates( inputImage,BoardHint)
     Method = 'PhaseCode';
     ObjectPolarity = 'Dark';
     
-    
-
-
     PlateCirc =  cell(length(BoardHint.Radius),1);
     Rects = cell(length(BoardHint.Radius),1);
     for i=1:length(BoardHint.Radius)
