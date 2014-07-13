@@ -177,13 +177,13 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
 
             % Save data file in each destination
             for i=1:numOfDests
-                FilesProp(:,1)=final_data_names(:,i);
-                FilesProp(:,2)={SrtdSrcImages.datenum};
+                FilesName(:,1)=final_data_names(:,i);
+                FilesDateTime(:,2)={SrtdSrcImages.datenum};
                 dataFileStr=fullfile(DestDirNames{i},DATA_FILE_NAME);
                 CircleMask.X = PlateCirc{i}.X - rects{i}(1);
                 CircleMask.Y = PlateCirc{i}.Y - rects{i}(2);
                 CircleMask.R = PlateCirc{i}.R*BoardHint.RelativeMaskRadius;
-                save(dataFileStr,'FilesProp','CircleMask');
+                save(dataFileStr,'FilesName','FilesDateTime','CircleMask');
             end
         end
 
