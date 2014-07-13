@@ -103,7 +103,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         ColoniesStatus=~relevantColonies;
     
         save(fullfile(SourceDir,DATA_FILE_NAME),...
-                       'Area','BBox','Centroid','ColoniesStatus''-append');
+                       'Area','BBox','Centroid','ColoniesStatus','-append');
 
       end
 end
