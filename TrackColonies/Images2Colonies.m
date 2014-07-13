@@ -98,7 +98,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         Out = curentL;
       else
         % Calculate the close to border colonies
-        ColoniesStatus=ones(numberOfImages);
+        ColoniesStatus=ones(numberOfImages,1);
         relevantColonies = FindColoniesInWorkingArea(relevantArea,Centroid);
         ColoniesStatus=~relevantColonies;
     

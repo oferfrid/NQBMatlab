@@ -27,7 +27,7 @@ function relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
     conved=conv2(double(Mask),double(local),'same');
     NumColonies = size(VecCen,1);
     
-    relevantColonies=zeros(NumColonies);
+    relevantColonies=zeros(NumColonies,1);
     
     for k=1:NumColonies
         % remove excluded
