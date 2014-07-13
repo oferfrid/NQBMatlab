@@ -20,16 +20,8 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     firstImageStr=fullfile(SourceDir,firstImageName);
     background=imread(firstImageStr);    
     
-    % Determine stretching limits using last image
-    numberOfImages=length(FilesProp);
-    lastImageName=FilesProp{numberOfImages,1};
-    lastImageStr=fullfile(SourceDir,lastImageName);
-    lastImage=imread(lastImageStr);
-    clnLastImg=cleanImage(lastImage,background);
-    
-    limits=stretchlim(clnLastImg);
-    
     % Load relevant area's mask todo: is that needed?
+    numberOfImages=length(FilesProp);
     [rows, cols, ~]=size(background);
     
     if lastPicFlag
@@ -40,6 +32,14 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         relevantArea=GetMask(data,rows,cols);
         Images2Process = 1:numberOfImages;
     end
+    
+    % Determine stretching limits using last image
+    lastImageName=FilesProp{numberOfImages,1};
+    lastImageStr=fullfile(SourceDir,lastImageName);
+    lastImage=imread(lastImageStr);
+    clnLastImg=cleanImage(lastImage,background);
+  
+    limits=stretchlim(clnLastImg(relevantArea>0));
     
     % initialize a progress bar
     progress_bar = waitbar(0);
@@ -97,10 +97,15 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
       if lastPicFlag
         Out = curentL;
       else
-         save(fullfile(SourceDir,DATA_FILE_NAME),'Area','BBox','Centroid','-append');
+        % Calculate the close to border colonies
+        ColoniesStatus=ones(numberOfImages);
+        relevantColonies = FindColoniesInWorkingArea(relevantArea,Centroid);
+        ColoniesStatus=~relevantColonies;
     
+        save(fullfile(SourceDir,DATA_FILE_NAME),...
+                       'Area','BBox','Centroid','ColoniesStatus''-append');
+
       end
-    % Save result files
 end
 
 function [clnImg] = cleanImage(Image,BG)
