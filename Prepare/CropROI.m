@@ -18,7 +18,6 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
         dataFlag=dir(dataFileStr);
         if ~isempty(dataFlag)
             currData=load(dataFileStr);
-            currData=currData.data;
             destsImgNum(k)=size(currData,1);
         end
     end
