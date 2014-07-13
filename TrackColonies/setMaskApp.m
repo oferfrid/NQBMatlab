@@ -51,7 +51,7 @@ function [handles]=createGUI(SourceDir)
 
      L=Images2Colonies(SourceDir,true);
     
-    ImageName=state.data.FilesProp{1,1};
+    ImageName=state.data.FilesName{1};
     ImageStr=fullfile(SourceDir,ImageName);
     colonyImage=imread(ImageStr);   
    
@@ -93,7 +93,7 @@ function [handles]=createGUI(SourceDir)
                    'nextplot','add','Tag','PICAX',...
                    'xlim',[0 imgLength],'ylim',[0 imgLength]);
                
-    CImage = imread(fullfile(SourceDir,state.data.FilesProp{end,1}));
+    CImage = imread(fullfile(SourceDir,state.data.FilesName{end}));
     axes(handles.picax);
     %set(imageH,'visible','off');
     

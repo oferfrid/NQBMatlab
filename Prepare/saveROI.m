@@ -13,11 +13,11 @@ function [destNames]=saveROI(Image,DestDirNames,ImageName,...
         
         % Calculate roi's file name
         currName=sprintf(nameFormat,Plates2Cut(k));
-        destNames{1,k}=currName;
+        destNames{k}=currName;
         
         % Save roi in current destination if needed
         if index>limits(k)
-           currFile=fullfile(DestDirNames{1,k},currName);
+           currFile=fullfile(DestDirNames{k},currName);
            imwrite(roi,currFile);
         end
     end
