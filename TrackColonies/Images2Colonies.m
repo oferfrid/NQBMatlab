@@ -98,11 +98,11 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         Out = curentL;
       else
         % Calculate the close to border colonies
-        relevantColonies = FindColoniesInWorkingArea(relevantArea,Centroid);
-        ColoniesStatus=~relevantColonies;
+        relevantColonies = FindColoniesInWorkingArea(relevantArea,coloniesFirstCM);
+        IgnoredColonies =~relevantColonies;
     
         save(fullfile(SourceDir,DATA_FILE_NAME),...
-                       'Area','BBox','Centroid','ColoniesStatus','-append');
+                       'Area','BBox','Centroid','IgnoredColonies','-append');
 
       end
 end

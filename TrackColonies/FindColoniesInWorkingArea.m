@@ -25,19 +25,16 @@ function relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
     maxVal=sum(sum(local));
     
     conved=conv2(double(Mask),double(local),'same');
-    NumColonies = size(VecCen,1);
+    NumColonies = length(VecCen);
     
     relevantColonies=zeros(NumColonies,1);
     
     for k=1:NumColonies
         % remove excluded
-        if VecCen(k,1,end)~=0
-            AppearenceIndex = find(VecCen(k,1,:),1,'first');
-
-            if (conved(round(VecCen(k,2,AppearenceIndex)),...
-                       round(VecCen(k,1,AppearenceIndex)))==maxVal)
+       
+            if (conved(VecCen(k).X,VecCen(k).Y)==maxVal)
                 relevantColonies(k)=1;
             end
-        end
+        
     end
 end
