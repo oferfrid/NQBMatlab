@@ -54,17 +54,9 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         currImageName=data.FilesName{k};
         currImageStr=fullfile(SourceDir,currImageName);
         currImage=imread(currImageStr);
-        clnImg=cleanImage(currImage,background);
-        
-        % Process the image to bw colonies map
-        clnImg=im2double(clnImg);
-        clnImg=imadjust(clnImg,limits,[]);
-        clnImgBW = im2bw(clnImg,TH);
-        clnImgBW = medfilt2(clnImgBW);
-        clnImgBW = relevantArea.*im2double(clnImgBW);
-       
-        
+
         % find colonies according to previous image
+        clnImgBW=im2L(currImage,background,limits,TH,relevantArea);
         curentL = bwlabel(clnImgBW);
         curentStat  = regionprops(curentL, 'basic');    %'basic' is Area, Centroid, BoundingBox
         IsNewColony = true(length(curentStat),1);
@@ -102,7 +94,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         IgnoredColonies =~relevantColonies;
     
         save(fullfile(SourceDir,DATA_FILE_NAME),...
-                       'Area','BBox','Centroid','IgnoredColonies','-append');
+                       'Area','BBox','Centroid','IgnoredColonies','TH',-append');
 
       end
 end

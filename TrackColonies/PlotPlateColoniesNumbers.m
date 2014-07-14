@@ -14,15 +14,15 @@ function PlotPlateColoniesNumbers(TimeGap,VecCen,ColoniesStatus,...
     % All colonies at time TimeGap 
     % (includes noise and colonies close to border)
     FileNum  = find(Times <= TimeGap, 1, 'last');
-    ColoniesNum = size(VecCen,1);
+    ColoniesNum = size(VecCen,2);
     
     hold on;
   
     for k=1:ColoniesNum
-        if VecCen(k,FileNum,1)>0
+        if VecCen(FileNum,k,1)>0
             colourText = 'w';
             WeightText = 'normal';
-            FirstTime = find(VecCen(k,:,1), 1, 'first');
+            FirstTime = find(VecCen(:,k,1), 1, 'first');
             % marking in red the new colonies
             if FirstTime == FileNum
                 colourText = 'r';
@@ -31,7 +31,7 @@ function PlotPlateColoniesNumbers(TimeGap,VecCen,ColoniesStatus,...
 
             % marking in blue the colonies that are going to disapear
             if FileNum<length(Times)
-                if ~VecCen(k,FileNum+1,1)
+                if ~VecCen(FileNum+1,k,1)
                     colourText = 'b';
                     WeightText = 'demi';
                 end
@@ -44,8 +44,8 @@ function PlotPlateColoniesNumbers(TimeGap,VecCen,ColoniesStatus,...
                 colourText = 'y';
             end   
 
-            text (VecCen(k,FirstTime,1),...
-                     VecCen(k,FirstTime,2),...
+            text (VecCen(FirstTime,k,1),...
+                     VecCen(FirstTime,k,2),...
                      num2str(k),'color',colourText ,'BackgroundColor','none',...
                      'FontSize',8, 'FontWeight', WeightText,...
                      'HorizontalAlignment','center','VerticalAlignment','middle');
