@@ -73,9 +73,9 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
             curentStatID = curentL(coloniesFirstCM(i).Y,coloniesFirstCM(i).X);
             if curentStatID~=0 %old colonie
                 IsNewColony(curentStatID) = false;
-                Area(i,k)=curentStat(curentStatID).Area;
-                BBox(i,k,:) = curentStat(curentStatID).BoundingBox;
-                Centroid(i,k,:) = curentStat(curentStatID).Centroid;
+                Area(k,i)=curentStat(curentStatID).Area;
+                BBox(k,i,:) = curentStat(curentStatID).BoundingBox;
+                Centroid(k,i,:) = curentStat(curentStatID).Centroid;
             end
         end
         %add new coloneis
@@ -85,9 +85,9 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         
         for i=1:length(NewColoniesStat)
             NewColonyIndex = length(coloniesFirstCM)+1;
-            Area(NewColonyIndex,k)=NewColoniesStat(i).Area;
-            BBox(NewColonyIndex,k,:) = NewColoniesStat(i).BoundingBox;
-            Centroid(NewColonyIndex,k,:) = NewColoniesStat(i).Centroid;
+            Area(k,NewColonyIndex)=NewColoniesStat(i).Area;
+            BBox(k,NewColonyIndex,:) = NewColoniesStat(i).BoundingBox;
+            Centroid(k,NewColonyIndex,:) = NewColoniesStat(i).Centroid;
             coloniesFirstCM(NewColonyIndex).X=round(NewColoniesStat(i).Centroid(1));
             coloniesFirstCM(NewColonyIndex).Y=round(NewColoniesStat(i).Centroid(2));
         end
