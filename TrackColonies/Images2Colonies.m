@@ -54,17 +54,9 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         currImageName=data.FilesName{k};
         currImageStr=fullfile(SourceDir,currImageName);
         currImage=imread(currImageStr);
-        clnImg=cleanImage(currImage,background);
-        
-        % Process the image to bw colonies map
-        clnImg=im2double(clnImg);
-        clnImg=imadjust(clnImg,limits,[]);
-        clnImgBW = im2bw(clnImg,TH);
-        clnImgBW = medfilt2(clnImgBW);
-        clnImgBW = relevantArea.*im2double(clnImgBW);
-       
-        
+
         % find colonies according to previous image
+        clnImgBW=im2BW(currImage,background,limits,TH,relevantArea);
         curentL = bwlabel(clnImgBW);
         curentStat  = regionprops(curentL, 'basic');    %'basic' is Area, Centroid, BoundingBox
         IsNewColony = true(length(curentStat),1);
