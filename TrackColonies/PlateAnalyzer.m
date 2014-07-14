@@ -59,17 +59,20 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
     state.limitsBW=stretchlim(clnLastImg(relevantArea>0));
     state.limitsC=stretchlim(lastImage);
     
-    % Calculating colores or the area graph
-    colores=jet(numberOfColonies);
-    indicesS=randperm(numberOfColonies);
-    colores=colores(indicesS,:);
-    
      FilesName=FilesProp(:,1);
      description='';
    
     state.bw=0;
     state.numbers=1;
     state.pic=1;
+    
+    % Build colors for area graph
+    TH=data.TH;
+    L=im2L(lastImage,background,state.limitsBW,TH,relevantArea);
+    L=bwlabel(L);
+    Lrgb = label2rgb(L,'jet', 'k', 'shuffle');
+    Lrgb=im2double(Lrgb);
+    
     
     %% Create gui
     h.fig=figure('units','pixels',...
@@ -103,15 +106,17 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
                      'SliderStep',sliderStep);                                  
     set(h.sl,'Callback',@(ObjH, EventData)sliderCallBack...
                              (ObjH, EventData, times,FileDir,h,...
-                              FilesName,times,background,description,...
-                              data.Centroid,data.ColoniesStatus));
+                              FilesName,background,description,...
+                              data.Centroid,data.ColoniesStatus,...
+                              Lrgb,relevantArea,TH));
+                    
     addlistener(h.sl,'ContinuousValueChange',@(ObjH, EventData) sliderChange...
                                                (ObjH, EventData, times,...
-                                                FileDir,h,...
-                                                FilesName,times,...
+                                                FileDir,h,FilesName,...
                                                 background,description,...
-                                                data.Centroid,data.ColoniesStatus));
-
+                                                data.ColoniesStatus,data.Centroid,...
+                                                Lrgb,relevantArea,data.TH));
+                                          
     h.edc = uicontrol('style','text','unit','pix','position',[10 620 100 20],...
                      'fontsize',10,'String','Find colony no.',...
                      'backgroundcolor',figcolor);
@@ -127,18 +132,22 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
                      'CData',icon,'Callback',@(objH,e)search(objH,e,h));  
 
     % Create tool bar
-    buildToolBar(h,FileDir,times,cdir,data,colores,background,...
-                description,FilesName);  
+    buildToolBar(h,FileDir,times,cdir,data,Lrgb,background,...
+                description,FilesName,relevantArea,TH);  
 
     % Sohw graph
-    initAreaGraph(h,FileDir,0,data,times,colores);
+    initAreaGraph(h,0,data.ColoniesStatus,data.Area,times,Lrgb,...
+                  data.Centroid,description);
 
     % Show pic
     initPics(times(1),h.picax,FileDir,FilesName,times,...
-             state.limitsBW,background,description);
+             state.limitsBW,description,background);
          
-    handleTimeChange(times,FileDir,h,FilesName,times,...
-                     background,description,data.Centroid,data.ColoniesStatus);
+    FileName=getFileName(state.time,times,FilesName);
+                 
+    handleTimeChange(times,FileDir,h,FileName,...
+                     background,description,data.Centroid,...
+                     data.ColoniesStatus,Lrgb,relevantArea,data.TH);
 end
 
 %% function buildToolBar(handles,FileDir,times)
@@ -151,8 +160,8 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function buildToolBar(handles,FileDir,times,dir,data,colores,background,...
-                      description,filesname)
+function buildToolBar(handles,FileDir,times,dir,data,Lrgb,Background,...
+                      description,FilesName,Mask,TH)
     set(handles.fig,'toolbar','figure');
     
     % Remove unwanted icons
@@ -179,15 +188,18 @@ function buildToolBar(handles,FileDir,times,dir,data,colores,background,...
                  
     set(analysish,'ClickedCallback',...
                    @(h,e)analysisClickedCallback(h,e,pictureh,...
-                   handles,FileDir,times));
+                   handles,FileDir,times,FilesName,...
+                                 Background,description,Lrgb,Mask,TH));
                
     set(pictureh,'ClickedCallback',...
                    @(h,e)pictureClickedCallback(h,e,analysish,...
-                   handles,FileDir,times));
+                   handles,FileDir,times,FilesName,...
+                                Background,description,Lrgb,Mask,TH));
                
     set(colorh,'ClickedCallback',...
                    @(h,e)colorClickedCallback(h,e,handles,FileDir,...
-                   times,dir,filesname,background,description));
+                   times,dir,FilesName,Background,description,...
+                   Lrgb,Mask,TH));
                       
     [icon map]=imread(strcat(dir,'\Icons\Include.png'));
     includeh = uipushtool('Parent',ht,'CData',icon,'Tag','IncludeMenu',...
@@ -203,11 +215,13 @@ function buildToolBar(handles,FileDir,times,dir,data,colores,background,...
                                             
     set(excludeh,'ClickedCallback',...
                 @(h,e)excludeClickedCallback(h,e,handles,FileDir,...
-                data,times,colores));
+                data.Area,times,Lrgb,data.Centroid,description,...
+                data.ColoniesStatus));
             
     set(includeh,'ClickedCallback',...
                 @(h,e)includeClickedCallback(h,e,handles,FileDir,...
-                data,times,colores));
+                data.Area,times,Lrgb,data.Centroid,description,...
+                data.ColoniesStatus));
 end
 
 % %% function [min, max,times]=getSliderTimeData(FileDir)
@@ -240,14 +254,14 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function initPics(startTime,handle,FileDir,ImagesName,Times,Limits,...
-                  Background,Description)
+function initPics(startTime,handle,FileDir,ImagesName,...
+                  Times,Limits,Description,Background)
     h=gca;
     axes(handle);
     
-    PlotPlate(FileDir,ImagesName,startTime,Times,1,0,Limits,handle,...
-              Background,Description);
-               
+    fileName=getFileName(startTime,Times,ImagesName);
+    title=getTitle(startTime,length(ImagesName),Description);
+    PlotPlate(FileDir,fileName,1,title,0,Limits,handle,Background)
     initImg=findobj(handle, 'Tag', 'ImageColony');
     if (~isempty(initImg))
         set(initImg,'Tag','ImageColony0');
@@ -269,8 +283,9 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function initAreaGraph(handles,FileDir,keepScaleFlag,Data,Times,Colores)
-    global state;
+function initAreaGraph(handles,keepScaleFlag,...
+                       ColoniesStatus,Area,Times,Lrgb,...
+                       VecCen,Description)
     if nargin<3
         keepScaleFlag=0;
     end
@@ -280,7 +295,8 @@ function initAreaGraph(handles,FileDir,keepScaleFlag,Data,Times,Colores)
     prevxlim=get(handles.graphax,'xlim');
     prevylim=get(handles.graphax,'ylim');
     
-    ShowAreaGraph(0,gca,Data.ColoniesStatus,Data.Area,Times,Colores,'');
+    ShowAreaGraph(0,gca,ColoniesStatus,Area,Times,...
+                  Lrgb,Description,VecCen);
     
     allLines = findobj(handles.graphax,'Type','line');
     
@@ -314,8 +330,8 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function sliderChange(ObjH, EventData, times,FileDir,handles,...
-                      FilesName,Times,Background,Description,...
-                      VecCen,ColoniesStatus) 
+                      FilesName,Background,Description,ColoniesStatus,...
+                      VecCen,Lrgb,Mask,TH) 
     global state;
     set(handles.worktxt,'Visible','on');
     
@@ -324,8 +340,12 @@ function sliderChange(ObjH, EventData, times,FileDir,handles,...
     state.time=times(val);
     
     % handle the time change
-    handleTimeChange(times,FileDir,handles,FilesName,Times,...
-                     Background,Description,VecCen,ColoniesStatus);
+    FileName=getFileName(state.time,times,FilesName);
+                 
+    handleTimeChange(times,FileDir,handles,FileName,...
+                     Background,Description,VecCen,ColoniesStatus,...
+                     Lrgb,Mask,TH);
+                 
     drawnow;
     set(handles.worktxt,'Visible','off');
 end
@@ -341,8 +361,8 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function sliderCallBack(ObjH,EventData,times,FileDir,handles,...
-                        FilesName,Times,Background,Description,...
-                        VecCen,ColoniesStatus)
+                        FilesName,Background,Description,...
+                        VecCen,ColoniesStatus,Lrgb,Mask,TH)
     global state;
     set(handles.worktxt,'Visible','on');
     
@@ -350,8 +370,12 @@ function sliderCallBack(ObjH,EventData,times,FileDir,handles,...
     val =round(get(ObjH,'Value'));
     state.time=times(val);
     
-    handleTimeChange(times,FileDir,handles,FilesName,Times,...
-                     Background,Description,VecCen,ColoniesStatus);
+    FileName=getFileName(state.time,times,FilesName);
+                 
+    handleTimeChange(times,FileDir,handles,FileName,...
+                     Background,Description,VecCen,ColoniesStatus,...
+                     Lrgb,Mask,TH);
+
     set(handles.worktxt,'Visible','off');
 end
 
@@ -367,11 +391,11 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function handleTimeChange(times,FileDir,handles,FilesName,Times,...
-                          Background,Description,VecCen,ColoniesStatus)
+function handleTimeChange(times,FileDir,handles,FileName,...
+                          Background,Description,VecCen,ColoniesStatus,...
+                          Lrgb,Mask,TH)
     % Get the current state 
     state=getState(handles,times);
-    previewOption=state.pic;
     numberingFlag=state.numbers;
     time=state.time;
     
@@ -382,10 +406,10 @@ function handleTimeChange(times,FileDir,handles,FilesName,Times,...
     selNumStr=getSelectedColonyByLine(handles.graphax);
     
     axes(handles.picax);
-    
-    % Change the picture according to the state
-    handlePlatePlot(handles,time,FileDir,state,FilesName,Times,...
-                    Background,Description);
+       
+    handlePlatePlot(handles,FileDir,state,time,length(VecCen(1,:,1)),...
+                         Background,Description,Lrgb,Mask,TH,...
+                         FileName)
                 
     
     % delete old numbering
@@ -393,7 +417,7 @@ function handleTimeChange(times,FileDir,handles,FilesName,Times,...
   
     if (numberingFlag)
         % Print new numbering
-        handleNumbersPlot(time,selNumStr,VecCen,ColoniesStatus,Times,handles);
+        handleNumbersPlot(time,selNumStr,VecCen,ColoniesStatus,times,handles);
     end
    
      fclose('all');
@@ -561,13 +585,15 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function updatePlotPlate(times,FileDir,handles,FilesName,Times,...
-                         Background,Description)
+function updatePlotPlate(times,FileDir,handles,FileName,NColonies,...
+                         Background,Description,Lrgb,Mask,TH)
     state=getState(handles,times);
     val =round(get(handles.sl,'Value'));
     time=times(val);
-    handlePlatePlot(handles,time,FileDir,state,FilesName,Times,...
-                    Background,Description);
+
+    handlePlatePlot(handles,FileDir,state,time,NColonies,...
+                         Background,Description,Lrgb,Mask,TH,...
+                         FileName)
                 
     textsNumH=findobj(handles.picax,'Type','text');
     
@@ -623,8 +649,9 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function handlePlatePlot(handles,time,FileDir,state,FilesName,Times,...
-                         Background,Description)
+function handlePlatePlot(handles,FileDir,state,TimeGap,NColonies,...
+                         Background,Description,Lrgb,Mask,TH,...
+                         FileName)
     
     % Delete current picture
     axesHandlesToChildObjects=findobj(...
@@ -634,10 +661,12 @@ function handlePlatePlot(handles,time,FileDir,state,FilesName,Times,...
         delete(axesHandlesToChildObjects);
     end;
     
+    title=getTitle(TimeGap,NColonies,Description);
     % Check the state for what picture option the user want
     if (state.pic==0)
         % Plot analysis
-        PlotPlateAnalysis(time, FileDir, 0,handles.picax);
+        PlotPlateAnalysis(FileDir,FileName,handles.picax,state.limitsBW,TH,...
+                                    Background,Mask,Lrgb,title,0);
     elseif (state.pic==1)
        % Plot picture
        if state.bw
@@ -646,8 +675,8 @@ function handlePlatePlot(handles,time,FileDir,state,FilesName,Times,...
            limits=state.limitsC;
        end
        
-       PlotPlate(FileDir,FilesName, time, Times, state.bw, 0,...
-                     limits,handles.picax,Background,Description);
+       PlotPlate(FileDir,FileName,state.bw,title,0,limits,...
+                 handles.picax,Background);
     end;
 end
 
@@ -694,10 +723,13 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function analysisClickedCallback(h,e,oldH,handles,FileDir,times)
+function analysisClickedCallback(h,e,oldH,handles,FileDir,times,FilesName,...
+                                 Background,Description,Lrgb,Mask,TH)
     global state;
     state.pic=0;
-    updatePlotPlate(times,FileDir,handles);
+    fileName=getFileName(state.time,times,FilesName);
+    updatePlotPlate(times,FileDir,handles,fileName,length(FilesName),...
+                    Background,Description,Lrgb,Mask,TH);
     colorH=findobj('Tag','ColorMenu');
     
     % disable the BW/COLOR button (since it's relevant to picture option
@@ -715,10 +747,14 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function pictureClickedCallback(h,e,oldH,handles,FileDir,times)
+function pictureClickedCallback(h,e,oldH,handles,FileDir,times,FilesName,...
+                                Background,Description,Lrgb,Mask,TH)
     global state;
     state.pic=1;
-    updatePlotPlate(times,FileDir,handles);
+
+    fileName=getFileName(state.time,times,FilesName);
+    updatePlotPlate(times,FileDir,handles,fileName,length(FilesName),...
+                    Background,Description,Lrgb,Mask,TH);
     colorH=findobj('Tag','ColorMenu');
     set(colorH,'Enable','on');
 end
@@ -767,7 +803,8 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function colorClickedCallback(h,e,handles,FileDir,times,iconsdir,...
-                              FilesName,Background,Description)
+                              FilesName,Background,Description,...
+                              Lrgb,Mask,TH)
     global state;
     set(handles.worktxt,'Visible','on');
     
@@ -781,9 +818,11 @@ function colorClickedCallback(h,e,handles,FileDir,times,iconsdir,...
     end
     set(h,'CDATA',icon);
     
+    fileName=getFileName(state.time,times,FilesName);
+    
     % Update picture
-    updatePlotPlate(times,FileDir,handles,FilesName,times,...
-                         Background,Description);
+    updatePlotPlate(times,FileDir,handles,fileName,length(FilesName),...
+                    Background,Description,Lrgb,Mask,TH);
                      
     set(handles.worktxt,'Visible','off'); 
 end
@@ -858,8 +897,10 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function excludeClickedCallback(h,e,handles,FileDir,Data,Times,Colores)
-    excludeSelected(handles,FileDir,Data,Times,Colores);
+function excludeClickedCallback(h,e,handles,FileDir,Area,Times,Lrgb,...
+                                VecCen,Desc,ColoniesStatus)
+    excludeSelected(handles,FileDir,ColoniesStatus,Area,Times,...
+                    Lrgb,VecCen,Desc);
 end
 
 %% function excludeSelected(handles,FileDir)
@@ -871,25 +912,26 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function excludeSelected(handles,FileDir,Data,Times,Colores)
+function excludeSelected(handles,FileDir,ColoniesStatus,...
+                         Area,Times,Lrgb,VecCen,Desc)
     % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
     
     if ~strcmp(colonyNumber,'none')
         % Exclude colony
-        Data.ColoniesStatus([str2num(colonyNumber)])=2;
+        ColoniesStatus([str2num(colonyNumber)])=2;
 
         % Color the number so it will sign that it was excluded
         setcolonyTextColor(num2str(colonyNumber),handles,[1 1 0])
 
         % update area graph
-        initAreaGraph(handles,1,Data,Times,Colores);
+        initAreaGraph(handles,1,ColoniesStatus,Area,Times,Lrgb,VecCen,Desc);
+        
         handleColonySelection(str2num(colonyNumber),...
                                           handles.graphax,handles.picax);
                                       
         % Save change to file
-        ColoniesStatus=Data.ColoniesStatus;
-        save(fullfile(FileDir,'data.mat'),'ColoniesStatus');
+        save(fullfile(FileDir,'data.mat'),'ColoniesStatus','-append');
     end
 end
 
@@ -903,8 +945,10 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function includeClickedCallback(h,e,handles,FileDir,Data,Times,Colores)
-    includeSelected(handles,FileDir,Data,Times,Colores);
+function includeClickedCallback(h,e,handles,FileDir,Area,Times,Lrgb,...
+                                VecCen,Desc,ColoniesStatus)
+    includeSelected(handles,FileDir,ColoniesStatus,...
+                    Area,Times,Lrgb,VecCen,Desc);
 end
 
 %% function includeSelected(handles,FileDir)
@@ -916,25 +960,25 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
-function includeSelected(handles,FileDir,Data,Times,Colores)
+function includeSelected(handles,FileDir,Area,Times,Lrgb,VecCen,Desc)
     % Get selected colony
     colonyNumber=getSelectedColonyByLine(handles.graphax);
    
     if ~strcmp(colonyNumber,'none')
         % Include colony
-        Data.ColoniesStatus([str2num(colonyNumber)])=0;
+        ColoniesStatus([str2num(colonyNumber)])=0;
 
         % Color the number so it will sign that it was'nt excluded
         setcolonyTextColor(num2str(colonyNumber),handles,[1 1 1])
 
         % update area graph
-        initAreaGraph(handles,FileDir,1,Data,Times,Colores);
+        initAreaGraph(handles,1,ColoniesStatus,Area,Times,Lrgb,VecCen,Desc);
+              
         handleColonySelection(str2num(colonyNumber),...
                                           handles.graphax,handles.picax);
         
         % Save change to file
-        ColoniesStatus=Data.ColoniesStatus;
-        save(fullfile(FileDir,'data.mat'),'ColoniesStatus');
+        save(fullfile(FileDir,'data.mat'),'ColoniesStatus','-append');
     end
 end
 
@@ -965,3 +1009,12 @@ function KeyPressFcn(src,e,h,FileDir,times)
     
 end
 
+function FileName=getFileName(Time,Times,FilesName)
+    currFileNum=find(Times<=Time,1,'last');
+    FileName=FilesName{currFileNum};
+end
+
+function Title=getTitle(Time,ColoniesN,Desc)
+    Title = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
+                   Desc,Time, ColoniesN);
+end

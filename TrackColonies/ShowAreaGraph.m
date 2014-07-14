@@ -1,5 +1,6 @@
 function ShowAreaGraph(XScaleHr,handle,...
-                       IrrelevantColonies,Area,Time,Colores,Description)
+                       IrrelevantColonies,Area,Time,Lrgb,Description,...
+                       VecCen)
     %% arguments
     if nargin<2
         XScaleHr = 0;
@@ -12,9 +13,9 @@ function ShowAreaGraph(XScaleHr,handle,...
     %% Prepare data for plotting
     % Remove iirelevant colonies (close to border or excluded)
     irrelevantColonies=find(IrrelevantColonies);
-    Area(irrelevantColonies,:)=0;
+    Area(:,irrelevantColonies)=0;
     
-    coloniesNum=size(Area,1);
+    coloniesNum=size(Area,2);
     
     mark = repmat({'none'},coloniesNum,1);
     MarkerFC = repmat('r',coloniesNum,1);
@@ -32,10 +33,17 @@ function ShowAreaGraph(XScaleHr,handle,...
         scl = 1;
         sclUnits = '(min)';
     end
-
+    
     for k=1:coloniesNum
-        plot(handle,Time/scl ,Area(k,:),...
-            'Color' ,Colores(k,:), 'Marker' ,char(mark(k)), ...
+        % Get Color of current colony
+        firstCenIdx=find(VecCen(:,k,1),1,'first');
+        firstCX=VecCen(firstCenIdx,k,1);
+        firstCY=VecCen(firstCenIdx,k,2);
+        colour=Lrgb(round(firstCY),round(firstCX),:);
+        
+        % plot line
+        plot(handle,Time/scl ,Area(:,k),...
+            'Color' ,colour, 'Marker' ,char(mark(k)), ...
             'MarkerSize', 2, 'MarkerEdgeColor', MarkerFC(k),...
             'XdataSource','Time','YdataSource',...
             ['Area(',num2str(k),',:)'],'Tag',strcat('colony',num2str(k)));
