@@ -16,12 +16,12 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     
     
     % Load background
-    firstImageName=data.FilesProp{1};
+    firstImageName=data.FilesName{1};
     firstImageStr=fullfile(SourceDir,firstImageName);
     background=imread(firstImageStr);    
     
     % Load relevant area's mask todo: is that needed?
-    numberOfImages=length(data.FilesProp);
+    numberOfImages=length(data.FilesName);
     [rows, cols, ~]=size(background);
     
     if lastPicFlag
@@ -34,7 +34,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     end
     
     % Determine stretching limits using last image
-    lastImageName=data.FilesProp{end,1};
+    lastImageName=data.FilesName{end};
     lastImageStr=fullfile(SourceDir,lastImageName);
     lastImage=imread(lastImageStr);
     clnLastImg=cleanImage(lastImage,background);
@@ -51,7 +51,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         waitbar(k/numberOfImages, progress_bar, msg);
         
         % Load current image
-        currImageName=data.FilesProp{k,1};
+        currImageName=data.FilesName{k};
         currImageStr=fullfile(SourceDir,currImageName);
         currImage=imread(currImageStr);
 
@@ -94,7 +94,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         IgnoredColonies =~relevantColonies;
     
         save(fullfile(SourceDir,DATA_FILE_NAME),...
-                       'Area','BBox','Centroid','IgnoredColonies','-append');
+                       'Area','BBox','Centroid','IgnoredColonies','TH',-append');
 
       end
 end
