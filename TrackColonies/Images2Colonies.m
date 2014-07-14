@@ -16,12 +16,12 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     
     
     % Load background
-    firstImageName=data.FilesName{1};
+    firstImageName=data.FilesProp{1};
     firstImageStr=fullfile(SourceDir,firstImageName);
     background=imread(firstImageStr);    
     
     % Load relevant area's mask todo: is that needed?
-    numberOfImages=length(data.FilesName);
+    numberOfImages=length(data.FilesProp);
     [rows, cols, ~]=size(background);
     
     if lastPicFlag
@@ -34,7 +34,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     end
     
     % Determine stretching limits using last image
-    lastImageName=data.FilesName{end};
+    lastImageName=data.FilesProp{end,1};
     lastImageStr=fullfile(SourceDir,lastImageName);
     lastImage=imread(lastImageStr);
     clnLastImg=cleanImage(lastImage,background);
@@ -51,12 +51,12 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         waitbar(k/numberOfImages, progress_bar, msg);
         
         % Load current image
-        currImageName=data.FilesName{k};
+        currImageName=data.FilesProp{k,1};
         currImageStr=fullfile(SourceDir,currImageName);
         currImage=imread(currImageStr);
 
         % find colonies according to previous image
-        clnImgBW=im2BW(currImage,background,limits,TH,relevantArea);
+        clnImgBW=im2L(currImage,background,limits,TH,relevantArea);
         curentL = bwlabel(clnImgBW);
         curentStat  = regionprops(curentL, 'basic');    %'basic' is Area, Centroid, BoundingBox
         IsNewColony = true(length(curentStat),1);
