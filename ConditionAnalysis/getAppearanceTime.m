@@ -18,14 +18,14 @@ DATA_FILE_NAME='data.mat';
         data=load(fullfile(SourceDirs{i},DATA_FILE_NAME));
         
         indexes = 1:length(data.IgnoredColonies);
-        indexes = indexes(~data.IgnoredColonies&&data.Area(end,:)>0);
+        indexes = indexes((~data.IgnoredColonies)&(data.Area(end,:)>0)');
         id = [id indexes];
         SourceDir={SourceDir ; repmat(SourceDirs(i),[1 length(indexes) ])};
         for j=1:length(indexes)
             ind  = find(data.Area(:,indexes(j))>0,1,'first');
-            PlateAppearanceTime = data.FilesDateTime(ind);
+            PlateAppearanceTime(j) = data.FilesDateTime(ind);
         end
-        AppearanceTime=[TimeAppearanceTime PlateAppearanceTime ])];
+        AppearanceTime=[AppearanceTime PlateAppearanceTime];
        
         
     end

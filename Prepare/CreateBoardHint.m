@@ -1,4 +1,4 @@
-function BoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
+function  CreateBoardHint( inputImage,NumberOfPlates,PlateDiamiter,FileName)
     %BoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
     % returns  a list of all relative centers and radiuses of the Board.
     % inputImage: the source image from the scanner
@@ -25,7 +25,7 @@ BoardHint.Centers = ReletiveCenters(index,:);
 BoardHint.Radius = ReletiveRadius(index);
 BoardHint.AlignmentArea = AlignmentArea;
 BoardHint.RelativeMaskRadius = 0.8;
-
+ save(FileName,'BoardHint');
 end
 
 function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamiter)

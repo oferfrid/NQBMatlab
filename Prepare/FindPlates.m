@@ -17,7 +17,7 @@ function [Rects PlateCirc] = FindPlates( inputImage,BoardHint)
         EdgeThreshold = 0.5;
         EdgeThresholdLim = [0.17 0.7];
         
-        HintCenter  = BoardHint.Centers(i).*ImageSize;
+        HintCenter  = BoardHint.Centers(i,:).*ImageSize;
         HintRadius = sqrt(BoardHint.Radius(i).^2*(ImageSize(1)*ImageSize(2)));
         RadiusTolerence=0.02;
         MinMaxRadius = round(HintRadius *[1-RadiusTolerence 1+RadiusTolerence]);
@@ -61,6 +61,8 @@ function [Rects PlateCirc] = FindPlates( inputImage,BoardHint)
          Rects{i} = [PlateCirc{i}.X-PlateCirc{i}.R,PlateCirc{i}.Y-PlateCirc{i}.R,2*PlateCirc{i}.R,2*PlateCirc{i}.R ];
     
     end
+    
+    
 
 end
 

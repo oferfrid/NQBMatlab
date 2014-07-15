@@ -25,7 +25,7 @@ function [id,SourceDir,Time,Area,Centroid] = getPropInTime(SourceDirs )
         SourceDir={SourceDir ; repmat(SourceDirs(i),[1 length(indexes) ])};
         Time=[Time  repmat(data.FilesDateTime',[1 length(indexes) ])];
         Area=[Area  data.Area(:,indexes)];
-        Centroid=[Centroid ; data.Centroid(:,indexes,:)];
+        Centroid=[Centroid  data.Centroid(:,indexes,:)];
         
     end
     

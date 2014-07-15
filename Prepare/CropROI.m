@@ -1,4 +1,5 @@
-function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
+function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
+    %CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
     %% Prepare destination doorectories
     DATA_FILE_NAME='data.mat';
     MOTIONS_FILE_SUFFIX='_motions.mat';
@@ -62,7 +63,7 @@ function CropROI(SourceName,DestDirNames,BoardHint,Plates2Cut)
     
     ImageSize = [size(inputImage,2) size(inputImage,1)];% in px
     
-    load(BoardHint,'BoardHint');    
+    load(BoardFileName,'BoardHint');    
     alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
     [rects,PlateCirc] = FindPlates(inputImage,BoardHint);
     
