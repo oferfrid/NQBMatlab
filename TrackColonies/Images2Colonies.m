@@ -94,7 +94,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         IgnoredColonies =~relevantColonies;
     
         save(fullfile(SourceDir,DATA_FILE_NAME),...
-                       'Area','BBox','Centroid','IgnoredColonies','TH',-append');
+                       'Area','BBox','Centroid','IgnoredColonies','TH','-append');
 
       end
 end

@@ -1,4 +1,4 @@
-function clnImg = cleanImage(I,bg)
+function clnImg = CleanImage(I,bg)
 %% Img = cleanImg(I,bg)
 % --------------------------------------------------------------
 % purpose: reading a picture file and sharpening it

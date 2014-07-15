@@ -32,7 +32,7 @@ function relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
     for k=1:NumColonies
         % remove excluded
        
-            if (conved(VecCen(k).X,VecCen(k).Y)==maxVal)
+            if (conved(VecCen(k).Y,VecCen(k).X)==maxVal)
                 relevantColonies(k)=1;
             end
         
