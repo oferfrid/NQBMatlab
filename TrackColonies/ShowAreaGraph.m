@@ -15,7 +15,7 @@ function ShowAreaGraph(XScaleHr,handle,...
         scl = 1;
         sclUnits = '(min)';
     end
-    
+    sprintf('pause');
     % Prepare plotting properties
     colNumStr=strtrim(cellstr(num2str((1:coloniesNum)')));
     allTag=strcat('colony',colNumStr);
@@ -26,7 +26,8 @@ function ShowAreaGraph(XScaleHr,handle,...
     YDataSource=YDataSource(relevantColonies);
     colors=Colors(relevantColonies,:);
     % Plot
-    set(0,'DefaultAxesColorOrder',colors);
+    %f=figure;
+    set(handle,'ColorOrder',colors);
     p=plot(handle,Time/scl ,Area(:,relevantColonies,:));
     
     % Set tag
