@@ -1,6 +1,6 @@
 function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
                              NotBigEnough,MergedBeforUpper] = ...
-                                      getAppearanceGrowth(FileDir, lb, ub)
+                                      getAppearanceGrowth(SourceDirs, lb, ub)
 %% [ColoniesGrowth, ColoniesAppearance] = getAppearanceGrowth(
 %                                                          FileDir, lb, ub)
 % -------------------------------------------------------------------------
@@ -39,6 +39,8 @@ function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
         DirName = fullfile(FileDir, 'Results');
         load(fullfile(DirName,'VecArea'));
         load(fullfile(DirName,'TimeAxis'));
+        
+        
 
          [ColoniesIndices,ColoniesGrowth,AreaGap,...
                               NotBigEnough,MergedBeforUpper] =...

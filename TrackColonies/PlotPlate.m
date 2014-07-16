@@ -25,7 +25,7 @@ end
 %% Reading the picture, and the data files
 currImage=imread(fullfile(DirName,FileName));
 if (BW)
-    clnImg=CleanImage(currImage,background);
+    clnImg=cleanImage(currImage,background);
 else
     clnImg=currImage;
 end
