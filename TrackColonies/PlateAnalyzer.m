@@ -53,7 +53,7 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
     lastImageName=FilesName{numberOfColonies,1};
     lastImageStr=fullfile(FileDir,lastImageName);
     lastImage=imread(lastImageStr);
-    clnLastImg=CleanImage(lastImage,background);
+    clnLastImg=cleanImage(lastImage,background);
   
    % Calculate limits using last image
     state.limitsBW=stretchlim(clnLastImg(relevantArea>0));

@@ -1,5 +1,5 @@
 function L = im2L(Image,Background,limits,TH,relevantArea)
-        clnImg=CleanImage(Image,Background);
+        clnImg=cleanImage(Image,Background);
         
         % Process the image to bw colonies map
         clnImg=im2double(clnImg);
