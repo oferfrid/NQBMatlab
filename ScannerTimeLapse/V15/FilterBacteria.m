@@ -82,6 +82,6 @@ else
 end
 
 %% writing the excluded bacteria to a file
-disp('Excluded bactria:');
+disp('Excluded bacteria:');
 disp(ExcludedBacteria);
 WriteFilterBacteria(DirName, ExcludedBacteria);
