@@ -1,4 +1,4 @@
-function ProcessPictures(DirName,lastPicFlag,TH)
+function ProcessPictures(DirName,TH,lastPicFlag)
 %%
 % ProcessPictures(DirName)
 %--------------------------------------------------------------------------
@@ -13,6 +13,7 @@ function ProcessPictures(DirName,lastPicFlag,TH)
 %            the last picture. 0 (default) - no, otherwise - yes.
 %            TH - treshold (optional) to identify colonies in the BW map. 
 %                 Use ShowLastStretchedHist to figure it up.
+%                 default - 0.2
 % Output: L%_00000.mat - connected components files under the directory
 %       DirName\LRGB
 %       clnP%_00000.jpg - the clean image in a jpg format, saved temporarly
@@ -21,7 +22,11 @@ function ProcessPictures(DirName,lastPicFlag,TH)
 % Irit Levin, 01.2008
 % Nir Dick - using a mask if exists instead of the circle
 
-if nargin<2
+if nargin<2 || isempty(TH)
+    TH=0.2;
+end
+
+if nargin<3
     lastPicFlag=0;
 end
 

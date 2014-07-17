@@ -55,7 +55,7 @@ if nargin<2
 end
 
 if nargin<3
-    TH=0.2;
+    TH=[];
 end
 
 %% getting the relevant area in the picture, unless a file already exists
@@ -88,7 +88,7 @@ disp([datestr(now), ' ', DirName, ' ', Description])
 writeLog(logFile, 'preparing pictures');
 disp('-----------------------------------------------------------------');
 disp('PREPARING PICTURES');
-ProcessPictures(DirName,0,TH);
+ProcessPictures(DirName,TH);
 
 %% finding the colonies in all the files, in the same area
 writeLog(logFile, 'matching colonies in time');
