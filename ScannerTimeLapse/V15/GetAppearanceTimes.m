@@ -22,6 +22,6 @@ DirNum = size(DirVec,1);
 TotalAppearanceTime = [];
 for k=1:DirNum
     FileDir = char(DirVec(k));
-    [TimeAxis,AppearanceTime] = AppearanceDistribution(FileDir);
+    [TimeAxis,AppearanceTime] = AppearenceDistribution(FileDir);
     TotalAppearanceTime = [TotalAppearanceTime; AppearanceTime];
 end
