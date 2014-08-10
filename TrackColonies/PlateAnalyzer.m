@@ -259,7 +259,8 @@ function initPics(startTime,handle,FileDir,appData)
     
     fileName=getFileName(startTime,appData.times,appData.imagesName);
     title=getTitle(startTime,length(appData.imagesName),appData.description);
-    PlotPlate(FileDir,fileName,1,title,0,appData.limitsBW,handle,appData.background)
+    PlotPlateByData(...
+     FileDir,fileName,1,title,0,appData.limitsBW,handle,appData.background)
     initImg=findobj(handle, 'Tag', 'ImageColony');
     if (~isempty(initImg))
         set(initImg,'Tag','ImageColony0');
@@ -298,7 +299,8 @@ function initAreaGraph(handles,keepScaleFlag,appData)
         delete(allPrevLines);
     end;
     
-    ShowAreaGraph(0,gca,appData.ignored,appData.area,appData.times,...
+    ShowAreaGraphByData(...
+                  0,gca,appData.ignored,appData.area,appData.times,...
                   appData.colors,appData.description);
     
     allLines = findobj(handles.graphax,'Type','line');
@@ -659,7 +661,8 @@ function handlePlatePlot(handles,FileDir,appData)
     % Check the state for what picture option the user want
     if (state.pic==0)
         % Plot analysis
-        PlotPlateAnalysis(FileDir,fileName,handles.picax,appData.limitsBW,...
+        PlotPlateAnalysisByData(...
+                          FileDir,fileName,handles.picax,appData.limitsBW,...
                           appData.th,appData.background,appData.mask,...
                           appData.lrgb,title,0);
     elseif (state.pic==1)
@@ -670,7 +673,8 @@ function handlePlatePlot(handles,FileDir,appData)
            limits=appData.limitsC;
        end
        
-       PlotPlate(FileDir,fileName,state.bw,title,0,limits,...
+       PlotPlateByData(...
+                 FileDir,fileName,state.bw,title,0,limits,...
                  handles.picax,appData.background);
     end;
 end
@@ -689,8 +693,8 @@ end
 function handleNumbersPlot(handles,selNumStr,appData,time)
     
     % Plot the numbers for current time
-    PlotPlateColoniesNumbers(time,appData.centroid,appData.ignored,...
-                             appData.times,0);
+    PlotPlateColoniesNumbersByData(time,appData.centroid,appData.ignored,...
+                                   appData.times,0);
                               
     % Set the handler for selection event for each number
     textNumbers = findobj(handles.picax, 'Type', 'text');
