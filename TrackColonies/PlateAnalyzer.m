@@ -64,7 +64,7 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
     
     
      appData.imagesName=FilesName(:,1);
-     appData.description='';
+     appData.description=data.Description;
    
     state.bw=0;
     state.numbers=1;
@@ -1011,7 +1011,7 @@ end
 
 function Title=getTitle(Time,ColoniesN,Desc)
     Title = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
-                   Desc,Time, ColoniesN);
+                   Desc,round(Time*24*60), ColoniesN);
 end
 
 function IgnoredColonies=getIgnoredColonies(FileDir)
