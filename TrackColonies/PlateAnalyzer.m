@@ -258,7 +258,7 @@ function initPics(startTime,handle,FileDir,appData)
     axes(handle);
     
     fileName=getFileName(startTime,appData.times,appData.imagesName);
-    title=getTitle(startTime,length(appData.imagesName),appData.description);
+    title=GetTitle(startTime,length(appData.imagesName),appData.description);
     PlotPlateByData(...
      FileDir,fileName,1,title,0,appData.limitsBW,handle,appData.background)
     initImg=findobj(handle, 'Tag', 'ImageColony');
@@ -656,7 +656,7 @@ function handlePlatePlot(handles,FileDir,appData)
     
     NColonies=length(appData.imagesName);
     
-    title=getTitle(state.time,NColonies,appData.description);
+    title=GetTitle(state.time,NColonies,appData.description);
     fileName=getFileName(state.time,appData.times,appData.imagesName);
     % Check the state for what picture option the user want
     if (state.pic==0)
@@ -1011,11 +1011,6 @@ end
 function FileName=getFileName(Time,Times,FilesName)
     currFileNum=find(Times<=Time,1,'last');
     FileName=FilesName{currFileNum};
-end
-
-function Title=getTitle(Time,ColoniesN,Desc)
-    Title = sprintf('%s, %5d minutes, Number of colonies: %4d', ...
-                   Desc,round(Time*24*60), ColoniesN);
 end
 
 function IgnoredColonies=getIgnoredColonies(FileDir)
