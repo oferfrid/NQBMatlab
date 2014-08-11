@@ -2,7 +2,7 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
     global state;
     
     % Close previous opened screen
-    close(findobj('name', 'ScanLagAPP'));
+    close(findobj('name', 'PlateAnalyzer'));
     
     %% Load data and relevant images
     DATA_FILE_NAME='data.mat';
@@ -73,10 +73,7 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
     
     % Build colors for area graph
     TH=data.TH;
-    L=im2L(lastImage,background,appData.limitsBW,TH,relevantArea);
-    L=bwlabel(L);
-    Lrgb = label2rgb(L,'jet', 'k', 'shuffle');
-    Lrgb=im2double(Lrgb);
+    Lrgb=image2Lrgb(lastImage,background,appData.limitsBW,TH,relevantArea);
     VecCen=data.Centroid;
     NColonies=size(VecCen,2);
     for j=1:NColonies

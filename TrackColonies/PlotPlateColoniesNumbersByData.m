@@ -1,6 +1,6 @@
 function PlotPlateColoniesNumbersByData(TimeGap,VecCen,ColoniesStatus,...
                                         Times,forMovie)
-    if nargin < 7
+    if nargin < 5
        forMovie=false; 
     end
     
