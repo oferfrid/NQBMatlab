@@ -4,7 +4,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     end
     
     if nargin<3
-       TH=0.2;
+       TH=GetDefaultTH;
     end
     
     %DefCirc % to do
