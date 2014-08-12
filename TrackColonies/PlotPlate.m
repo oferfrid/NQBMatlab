@@ -1,50 +1,42 @@
-function PlotPlate(DirName,FileName,BW,Title,forMovie,limits,handle,...
-                  background)
+function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
+    if nargin < 2
+        DirName = uigetdir;
+        if isequal(DirName,0)
+            return;
+        end
+    end
 
-if nargin < 3
-    BW=1;
-end 
+    if nargin < 3
+        BW = true;
+    end
 
-if nargin < 4
-    Title='';
-end  
-               
-if nargin < 5
-    forMovie=false;
-end               
-               
-if nargin < 6
-    limits=[0 1];
+    if nargin < 4
+        forMovie = false;
+    end
+
+    if nargin<5
+        handle=gca;
+    end
+
+    if nargin <6
+        limits=[0 1];
+    end
+    
+    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    data=load(dataFileStr);
+    
+    % Get File name by time
+    times=data.FilesDateTime;
+    idx=find(times<=TimeGap,1,'last');
+    filesName=data.FilesName;
+    fileName=filesName{idx};
+    
+    % Get title
+    coloniesNumber=size(data.Centroid,2);
+    title=GetTitle(times(idx)-times(1),coloniesNumber,data.Description);
+    
+    % Get background
+    bg=imread(fullfile(DirName,filesName{1}));
+    
+    PlotPlateByData(DirName,fileName,BW,title,forMovie,limits,handle,bg);
 end
-               
-if nargin < 7
-    handle=gca;
-end
-
-            
-%% Reading the picture, and the data files
-currImage=imread(fullfile(DirName,FileName));
-if (BW)
-    clnImg=cleanImage(currImage,background);
-else
-    clnImg=currImage;
-end
-
-%% showing the plate
-
-% resize for movie
-if forMovie
-    clnImg = imresize(clnImg, 0.5);
-end
-
-if ~isempty(limits)
-    clnImg = imadjust(clnImg, limits,[]);
-end
-
-% Nir - handle added and Tag and axis image
-himage=imshow(clnImg,[],'Parent',handle);
-set(himage,'Tag','ImageColony');
-set(himage, 'AlphaData', 0.5);
-
-%% Title
-title(handle,Title);

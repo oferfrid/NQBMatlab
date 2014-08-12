@@ -4,12 +4,12 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     end
     
     if nargin<3
-       TH=0.2;
+       TH=GetDefaultTH;
     end
     
     %DefCirc % to do
     
-    DATA_FILE_NAME='data.mat';
+    DATA_FILE_NAME=GetDefaultDataName;
     
     % Load data file
     data=load(fullfile(SourceDir,DATA_FILE_NAME));
@@ -39,7 +39,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
     lastImage=imread(lastImageStr);
     clnLastImg=cleanImage(lastImage,background);
   
-    limits=stretchlim(clnLastImg(relevantArea>0));
+    Limits=stretchlim(clnLastImg(relevantArea>0));
     
     % initialize a progress bar
     progress_bar = waitbar(0);
@@ -56,7 +56,7 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         currImage=imread(currImageStr);
 
         % find colonies according to previous image
-        clnImgBW=im2L(currImage,background,limits,TH,relevantArea);
+        clnImgBW=im2L(currImage,background,Limits,TH,relevantArea);
         curentL = bwlabel(clnImgBW);
         curentStat  = regionprops(curentL, 'basic');    %'basic' is Area, Centroid, BoundingBox
         IsNewColony = true(length(curentStat),1);
@@ -91,10 +91,11 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
       else
         % Calculate the close to border colonies
         relevantColonies = FindColoniesInWorkingArea(relevantArea,coloniesFirstCM);
-        IgnoredColonies =~relevantColonies;
+        IgnoredColonies =double(~relevantColonies);
     
         save(fullfile(SourceDir,DATA_FILE_NAME),...
-                       'Area','BBox','Centroid','IgnoredColonies','TH','-append');
+                       'Area','BBox','Centroid','IgnoredColonies','TH',...
+                       'Limits','-append');
 
       end
 end

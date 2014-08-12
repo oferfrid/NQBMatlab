@@ -1,35 +1,50 @@
-function himage = PlotPlateAnalysis(DirName,FileName,handle,Limits,TH,...
-                                    Background,Mask,Lrgb,Title,forMovie)
-   if nargin<10
-       forMovie=false;
-   end
-   
-   %% Create current image's analysis
-   % Load image,
-   currImage=imread(fullfile(DirName,FileName));
-   
-   % Convert image to label file
-   currBW=im2L(currImage,Background,Limits,TH,Mask);
-   currBW = double(currBW~=0);
-   currBW=cat(3,currBW,currBW,currBW);
-   currRGB=Lrgb.*currBW;
-   
-    %% resize for movie
-    if forMovie
-        currRGB= imresize(currRGB, 0.5);
-        Mask=imresize(Mask,0.5);
+function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle)
+    
+    if nargin < 2
+        DirName = uigetdir;
+        if isequal(DirName,0)
+            return;
+        end
+    end
+     
+    if nargin < 3
+        ForMovie=0;
     end
     
-    %% Show image
-    hold on;
+    if nargin < 4
+        Handle=gca;
+    end
+
+    % Load data file
+    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    data=load(dataFileStr);
     
-    edgeB=edge(Mask,'canny');
-    currRGB(edgeB~=0)=255;
-    himage = imshow(currRGB,'InitialMagnification','fit','Parent',handle);
-    set(himage,'Tag','ImageColony');
-    set(himage, 'AlphaData', 0.5);  
+    % Convert time gap to file name
+    times=data.FilesDateTime;
+    idx=find(times<=TimeGap,1,'last');
+    filesName=data.FilesName;
+    fileName=filesName{idx};
     
-    %% Title
-    title(handle,Title);
+    % Get  processing data
+    th=data.TH;
+    limits=data.Limits;
+    
+    % Get background
+    bg=imread(fullfile(DirName,filesName{1}));
+    
+    % Get mask
+    [r c]=size(bg);
+    relevantArea=GetMask(data,r,c);
+    
+    % Get Lrgb
+    image=imread(fullfile(DirName,fileName));
+    Lrgb=image2Lrgb(image,bg,limits,th,relevantArea);
+    
+    % Get title
+    coloniesNumber=size(data.Centroid,2);
+    title=GetTitle(times(idx)-times(1),coloniesNumber,data.Description);
+
+    PlotPlateAnalysisByData(DirName,fileName,Handle,limits,th,...
+                            bg,relevantArea,Lrgb,title,ForMovie);
 end
 

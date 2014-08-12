@@ -1,5 +1,5 @@
-function ShowAreaGraph(XScaleHr,handle,...
-                       IgnoredColonies,Area,Time,Colors,Description)             
+function ShowAreaGraphByData(XScaleHr,handle,...
+                       IgnoredColonies,Area,Times,Colors,Description)             
     %% Prepare data for plotting
     % Remove iirelevant colonies (close to border or excluded)
     relevantColonies=~IgnoredColonies;
@@ -15,13 +15,13 @@ function ShowAreaGraph(XScaleHr,handle,...
         scl = 1;
         sclUnits = '(min)';
     end
-    sprintf('pause');
+    
     % Prepare plotting properties
     colNumStr=strtrim(cellstr(num2str((1:coloniesNum)')));
     allTag=strcat('colony',colNumStr);
     allTag=allTag(relevantColonies);
     XDataSource=cell(length(allTag),1);
-    XDataSource(:)={'Time'};
+    XDataSource(:)={'Times'};
     YDataSource=strcat('Area(',colNumStr,',:)');
     YDataSource=YDataSource(relevantColonies);
     colors=Colors(relevantColonies,:);
