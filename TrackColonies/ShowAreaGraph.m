@@ -27,8 +27,8 @@ function ShowAreaGraph(XScaleHr,handle,...
     colors=Colors(relevantColonies,:);
     % Plot
     %f=figure;
-    set(handle,'ColorOrder',colors);
-    p=plot(handle,Time/scl ,Area(:,relevantColonies,:));
+    set(handle,'ColorOrder',colors,'NextPlot','replacechildren');
+    p=plot(handle,Time/scl ,Area(:,relevantColonies));
     
     % Set tag
     set(p,{'Tag'},allTag);
