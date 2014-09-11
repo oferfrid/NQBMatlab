@@ -26,8 +26,9 @@ function ShowAreaGraphByData(XScaleHr,handle,...
     YDataSource=YDataSource(relevantColonies);
     colors=Colors(relevantColonies,:);
     % Plot
+    %f=figure;
     set(handle,'ColorOrder',colors,'NextPlot','replacechildren');
-    p=plot(handle,Times/scl ,Area(:,relevantColonies));
+    p=plot(handle,Time/scl ,Area(:,relevantColonies));
     
     % Set tag
     set(p,{'Tag'},allTag);
