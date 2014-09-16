@@ -1,34 +1,30 @@
-function [id,SourceDir,Time,Area,Centroid] = getPropInTime(SourceDirs )
-% [id,SourceDir,Time,Area,CentralMass] = getPropInTime(SourceDirs)
-    
-
+function [id,Time,Area,Centroid] = getPropInTime(SourceDirs)
     DATA_FILE_NAME='data.mat';
-
-    id = [];
-    SourceDir=cell(0);
-    Time=[];
-    Area=[];
-    Centroid=[];
     
     if(~iscell(SourceDirs))
         SourceDirs = {SourceDirs};
     end
     
+    numOfDirs=length(SourceDirs);
     
-    for i=1:length(SourceDirs)
+    id = cell(numOfDirs);
+    Time=cell(numOfDirs);
+    Area=cell(numOfDirs);
+    Centroid=cell(numOfDirs);
+    
+   for i=1:numOfDirs
         % Load data file
         data=load(fullfile(SourceDirs{i},DATA_FILE_NAME));
         
+        % Build the id vecs - colonie's id and source dir
         indexes = 1:length(data.IgnoredColonies);
         indexes = indexes(~data.IgnoredColonies);
-        id = [id indexes];
-        SourceDir=[SourceDir{:}  repmat(SourceDirs(i),[1 length(indexes) ])];
-        Time=[Time  repmat(data.FilesDateTime',[1 length(indexes) ])];
-        Area=[Area  data.Area(:,indexes)];
-        Centroid=[Centroid  data.Centroid(:,indexes,:)];
+        id{i}=indexes;
         
-    end
-    
-
+        % Load add the times arrea
+        Time{i}=data.FilesDateTime;
+        Area{i}=data.Area(:,indexes);
+        Centroid{i}=data.Centroid(:,indexes,:);
+   end
 end
 

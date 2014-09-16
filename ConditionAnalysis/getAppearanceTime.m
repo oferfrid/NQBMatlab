@@ -1,33 +1,26 @@
-function [id,SourceDir,AppearanceTime ] = getAppearanceTime( SourceDirs )
- 
-
-DATA_FILE_NAME='data.mat';
-
-    id = [];
-    SourceDir=cell(0);
-    AppearanceTime=[];
-   
+function [id,AppearanceTime ] = getAppearanceTime( SourceDirs )
+    DATA_FILE_NAME='data.mat';
     
     if(~iscell(SourceDirs))
         SourceDirs = {SourceDirs};
     end
     
+    numOfSources=length(SourceDirs);
     
-    for i=1:length(SourceDirs)
+    id=cell(numOfSources);
+    AppearanceTime=cell(numOfSources);
+    
+    for i=1:numOfSources
         % Load data file
         data=load(fullfile(SourceDirs{i},DATA_FILE_NAME));
         
         indexes = 1:length(data.IgnoredColonies);
         indexes = indexes((~data.IgnoredColonies)&(data.Area(end,:)>0)');
-        id = [id indexes];
-        SourceDir=[SourceDir{:}  repmat(SourceDirs(i),[1 length(indexes) ])];
+        id{i}=indexes;
+        
         [~,I]=max(data.Area(:,indexes)>0,[],1);
         PlateAppearanceTime = data.FilesDateTime(I);
-        AppearanceTime=[AppearanceTime PlateAppearanceTime];
-       
-        
+        AppearanceTime{i}=PlateAppearanceTime;
     end
-    
-
 end
 
