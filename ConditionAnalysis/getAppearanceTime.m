@@ -1,5 +1,4 @@
 function [id,AppearanceTime ] = getAppearanceTime( SourceDirs )
-    DATA_FILE_NAME='data.mat';
     
     if(~iscell(SourceDirs))
         SourceDirs = {SourceDirs};
@@ -12,7 +11,7 @@ function [id,AppearanceTime ] = getAppearanceTime( SourceDirs )
     
     for i=1:numOfSources
         % Load data file
-        data=load(fullfile(SourceDirs{i},DATA_FILE_NAME));
+        data=load(fullfile(SourceDirs{i},GetDefaultDataName));
         
         indexes = 1:length(data.IgnoredColonies);
         indexes = indexes((~data.IgnoredColonies)&(data.Area(end,:)>0)');

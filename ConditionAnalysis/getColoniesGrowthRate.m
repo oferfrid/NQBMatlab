@@ -16,13 +16,12 @@ function [ColoniesIndices,ColoniesGrowth,AreaGap,NotBigEnough,RemovedMerged]=...
 %       indicesBeforeMerged - Colony's index respectivly
 % -------------------------------------------------------------------------
 % Nir Dick. 9.2013
-
     %% Loading data and initializations
     if isstruct(dataInfo)
         data=dataInfo;
     % Data info is the location of the file
     else
-        data=load(fullfile(dataInfo,DATA_FILE_NAME));
+        data=load(fullfile(dataInfo,GetDefaultDataName));
     end
     
     allColonies = find(data.IgnoredColonies==0);
@@ -72,7 +71,7 @@ function [ColoniesIndices,ColoniesGrowth,AreaGap,NotBigEnough,RemovedMerged]=...
             ColoniesGrowth=...
                 [ColoniesGrowth;data.FilesDateTime(ubIndex)-data.FilesDateTime(lbIndex)];
             AreaGap=...
-               [AreaGap;data.Area(ubIndex,currCol)-VecArea(lbIndex,currCol)];
+               [AreaGap;data.Area(ubIndex,currCol)-data.Area(lbIndex,currCol)];
         end
     end
 

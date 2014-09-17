@@ -24,8 +24,8 @@ function [result] = getMergedColonies(VecCen)
     for j=1:coloniesNum
         for k=1:timesNum
             % Get colony center
-            cen=VecCen(k,j,:);
-            if (cen ~= [0 0])
+            cen=[VecCen(k,j,1) VecCen(k,j,2)];
+            if ((cen(1) ~= 0) || (cen(2) ~= 0))
                 cenColoniesNum=...
                       sum(VecCen(k,:,1)==cen(1,1)&VecCen(k,:,2)==cen(1,2));
                   

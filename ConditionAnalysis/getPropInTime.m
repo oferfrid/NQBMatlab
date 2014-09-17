@@ -1,6 +1,4 @@
 function [id,Time,Area,Centroid] = getPropInTime(SourceDirs)
-    DATA_FILE_NAME='data.mat';
-    
     if(~iscell(SourceDirs))
         SourceDirs = {SourceDirs};
     end
@@ -14,7 +12,7 @@ function [id,Time,Area,Centroid] = getPropInTime(SourceDirs)
     
    for i=1:numOfDirs
         % Load data file
-        data=load(fullfile(SourceDirs{i},DATA_FILE_NAME));
+        data=load(fullfile(SourceDirs{i},GetDefaultDataName));
         
         % Build the id vecs - colonie's id and source dir
         indexes = 1:length(data.IgnoredColonies);

@@ -52,7 +52,7 @@ function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
         else
             % Load data file
             FileDir=SourceDirs{i};
-            data=load(fullfile(FileDir,DATA_FILE_NAME));
+            data=load(fullfile(FileDir,GetDefaultDataName));
 
             [currIndices,currGrowth,currGap,currNotBigEnough,currMerged]=...
                                     getColoniesGrowthRate(FileDir, lb, ub);
