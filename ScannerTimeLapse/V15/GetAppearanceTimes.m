@@ -1,14 +1,14 @@
-function [TimeAxis,TotalAppearenceTime]=GetAppearanceTimes(DirVec)
-% [TimeAxis,TotalAppearenceTime]=GetAppearanceTimes(DirVec)
+function [TimeAxis,TotalAppearanceTime]=GetAppearanceTimes(DirVec)
+% [TimeAxis,TotalAppearanceTime]=GetAppearanceTimes(DirVec)
 % -------------------------------------------------------------------------
 % Purpose: This function calculates the common distribution of severeal
 %   plates from the same experiment.
 % 
-% Description: calls AppearenceDistribution for each plate and adds
+% Description: calls AppearanceDistribution for each plate and adds
 % 
 % Arguments: DirVec - A cell array of the names of the directories
 %
-% Returns: TotalAppearenceTime - time of appearance for all plates
+% Returns: TotalAppearanceTime - time of appearance for all plates
 %          TimeAxis
 % -------------------------------------------------------------------------
 % Irit Levin. 01.2007
@@ -19,9 +19,9 @@ function [TimeAxis,TotalAppearenceTime]=GetAppearanceTimes(DirVec)
 DirNum = size(DirVec,1);
 
 % Calculating the distribution for all the directories
-TotalAppearenceTime = [];
+TotalAppearanceTime = [];
 for k=1:DirNum
     FileDir = char(DirVec(k));
-    [TimeAxis,AppearenceTime] = AppearenceDistribution(FileDir);
-    TotalAppearenceTime = [TotalAppearenceTime; AppearenceTime];
+    [TimeAxis,AppearanceTime] = AppearenceDistribution(FileDir);
+    TotalAppearanceTime = [TotalAppearanceTime; AppearanceTime];
 end
