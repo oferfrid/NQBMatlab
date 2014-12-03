@@ -1,5 +1,5 @@
 function  CreateBoardHint( inputImage,NumberOfPlates,PlateDiamiter,FileName)
-    %BoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
+    %CreateBoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
     % returns  a list of all relative centers and radiuses of the Board.
     % inputImage: the source image from the scanner
     % NumberOfPlates: the number of plates in the Board
@@ -63,6 +63,7 @@ function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamite
                     'Method',Method,...
                     'ObjectPolarity',ObjectPolarity);
          OutDelta = length(radii)-NumberOfPlates;
+         fprintf('Delta:%d iteration:%d\n',OutDelta,iterations);
          if OutDelta ~=0
             if OutDelta>0
                  EdgeThresholdLim(1) = EdgeThreshold;
