@@ -1,4 +1,4 @@
-function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle)
+function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle,Lrgb)
     
     if nargin < 2
         DirName = uigetdir;
@@ -13,6 +13,10 @@ function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle)
     
     if nargin < 4
         Handle=gca;
+    end
+    
+    if nargin < 5
+        Lrgb=[];
     end
 
     % Load data file
@@ -37,8 +41,10 @@ function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle)
     relevantArea=GetMask(data,r,c);
     
     % Get Lrgb
-    image=imread(fullfile(DirName,fileName));
-    Lrgb=image2Lrgb(image,bg,limits,th,relevantArea);
+    if isempty(Lrgb)
+        image=imread(fullfile(DirName,fileName));
+        Lrgb=image2Lrgb(image,bg,limits,th,relevantArea);
+    end
     
     % Get title
     coloniesNumber=size(data.Centroid,2);

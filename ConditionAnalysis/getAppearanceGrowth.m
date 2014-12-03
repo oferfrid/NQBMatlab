@@ -32,25 +32,43 @@ function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
 %                             (not in statistics)
 % -------------------------------------------------------------------------
 % Nir Dick. 9.2013
-    ColoniesAppearance=[];
-    if (lb>ub)
-        disp 'Invalid arguments lb > up';
-    else
-        DirName = fullfile(FileDir, 'Results');
-        load(fullfile(DirName,'VecArea'));
-        load(fullfile(DirName,'TimeAxis'));
-        
-        
+    if(~iscell(SourceDirs))
+        SourceDirs = {SourceDirs};
+    end
+    
+    numOfSources=length(SourceDirs);
 
-         [ColoniesIndices,ColoniesGrowth,AreaGap,...
-                              NotBigEnough,MergedBeforUpper] =...
+    ColoniesGrowth=cell(numOfSources);
+    ColoniesAppearance=cell(numOfSources);
+    ColoniesIndices=cell(numOfSources);
+    AreaGap=cell(numOfSources);
+    NotBigEnough=cell(numOfSources);
+    MergedBeforUpper=cell(numOfSources);
+
+    for i=1:numOfSources
+        currAppearance=[];
+        if (lb>ub)
+            disp 'Invalid arguments lb > up';
+        else
+            % Load data file
+            FileDir=SourceDirs{i};
+            data=load(fullfile(FileDir,GetDefaultDataName));
+
+            [currIndices,currGrowth,currGap,currNotBigEnough,currMerged]=...
                                     getColoniesGrowthRate(FileDir, lb, ub);
-        coloniesNum=size(ColoniesIndices,1);
-        for k=1:coloniesNum
-            AppearenceIndex = find(VecArea(ColoniesIndices(k),:),1,'first');
-            ColoniesAppearance=...
-                            [ColoniesAppearance;TimeAxis(AppearenceIndex)];
-        end 
+            coloniesNum=size(currIndices,1);
+            for k=1:coloniesNum
+                AppearenceIndex = find(data.Area(:,currIndices(k)),1,'first');
+                currAppearance=[currAppearance;data.FilesDateTime(AppearenceIndex)];
+            end 
+        end
+        
+        ColoniesGrowth{i}=currGrowth;
+        ColoniesAppearance{i}=currAppearance;
+        ColoniesIndices{i}=currIndices;
+        AreaGap{i}=currGap;
+        NotBigEnough{i}=currNotBigEnough;
+        MergedBeforUpper{i}=currMerged;
     end
 end
 

@@ -1,4 +1,4 @@
-function ShowPlate(TimeGap, DirName, ForMovie,Handles)
+function ShowPlate(TimeGap, DirName, ForMovie,Handles,Lrgb)
     
     if nargin < 2
         DirName = uigetdir;
@@ -16,8 +16,12 @@ function ShowPlate(TimeGap, DirName, ForMovie,Handles)
         Handles=gca;
     end
     
+    if nargin < 5
+        Lrgb=[];
+    end
+    
     PlotPlate(TimeGap, DirName, 1, ForMovie,Handles,[0 1]);
-    PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handles);
+    PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handles,Lrgb);
     PlotPlateColoniesNumbers(TimeGap, DirName, ForMovie);
 end
 
