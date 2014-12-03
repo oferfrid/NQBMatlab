@@ -17,9 +17,14 @@ function [id,AppearanceTime ] = getAppearanceTime( SourceDirs )
         indexes = indexes((~data.IgnoredColonies)&(data.Area(end,:)>0)');
         id{i}=indexes;
         
-        [~,I]=max(data.Area(:,indexes)>0,[],1);
+        numOfColonies=length(indexes);
+        I=[];
+        for j=1:numOfColonies
+            % Get the last zero
+            lastZeroIdx=find(data.Area(:,indexes(j))==0,1,'last');
+            I=[I,lastZeroIdx+1];
+        end
         PlateAppearanceTime = data.FilesDateTime(I);
         AppearanceTime{i}=PlateAppearanceTime;
     end
 end
-
