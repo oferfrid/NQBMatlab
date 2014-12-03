@@ -1,5 +1,5 @@
-function  CreateBoardHint( inputImage,NumberOfPlates,PlateDiamiter,FileName)
-    %CreateBoardHint = GetBoardHint( inputImage,NumberOfPlates,PlateDiamiter)
+function  CreateBoardHint( inputImage,NumberOfPlates,FileName,PlateDiamiter)
+    %CreateBoardHint( inputImage,NumberOfPlates,FileName,[PlateDiamiter])
     % returns  a list of all relative centers and radiuses of the Board.
     % inputImage: the source image from the scanner
     % NumberOfPlates: the number of plates in the Board
@@ -7,6 +7,11 @@ function  CreateBoardHint( inputImage,NumberOfPlates,PlateDiamiter,FileName)
     % this function postulate an A4 scanner sise.
     % created by Ofer Fridman 08/07/2014
 
+if nargin<4
+    PlateDiamiter = 90;
+end
+   
+    
 [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamiter);
 
 ImageSize = [size(inputImage,2) size(inputImage,1)];% in px

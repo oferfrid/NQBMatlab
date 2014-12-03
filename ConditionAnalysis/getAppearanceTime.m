@@ -7,7 +7,7 @@ function [id,AppearanceTime ] = getAppearanceTime( SourceDirs )
     numOfSources=length(SourceDirs);
     
     id=cell(numOfSources);
-    AppearanceTime=cell(numOfSources);
+    AppearanceTime=cell(numOfSources,1);
     
     for i=1:numOfSources
         % Load data file
