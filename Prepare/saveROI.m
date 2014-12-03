@@ -9,7 +9,7 @@ function [destNames]=saveROI(Image,DestDirNames,ImageName,...
     nameFormat=[name '_%d.tif'];
     for k=1:numOfDests
         % Get roi
-        roi=imcrop(Image,rects{k});
+        roi=imcrop(Image,rects{Plates2Cut(k)});
         
         % Calculate roi's file name
         currName=sprintf(nameFormat,Plates2Cut(k));
@@ -22,4 +22,3 @@ function [destNames]=saveROI(Image,DestDirNames,ImageName,...
         end
     end
 end
-
