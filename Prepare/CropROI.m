@@ -1,14 +1,20 @@
-function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
+function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     %CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
+    
+    if nargin<5
+        updateFlag=ones(1,length(Plates2Cut));
+    end
+    
     %% Prepare destination doorectories
     DATA_FILE_NAME='data.mat';
     MOTIONS_FILE_SUFFIX='_motions.mat';
     
     numOfDests=length(DestDirNames);
     destsImgNum=zeros(1,numOfDests);
+    currData=cell(1,numOfDests);
     for k=1:numOfDests
         % Create the destination directories if needed
-        currDestDir=DestDirNames{1,k};
+        currDestDir=DestDirNames{k};
         [successMK,mgsMK,msgidMK] = mkdir(currDestDir);
         if ~successMK
             error(msgidMK, mgsMK);
@@ -18,8 +24,9 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
         dataFileStr=fullfile(currDestDir,DATA_FILE_NAME);
         dataFlag=dir(dataFileStr);
         if ~isempty(dataFlag)
-            currData=load(dataFileStr);
-            destsImgNum(k)=size(currData.FilesName,1);
+            currNames=load(dataFileStr,'FilesName');
+            currData{k}=currNames;
+            destsImgNum(k)=size(currNames,1);
         end
     end
     
@@ -105,9 +112,11 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
     if motionSize>0 && valid      
         motionSource=SrcImgNames(1:motionSize)';
         if ~isequal(motionSource,motionNames)
-            diff=setdiff(motionSource,motionNames);
+            diff1=setdiff(motionSource,motionNames);
+            diff2=setdiff(motionNames,motionSource);
             disp 'Broken hierarchy in images according to motions. problem might be in ';
-            disp(diff);
+            disp(diff1);
+            disp(diff2);
             valid=0;
         end
     end
@@ -140,7 +149,15 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
              imgCurrGray = im2double(imgCurrGray);
             BaseCropped = imcrop(imgCurrGray, alignmentArea);
             alignedImg=imgCurr;
-
+            
+            if startNext>2
+                for i=1:numOfDests
+                    currDestNames=currData(i);
+                    final_data_names(1:startNext-2,i)=...
+                                             currDestNames(1:startNext-2);
+                end
+            end
+            
             for i=startNext:SrcImgNum
                 % Base crop
                 [destNames]=saveROI(alignedImg,DestDirNames,SrcImgNames{i-1},...
@@ -209,7 +226,9 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
                 CircleMask.X = PlateCirc{i}.X - rects{i}(1);
                 CircleMask.Y = PlateCirc{i}.Y - rects{i}(2);
                 CircleMask.R = PlateCirc{i}.R*BoardHint.RelativeMaskRadius;
-                save(dataFileStr,'FilesName','FilesDateTime','CircleMask');
+                if updateFlag(i)==1
+                    save(dataFileStr,'FilesName','FilesDateTime','CircleMask');
+                end
             end
         end
 
