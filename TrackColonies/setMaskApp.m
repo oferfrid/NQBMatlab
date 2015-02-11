@@ -135,11 +135,17 @@ end
 function loadCircleState(handles)
     global state;
     axes(handles.picax);
-    x=state.data.CircleMask.X;
-    y=state.data.CircleMask.Y;
-    r=state.data.CircleMask.R;
-   
     
+    if isfield(state.data, 'CircleMask')
+        x=state.data.CircleMask.X;
+        y=state.data.CircleMask.Y;
+        r=state.data.CircleMask.R;
+    else
+        x=state.data.PlateCirc.X;
+        y=state.data.PlateCirc.Y;
+        r=state.data.PlateCirc.R;
+    end
+   
     state.circ = imellipse(gca, [x-r y-r 2*r 2*r]);
     addNewPositionCallback(state.circ,@(p)trackChange(p,handles));
     %set(state.circ,'Tag',DirName);
