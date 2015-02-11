@@ -25,8 +25,8 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
         dataFlag=dir(dataFileStr);
         if ~isempty(dataFlag)
             currNames=load(dataFileStr,'FilesName');
-            currData{k}=currNames;
-            destsImgNum(k)=size(currNames,1);
+            currData{k}=currNames.FilesName;
+            destsImgNum(k)=length(currNames.FilesName);
         end
     end
     
@@ -152,7 +152,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
             
             if startNext>2
                 for i=1:numOfDests
-                    currDestNames=currData(i);
+                    currDestNames=currData{i};
                     final_data_names(1:startNext-2,i)=...
                                              currDestNames(1:startNext-2);
                 end
@@ -227,7 +227,11 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
                 PlateCirc.Y = PlatePos{i}.Y - rects{i}(2);
                 PlateCirc.R = PlatePos{i}.R*BoardHint.RelativeMaskRadius;
                 if updateFlag(i)==1
-                    save(dataFileStr,'FilesName','FilesDateTime','PlateCirc');
+                    if exist(dataFileStr, 'file')
+                      save(dataFileStr,'FilesName','FilesDateTime','PlateCirc','-append');
+                    else
+                      save(dataFileStr,'FilesName','FilesDateTime','PlateCirc');
+                    end
                 end
             end
         end
