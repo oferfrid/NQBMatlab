@@ -2,7 +2,11 @@ function ShowAreaGraphByData(XScaleHr,handle,...
                        IgnoredColonies,Area,Times,Colors,Description)             
     %% Prepare data for plotting
     % Remove iirelevant colonies (close to border or excluded)
+    
     relevantColonies=~IgnoredColonies;
+    realColonies=(Area(end,:)>0);
+    relevantColonies=logical(relevantColonies.*realColonies');
+    
     coloniesNum=size(Area,2);
 
     %% displaying the data on a graph
