@@ -255,7 +255,7 @@ function initPics(startTime,handle,FileDir,appData)
     axes(handle);
     
     fileName=getFileName(startTime,appData.times,appData.imagesName);
-    title=GetTitle(startTime,length(appData.imagesName),appData.description);
+    title=GetTitle(startTime,size(appData.centroid,2),appData.description);
     PlotPlateByData(...
      FileDir,fileName,1,title,0,appData.limitsBW,handle,appData.background)
     initImg=findobj(handle, 'Tag', 'ImageColony');
