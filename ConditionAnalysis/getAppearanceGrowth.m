@@ -1,6 +1,6 @@
-function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
-                             NotBigEnough,MergedBeforUpper] = ...
-                                      getAppearanceGrowth(SourceDirs, lb, ub)
+function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs, lb, ub,DataTimeFlag,BeginTimes)
+% [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
+%                              NotBigEnough,MergedBeforUpper]
 %% [ColoniesGrowth, ColoniesAppearance] = getAppearanceGrowth(
 %                                                          FileDir, lb, ub)
 % -------------------------------------------------------------------------
@@ -32,18 +32,41 @@ function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
 %                             (not in statistics)
 % -------------------------------------------------------------------------
 % Nir Dick. 9.2013
+    substractFlag=0;
+    dataFlag=0;
+    if nargin==4
+        substractFlag=1;
+        dataFlag=DataTimeFlag;
+    end
+    
+    if nargin==5
+        substractFlag=1;
+        
+        if(~iscell(BeginTimes))
+            BeginTimes = {BeginTimes};
+        end
+    end
+
     if(~iscell(SourceDirs))
         SourceDirs = {SourceDirs};
     end
     
     numOfSources=length(SourceDirs);
 
-    ColoniesGrowth=cell(numOfSources);
-    ColoniesAppearance=cell(numOfSources);
-    ColoniesIndices=cell(numOfSources);
-    AreaGap=cell(numOfSources);
-    NotBigEnough=cell(numOfSources);
-    MergedBeforUpper=cell(numOfSources);
+    % AppearanceGrowth init
+    AppearanceGrowth.plate=[];
+    AppearanceGrowth.id=[];
+    AppearanceGrowth.growth=[]; 
+    AppearanceGrowth.appearance=[];
+    AppearanceGrowth.areaGap=[];
+
+    % NotBigEnough init
+    NotBigEnough.plate=[];
+    NotBigEnough.id=[];
+
+    % Merged init
+    Merged.plate=[];
+    Merged.id=[];
 
     for i=1:numOfSources
         currAppearance=[];
@@ -63,12 +86,31 @@ function [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
             end 
         end
         
-        ColoniesGrowth{i}=currGrowth;
-        ColoniesAppearance{i}=currAppearance;
-        ColoniesIndices{i}=currIndices;
-        AreaGap{i}=currGap;
-        NotBigEnough{i}=currNotBigEnough;
-        MergedBeforUpper{i}=currMerged;
+        if substractFlag
+            currStarting=0;
+            if dataFlag&&isfield(data,'StartingTime')
+                currStarting=data.StartingTime;
+            else
+                currStarting=BeginTimes{i};
+            end
+            
+            currAppearance=round((currAppearance-currStarting)*24*60);
+        end
+        
+        % AppearanceGrowth building
+        AppearanceGrowth.plate=[AppearanceGrowth.plate; i*ones(size(currIndices))];
+        AppearanceGrowth.id=[AppearanceGrowth.id; currIndices];
+        AppearanceGrowth.growth=[AppearanceGrowth.growth;currGrowth];
+        AppearanceGrowth.appearance=[AppearanceGrowth.appearance;currAppearance];
+        AppearanceGrowth.areaGap=[AppearanceGrowth.areaGap;currGap];
+
+        % NotBigEnough building
+        NotBigEnough.plate=[NotBigEnough.plate;i*ones(size(currNotBigEnough))];
+        NotBigEnough.id=[NotBigEnough.id;currNotBigEnough];
+        
+        % Merged building
+        Merged.plate=[Merged.plate;i*ones(size(currMerged))];
+        Merged.id=[Merged.id;currMerged];
     end
 end
 
