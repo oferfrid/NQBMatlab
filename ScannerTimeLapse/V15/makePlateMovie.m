@@ -40,6 +40,7 @@ for k = 1: NumOfPics
     F        = getframe(fig);
     writeVideo(writerObj,F);
 %     aviobj   = addframe(aviobj,F);
+    fclose('all');
     close;
 end
 close(writerObj);

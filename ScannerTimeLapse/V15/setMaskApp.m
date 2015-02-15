@@ -1,13 +1,18 @@
 
-%% function setMaskApp(DirName)
+%% function setMaskApp(DirName,TH)
 % -------------------------------------------------------------------------
 % Purpose: Run the set mask application
 %
 % Arguments: DirName - the base directory of pictures and results
+%            TH - treshold (optional) to identify colonies in the BW map. 
+%                 Use ShowLastStretchedHist to figure it up.        
 % -------------------------------------------------------------------------
 % Nir Dick Feb. 2014
 % -------------------------------------------------------------------------
-function setMaskApp(DirName)
+function setMaskApp(DirName,TH)
+    if nargin < 2
+        TH=[];
+    end
     global state;
     
     resultsDir=fullfile(DirName,'Results');
@@ -15,7 +20,7 @@ function setMaskApp(DirName)
         mkdir(resultsDir);
     end
     
-    handles=createGUI(DirName);
+    handles=createGUI(DirName,TH);
     fullMaskName=fullfile(DirName,'Results','mask.mat');
     
     if exist(fullMaskName,'file')
@@ -41,11 +46,11 @@ end
 % -------------------------------------------------------------------------
 % Nir Dick Feb. 2014
 % -------------------------------------------------------------------------
-function [handles]=createGUI(DirName)
+function [handles]=createGUI(DirName,TH)
 
     global state;
 
-     ProcessPictures(DirName,1);
+     ProcessPictures(DirName,TH,1);
     
     [cdir cname ctype]=fileparts(mfilename('fullpath'));
     

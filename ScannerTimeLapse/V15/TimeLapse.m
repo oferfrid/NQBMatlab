@@ -1,4 +1,4 @@
-function TimeLapse(DirName, Description)
+function TimeLapse(DirName, Description,TH)
 %% TimeLapse(DirName, Description)
 % -----------------------------------------------------------------------
 % Purpose: The function traces the canges in time of the colonies
@@ -12,7 +12,8 @@ function TimeLapse(DirName, Description)
 %
 % Arguments: DirName(optional) - Name of directory.
 %          Description(optional) - A description of the experiment
-%
+%            TH - treshold (optional) to identify colonies in the BW map. 
+%                 Use ShowLastStretchedHist to figure it up.
 % Input files: 'P#_00000.tif' - the pictures.
 % Output files: 'L#_00000.mat' - The connected components picture 
 %           for each time step.
@@ -42,15 +43,19 @@ r = 436;    % the relevant radius in the plate in pixels
 x = 526; y=526;
 
 %% getting the list of the files
-if nargin == 1
-    Description = '';
-end
 if nargin == 0
-    Description = '';
     DirName = uigetdir;
     if isequal(DirName,0)
         return;
     end
+end
+
+if nargin<2
+   Description='';
+end
+
+if nargin<3
+    TH=[];
 end
 
 %% getting the relevant area in the picture, unless a file already exists
@@ -83,7 +88,7 @@ disp([datestr(now), ' ', DirName, ' ', Description])
 writeLog(logFile, 'preparing pictures');
 disp('-----------------------------------------------------------------');
 disp('PREPARING PICTURES');
-ProcessPictures(DirName);
+ProcessPictures(DirName,TH);
 
 %% finding the colonies in all the files, in the same area
 writeLog(logFile, 'matching colonies in time');

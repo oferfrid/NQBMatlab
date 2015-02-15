@@ -53,22 +53,19 @@ for k=1:3
     LrgbSized(:,:,k) = ColonyLoc.*Lrgb(:,:,k);
 end
 
-
+[r c d] = size(LrgbSized);
+mask = getRelevantAreaMask(DirName,r,c);
 
 %% resize for movie
 if forMovie
     LrgbSized= imresize(LrgbSized, 0.5);
-    x      = round(x/2);
-    y      = round(y/2);
-    r      = r/2;
+    mask=imresize(mask, 0.5);
 end
 
 %% showing the LRGB
 % h = gcf;
 hold on;
 
-[r c d] = size(LrgbSized);
-mask = getRelevantAreaMask(DirName,r,c);
 edgeB=edge(mask,'canny');
 edgeVec= find(edgeB~=0);
 LrgbSized(edgeVec)=255;
