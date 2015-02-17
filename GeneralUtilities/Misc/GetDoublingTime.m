@@ -8,6 +8,8 @@ function DoublingTime = GetDoublingTime(ReadsTime ,Reads,Dilutions,ODTH, Colour)
 %% find spikes 
 if nargin>4
     DoPlot = true;
+else
+    DoPlot = false;
 end
 
 TH = 0.03;
