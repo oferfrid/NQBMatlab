@@ -8,7 +8,10 @@ function color =getPlotColors(NumberOfColors,ind)
        %color = [ r g b];
        
        
-       y=jet;
-       colorind = round((ind-1)/(NumberOfColors-1)*63 +1);
-       color = y(colorind,:);
+%        y=jet;
+%        colorind = round((ind-1)/(NumberOfColors-1)*63 +1);
+%        color = y(colorind,:);
+
+y=hsv(NumberOfColors);
+color = y(ind,:);
 end

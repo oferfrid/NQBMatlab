@@ -20,6 +20,12 @@ function Results = ReadTecanReader(FullFileName)
 % Updates
 % Irit - 16.02.2014: For number of reads<6 there are blanks in the
 %                    SheetTextData and the Wells return appended with ''.
+% Irit - 26.02.2014: Check for NaN on the 2nd column.
+% -------------------------------------------------------------------------
+% TODO
+% 1. Look for NaNs in the middle of a read - sometimes the read is stopped 
+%    in the middle of a read and we want all of the reads in the same length.
+% 2. change to xlsread
 
 
 %% showing the "open file" ui, if it wasn't specified
@@ -76,7 +82,8 @@ end
     try %WTF!!!!!!!!!!!!!!!!!!!!
    Results{s}.StartTime  = datenum(DateText,'dd/mm/yyyy HH:MM:SS');
     catch exception
-   Results{s}.StartTime  = datenum(DateText,'dd/mm/yyyy HH:MM:SS');
+%    Results{s}.StartTime  = datenum(DateText,'dd/mm/yyyy HH:MM:SS');
+        Results{s}.StartTime  = datenum(DateText);
     end
     
    
@@ -88,11 +95,15 @@ end
         SheetTextData = TextData{s};
     
         for i=1:length(startData)
-            endData = find(isnan(SheetData(startData(i):end,1)),1,'first');
+            % Irit - Feb 2014
+            % looking for NaNs on the 2nd column because sometimes the
+            % number of reads is fixed. 
+            % reading from startData(i):end and not end-1.
+            endData = find(isnan(SheetData(startData(i):end,2)),1,'first');
             if isempty(endData)
-                Results{s}.Labels{i}.Time        = SheetData(startData(i):end-1,2)/60;
-                Results{s}.Labels{i}.Temperature = SheetData(startData(i):end-1,3);
-                Results{s}.Labels{i}.Measurments = SheetData(startData(i):end-1,4:end);
+                Results{s}.Labels{i}.Time        = SheetData(startData(i):end,2)/60;
+                Results{s}.Labels{i}.Temperature = SheetData(startData(i):end,3);
+                Results{s}.Labels{i}.Measurments = SheetData(startData(i):end,4:end);
             else
                 endind=endData+startData(i)-2;
                 Results{s}.Labels{i}.Time        = SheetData(startData(i):endind,2)/60;
