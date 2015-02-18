@@ -1,4 +1,4 @@
-function DoublingTime = GetDoublingTime(ReadsTime ,Reads,Dilutions,ODTH, Colour)
+function [DoublingTime StandartError]= GetDoublingTime(ReadsTime ,Reads,Dilutions,ODTH, Colour)
 %GrowthRate = GetGrowthRate(ReadsTime ,Reads,Dilutions,ODTH)
 %   ReadsTime - time of measurements
 %   Reads - rows: reads in time. cols: different wells.
@@ -14,6 +14,7 @@ end
 
 TH = 0.03;
 
+Dilutions = Dilutions(:);
 
 for c=1:size(Reads,2)
     sOD= smooth(Reads(:,c),5);
@@ -42,8 +43,12 @@ end
 D = -log2(Dilutions);
 
 [p,S] = polyfit(D(~isnan(T)),T(~isnan(T)),1);
+ ste = sqrt(diag(inv(S.R)*inv(S.R'))./S.normr.^2./S.df);
+
+
 
 DoublingTime=p(1);
+StandartError=ste(1);
 
 %%
 if DoPlot
