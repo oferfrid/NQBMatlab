@@ -22,7 +22,7 @@ function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
         limits=[0 1];
     end
     
-    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    dataFileStr=GetDataName(DirName);
     data=load(dataFileStr);
     
     % Get File name by time
@@ -32,6 +32,7 @@ function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
     fileName=filesName{idx};
     
     % Get title
+    size(data.Centroid)
     coloniesNumber=size(data.Centroid,2);
     title=GetTitle(times(idx)-times(1),coloniesNumber,data.Description);
     

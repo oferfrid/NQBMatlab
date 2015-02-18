@@ -21,7 +21,7 @@ function [ColoniesIndices,ColoniesGrowth,AreaGap,NotBigEnough,RemovedMerged]=...
         data=dataInfo;
     % Data info is the location of the file
     else
-        data=load(fullfile(dataInfo,GetDefaultDataName));
+        data=load(GetDataName(dataInfo));
     end
     
     allColonies = find(data.IgnoredColonies==0);

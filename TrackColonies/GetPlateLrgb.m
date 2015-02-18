@@ -1,6 +1,6 @@
 function Lrgb = GetPlateLrgb(DirName)
     % Load Data file
-    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    dataFileStr=GetDataName(DirName);
     data=load(dataFileStr);
     filesName=data.FilesName;
    

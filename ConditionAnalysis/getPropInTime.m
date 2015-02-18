@@ -5,14 +5,14 @@ function [id,Time,Area,Centroid] = getPropInTime(SourceDirs)
     
     numOfDirs=length(SourceDirs);
     
-    id = cell(numOfDirs);
-    Time=cell(numOfDirs);
-    Area=cell(numOfDirs);
-    Centroid=cell(numOfDirs);
+    id = cell(1,numOfDirs);
+    Time=cell(1,numOfDirs);
+    Area=cell(1,numOfDirs);
+    Centroid=cell(1,numOfDirs);
     
    for i=1:numOfDirs
         % Load data file
-        data=load(fullfile(SourceDirs{i},GetDefaultDataName));
+        data=load(GetDataName(SourceDirs{i}));
         
         % Build the id vecs - colonie's id and source dir
         indexes = 1:length(data.IgnoredColonies);

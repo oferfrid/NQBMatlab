@@ -21,7 +21,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
         end
         
         % Load the data file if exists and keep how many images are there
-        dataFileStr=fullfile(currDestDir,DATA_FILE_NAME);
+        dataFileStr=GetDataName(currDestDir);
         dataFlag=dir(dataFileStr);
         if ~isempty(dataFlag)
             currNames=load(dataFileStr,'FilesName');
@@ -222,7 +222,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
             for i=1:numOfDests
                 FilesName=final_data_names(:,i);
                 FilesDateTime=[SrtdSrcImages.datenum];
-                dataFileStr=fullfile(DestDirNames{i},DATA_FILE_NAME);
+                dataFileStr=GetDataName(DestDirNames{i});
                 PlateCirc.X = PlatePos{i}.X - rects{i}(1);
                 PlateCirc.Y = PlatePos{i}.Y - rects{i}(2);
                 PlateCirc.R = PlatePos{i}.R*BoardHint.RelativeMaskRadius;
@@ -239,3 +239,4 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
         close(progress_bar)
     end
 end
+

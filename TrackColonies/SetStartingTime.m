@@ -10,5 +10,6 @@ function [ output_args ] = SetStartingTime(SourceDir,StartingTime,LogFile)
         StartTime=firstLine(startIndex:endIndex);
         StartingTime=datenum(StartTime,'yyyy/mm/dd HH:MM:SS');
     end
-    save(fullfile(SourceDir,GetDefaultDataName),'StartingTime','-append');
+    save(GetDataName(SourceDir),'StartingTime','-append');
 end
+

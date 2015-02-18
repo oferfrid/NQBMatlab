@@ -9,10 +9,9 @@
 % -------------------------------------------------------------------------
 function setMaskApp(SourceDir)
     global state;
-    
-     DATA_FILE_NAME='data.mat';
+ 
     % Load data file
-   state.data=load(fullfile(SourceDir,DATA_FILE_NAME));
+   state.data=load(GetDataName(SourceDir));
     
     
 %     resultsDir=fullfile(SourceDir,'Results');
@@ -356,14 +355,13 @@ function saveMask(objectH,eventH,SourceDir,handles)
             CircleMask.X = position(1,1)+CircleMask.R;
             CircleMask.Y = position(1,2)+CircleMask.R;
             
-            DATA_FILE_NAME='data.mat';
             % Load data file
             if isfield(state.data, 'FullMask')
                 state.data = rmfield(state.data,'FullMask');
             end
             state.data.CircleMask = CircleMask;
             data = state.data;
-            save(fullfile(SourceDir,DATA_FILE_NAME),'-struct','data');
+            save(GetDataName(SourceDir),'-struct','data');
             %save(fullfile(DirName,'Results','CircParams'),'x','y','r');
         end
     else
@@ -395,9 +393,8 @@ end
 % Nir Dick Feb. 2014
 % -------------------------------------------------------------------------
 function saveMasktoFile(FullMask,SourceDir)
-   DATA_FILE_NAME='data.mat';
     % Load data file
-   save(fullfile(SourceDir,DATA_FILE_NAME),'FullMask','-append');
+   save(GetDataName(SourceDir),'FullMask','-append');
 end
 
 %% function changeSavedSign(isSaved,handles)

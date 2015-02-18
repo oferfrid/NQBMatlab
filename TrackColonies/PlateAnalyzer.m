@@ -1,17 +1,30 @@
-function PlateAnalyzer(FileDir,LogFile,StartTime)
+function PlateAnalyzer(FileDir,DataFlag,LogFile,Time)
     global state;
     
     % Close previous opened screen
     close(findobj('name', 'PlateAnalyzer'));
     
     %% Load data and relevant images
-    DATA_FILE_NAME='data.mat';
+    
+    % Load data and create time axis
+    dataFileStr=GetDataName(FileDir);
+    data=load(dataFileStr);
     
     if nargin<2
-        LogFile=fullfile(FileDir,'LogFile.txt');
+        DataFlag=1;
     end
-
+    
     if nargin<3
+        LogFile='';
+    end
+    
+    if nargin<4
+       Time=0;
+    end
+    
+    if DataFlag && isfield(data,'StartingTime')
+        StartTime=data.StartingTime;
+    elseif exist(LogFile,'file')
         fid = fopen(LogFile);
         firstLine=fgets(fid);
         fclose(fid);
@@ -20,15 +33,18 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
         [startIndex,endIndex] = regexpi(firstLine,...
                                         '\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d');
         StartTime=firstLine(startIndex:endIndex);
+        StartTime=datenum(StartTime,'yyyy/mm/dd HH:MM:SS');
+    else
+       StartTime=Time;
     end
 
-    StartTime=datenum(StartTime,'yyyy/mm/dd HH:MM:SS');
-    
-    % Load data and create time axis
-    dataFileStr=fullfile(FileDir,DATA_FILE_NAME);
-    data=load(dataFileStr);
     times=data.FilesDateTime;
-    times=(times-StartTime);
+    if StartTime
+        times=round((times-StartTime)*24*60);
+    else
+        times=(times-StartTime);
+    end
+        
     min=1;
     maxL=length(times);
     state.time=times(maxL);
@@ -91,7 +107,7 @@ function PlateAnalyzer(FileDir,LogFile,StartTime)
     appData.th=data.TH;
     appData.centroid=data.Centroid;
     appData.lrgb=Lrgb;
-    appData.ignored=data.IgnoredColonies;
+    state.ignored=data.IgnoredColonies;
     
     %% Create gui
     h.fig=figure('units','pixels',...
@@ -251,11 +267,13 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function initPics(startTime,handle,FileDir,appData)
+    global state;
     h=gca;
     axes(handle);
     
     fileName=getFileName(startTime,appData.times,appData.imagesName);
-    title=GetTitle(startTime,size(appData.centroid,2),appData.description);
+    numOfColonies=length(find(state.ignored==0));
+    title=GetTitle(startTime,numOfColonies,appData.description);
     PlotPlateByData(...
      FileDir,fileName,1,title,0,appData.limitsBW,handle,appData.background)
     initImg=findobj(handle, 'Tag', 'ImageColony');
@@ -280,6 +298,7 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function initAreaGraph(handles,keepScaleFlag,appData)
+    global state;
     if nargin<3
         keepScaleFlag=0;
     end
@@ -297,7 +316,7 @@ function initAreaGraph(handles,keepScaleFlag,appData)
     end;
     
     ShowAreaGraphByData(...
-                  0,gca,appData.ignored,appData.area,appData.times,...
+                  0,gca,state.ignored,appData.area,appData.times,...
                   appData.colors,appData.description);
     
     allLines = findobj(handles.graphax,'Type','line');
@@ -383,7 +402,6 @@ end
 % -------------------------------------------------------------------------
 function handleTimeChange(FileDir,handles,appData)
     global state;
-    numberingFlag=state.numbers;
     
     % Move the time line to the new state
     updateAreaGraphCurrLine(state.time,handles.graphax);
@@ -399,8 +417,7 @@ function handleTimeChange(FileDir,handles,appData)
     % delete old numbering
     deleteNumbersText(handles);
   
-    if (numberingFlag)
-        appData.ignored=getIgnoredColonies(FileDir);
+    if (state.numbers)
         % Print new numbering
         handleNumbersPlot(handles,selNumStr,appData,state.time);
     end
@@ -651,7 +668,7 @@ function handlePlatePlot(handles,FileDir,appData)
         delete(axesHandlesToChildObjects);
     end;
     
-    NColonies=length(appData.imagesName);
+    NColonies=length(find(state.ignored==0));
     
     title=GetTitle(state.time,NColonies,appData.description);
     fileName=getFileName(state.time,appData.times,appData.imagesName);
@@ -688,9 +705,10 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function handleNumbersPlot(handles,selNumStr,appData,time)
+    global state;
     
     % Plot the numbers for current time
-    PlotPlateColoniesNumbersByData(time,appData.centroid,appData.ignored,...
+    PlotPlateColoniesNumbersByData(time,appData.centroid,state.ignored,...
                                    appData.times,0);
                               
     % Set the handler for selection event for each number
@@ -899,6 +917,7 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function excludeSelected(handles,FileDir,appData)
+    global state;
     
     % Get selected colony
     colonyNumber=getSelectedColony();
@@ -910,20 +929,23 @@ function excludeSelected(handles,FileDir,appData)
         if (~IgnoredColonies(colonyNumber))
             % Exclude colony
             IgnoredColonies(colonyNumber)=2;
-
+            state.ignored=IgnoredColonies;
+             
+            % Save change to file
+            save(GetDataName(FileDir),'IgnoredColonies','-append');
+            
             % Color the number so it will sign that it was excluded
             setcolonyTextColor(colonyNumberStr,handles,[1 1 0])
-
-            appData.ignored=IgnoredColonies;
             
             % update area graph
             initAreaGraph(handles,1,appData);
 
             handleColonySelection(colonyNumberStr,handles.graphax,...
                                   handles.picax);
-
-            % Save change to file
-            save(fullfile(FileDir,'data.mat'),'IgnoredColonies','-append');
+            
+            NColonies=length(find(state.ignored==0));
+            currTitle=GetTitle(state.time,NColonies,appData.description);
+            title(handles.picax,currTitle);
         end
     end
 end
@@ -952,6 +974,8 @@ end
 % Nir Dick Sept. 2013
 % -------------------------------------------------------------------------
 function includeSelected(handles,FileDir,appData)
+    global state;
+    
     % Get selected colony
     colonyNumber=getSelectedColony();
     colonyNumberStr=num2str(colonyNumber);
@@ -961,20 +985,22 @@ function includeSelected(handles,FileDir,appData)
         if (IgnoredColonies(colonyNumber))
             % Include colony
             IgnoredColonies(colonyNumber)=0;
-
-            % Color the number so it will sign that it was'nt excluded
+            state.ignored=IgnoredColonies;
+            % Save change to file
+            save(GetDataName(FileDir),'IgnoredColonies','-append');
+            
+            % Color the number so it will sign that it wasn't excluded
             setcolonyTextColor(colonyNumberStr,handles,[1 1 1])
-
-            appData.ignored=IgnoredColonies;
             
             % update area graph
             initAreaGraph(handles,1,appData);
-
+            
             handleColonySelection(colonyNumberStr,handles.graphax,...
                                   handles.picax);
-
-            % Save change to file
-            save(fullfile(FileDir,'data.mat'),'IgnoredColonies','-append');
+            
+            NColonies=length(find(state.ignored==0));
+            currTitle=GetTitle(state.time,NColonies,appData.description);
+            title(handles.picax,currTitle);
         end
     end
 end
@@ -1011,5 +1037,7 @@ function FileName=getFileName(Time,Times,FilesName)
 end
 
 function IgnoredColonies=getIgnoredColonies(FileDir)
-    load(fullfile(FileDir,'data.mat'),'IgnoredColonies');
+    load(GetDataName(FileDir),'IgnoredColonies');
 end
+
+

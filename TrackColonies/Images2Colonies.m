@@ -7,12 +7,10 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
        TH=GetDefaultTH;
     end
     
-    %DefCirc % to do
-    
-    DATA_FILE_NAME=GetDefaultDataName;
+    DATA_FILE_NAME=GetDataName(SourceDir);
     
     % Load data file
-    data=load(fullfile(SourceDir,DATA_FILE_NAME));
+    data=load(DATA_FILE_NAME);
     
     
     % Load background
@@ -92,11 +90,13 @@ function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
         % Calculate the close to border colonies
         relevantColonies = FindColoniesInWorkingArea(relevantArea,coloniesFirstCM);
         IgnoredColonies =double(~relevantColonies);
-        dataFileStr=fullfile(SourceDir,DATA_FILE_NAME);
-        SetDescription(dataFileStr,'');
-        save(dataFileStr,...
-                       'Area','BBox','Centroid','IgnoredColonies','TH',...
-                       'Limits','-append');
+        
+        % Mark colonies with zero area at the end as not relevant
+        zeroAreaColonies=(Area(end,:)==0);
+        IgnoredColonies(zeroAreaColonies)=GetDefaultNoColonyCode;
+        
+        save(DATA_FILE_NAME,'Area','BBox','Centroid','IgnoredColonies',...
+                            'TH','Limits','-append');
 
       end
 end

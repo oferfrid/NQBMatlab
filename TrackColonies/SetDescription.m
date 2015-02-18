@@ -1,4 +1,4 @@
-function SetDescription(DataFile,Description)
-    save(DataFile,'Description','-append');
+function SetDescription(SourceDir,Description)
+    save(GetDataName(SourceDir),'Description','-append');
 end
 

@@ -1,7 +1,7 @@
 function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
-
     substract=0;
     sentTimeFlag=0;
+
     if nargin < 2
         DataTimeFlag=false;
     else
@@ -27,7 +27,7 @@ function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
     
     for i=1:numOfSources
         % Load data file
-        data=load(fullfile(SourceDirs{i},GetDefaultDataName));
+        data=load(GetDataName(SourceDirs{i}));
         
         if isfield(data,'StartingTime') && DataTimeFlag
             currBeginTime=data.StartingTime;
@@ -38,7 +38,7 @@ function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
         end
         
         indexes = 1:length(data.IgnoredColonies);
-        indexes = indexes((~data.IgnoredColonies)&(data.Area(end,:)>0)');
+        indexes = indexes(~data.IgnoredColonies);
         
         [~,I]=max(data.Area(:,indexes)>0,[],1);
         PlateAppearanceTime = data.FilesDateTime(I);

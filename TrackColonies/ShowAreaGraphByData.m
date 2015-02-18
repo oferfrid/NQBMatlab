@@ -4,8 +4,7 @@ function ShowAreaGraphByData(XScaleHr,handle,...
     % Remove iirelevant colonies (close to border or excluded)
     
     relevantColonies=~IgnoredColonies;
-    realColonies=(Area(end,:)>0);
-    relevantColonies=logical(relevantColonies.*realColonies');
+    relevantColonies=logical(relevantColonies);
     
     coloniesNum=size(Area,2);
 

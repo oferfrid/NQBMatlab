@@ -75,7 +75,7 @@ function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs
         else
             % Load data file
             FileDir=SourceDirs{i};
-            data=load(fullfile(FileDir,GetDefaultDataName));
+            data=load(GetDataName(FileDir));
 
             [currIndices,currGrowth,currGap,currNotBigEnough,currMerged]=...
                                     getColoniesGrowthRate(FileDir, lb, ub);

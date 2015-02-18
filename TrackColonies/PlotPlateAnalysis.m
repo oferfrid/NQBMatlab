@@ -20,7 +20,7 @@ function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle,Lrgb)
     end
 
     % Load data file
-    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    dataFileStr=GetDataName(DirName);
     data=load(dataFileStr);
     
     % Convert time gap to file name

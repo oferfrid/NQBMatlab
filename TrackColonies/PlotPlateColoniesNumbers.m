@@ -10,7 +10,7 @@ function PlotPlateColoniesNumbers(TimeGap, DirName, ForMovie)
         ForMovie=0;
     end
     
-    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    dataFileStr=GetDataName(DirName);
     data=load(dataFileStr);
     
     % Get File name by time

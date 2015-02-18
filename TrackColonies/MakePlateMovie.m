@@ -10,7 +10,7 @@ function MakePlateMovie(DirName,MovieName)
         MovieName='PlateMovie';
     end
     
-    dataFileStr=fullfile(DirName,GetDefaultDataName);
+    dataFileStr=GetDataName(DirName);
     data=load(dataFileStr);
     filesDates=data.FilesDateTime;
 
