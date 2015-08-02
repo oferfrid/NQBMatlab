@@ -1,4 +1,22 @@
-function PlateAnalyzer(FileDir,DataFlag,LogFile,Time)
+function PlateAnalyzer(FileDir,Time)
+%% PlateAnalyzer(FileDir,DataFlag,LogFile,Time)
+% -------------------------------------------------------------------------
+% Purpose: Open the plate analyzing screen
+% 
+% Arguments: FileDir - The full path of the directory
+%            DataFlag (default 1) - indication if to search the starting
+%            time in the data file
+%            LogFile - specifiy the log file (for getting the start time)
+%            when DataFlag is 0 or when there is no starting time in the
+%            data file.
+%            Time (default 0) - if no starting time was found in the data file and when
+%            no log file was given (or log file was not found) the time
+%            argument will be used (with 0 value if no such argument was
+%            givven by the user)
+%
+% Returns: CID - An Array of colony IDs
+% -------------------------------------------------------------------------
+% Irit L. Reisman 08.2011
     global state;
     
     % Close previous opened screen
@@ -10,30 +28,14 @@ function PlateAnalyzer(FileDir,DataFlag,LogFile,Time)
     dataFileStr=GetDataName(FileDir);
     data=load(dataFileStr);
     
+    dataFlag=0;
     if nargin<2
-        DataFlag=1;
+        Time=0;
+        dataFlag=1;
     end
     
-    if nargin<3
-        LogFile='';
-    end
-    
-    if nargin<4
-       Time=0;
-    end
-    
-    if DataFlag && isfield(data,'StartingTime')
+    if dataFlag && isfield(data,'StartingTime')
         StartTime=data.StartingTime;
-    elseif exist(LogFile,'file')
-        fid = fopen(LogFile);
-        firstLine=fgets(fid);
-        fclose(fid);
-
-        % get the time from the first line
-        [startIndex,endIndex] = regexpi(firstLine,...
-                                        '\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d');
-        StartTime=firstLine(startIndex:endIndex);
-        StartTime=datenum(StartTime,'yyyy/mm/dd HH:MM:SS');
     else
        StartTime=Time;
     end
@@ -41,8 +43,6 @@ function PlateAnalyzer(FileDir,DataFlag,LogFile,Time)
     times=data.FilesDateTime;
     if StartTime
         times=round((times-StartTime)*24*60);
-    else
-        times=(times-StartTime);
     end
         
     min=1;
