@@ -1,4 +1,4 @@
-function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs, lb, ub,DataTimeFlag,BeginTimes)
+function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs, lb, ub,BeginTimes)
 % [ColoniesGrowth, ColoniesAppearance,ColoniesIndices,AreaGap,...
 %                              NotBigEnough,MergedBeforUpper]
 %% [ColoniesGrowth, ColoniesAppearance] = getAppearanceGrowth(
@@ -32,19 +32,10 @@ function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs
 %                             (not in statistics)
 % -------------------------------------------------------------------------
 % Nir Dick. 9.2013
-    substractFlag=0;
     dataFlag=0;
-    if nargin==4
-        substractFlag=1;
-        dataFlag=DataTimeFlag;
-    end
-    
-    if nargin==5
-        substractFlag=1;
-        
-        if(~iscell(BeginTimes))
-            BeginTimes = {BeginTimes};
-        end
+    if nargin<4
+        dataFlag=1;
+        BeginTimes=zeros(size(SourceDirs));
     end
 
     if(~iscell(SourceDirs))
@@ -86,15 +77,16 @@ function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs
             end 
         end
         
-        if substractFlag
-            currStarting=0;
-            if dataFlag&&isfield(data,'StartingTime')
-                currStarting=data.StartingTime;
-            else
-                currStarting=BeginTimes{i};
-            end
-            
-            currAppearance=round((currAppearance-currStarting)*24*60);
+        if dataFlag&&isfield(data,'StartingTime')
+            currStarting=data.StartingTime;
+        else
+            currStarting=BeginTimes(i);
+        end
+        
+        currAppearance=currAppearance-currStarting;
+        
+        if currStarting
+            currAppearance=round(currAppearance*24*60);
         end
         
         % AppearanceGrowth building
@@ -113,4 +105,3 @@ function [AppearanceGrowth,NotBigEnough,Merged] = getAppearanceGrowth(SourceDirs
         Merged.id=[Merged.id;currMerged];
     end
 end
-
