@@ -1,18 +1,8 @@
-function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
-    substract=0;
-    sentTimeFlag=0;
-
-    if nargin < 2
-        DataTimeFlag=false;
-    else
-        substract=1;
-        
-        if nargin > 2
-            sentTimeFlag=1;
-            if(~iscell(BeginTimes))
-                BeginTimes = {BeginTimes};
-            end
-        end
+function [ApperanceTime] = getAppearanceTime(SourceDirs,BeginTimes)
+    dataFlag=0;
+    if nargin<2
+        dataFlag=1;
+        BeginTimes=zeros(size(SourceDirs));
     end
 
     if(~iscell(SourceDirs))
@@ -29,12 +19,10 @@ function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
         % Load data file
         data=load(GetDataName(SourceDirs{i}));
         
-        if isfield(data,'StartingTime') && DataTimeFlag
+        if dataFlag&&isfield(data,'StartingTime')
             currBeginTime=data.StartingTime;
-        elseif sentTimeFlag
-            currBeginTime=BeginTimes{i};
         else
-            substract=0;
+            currBeginTime=BeginTimes(i);
         end
         
         indexes = 1:length(data.IgnoredColonies);
@@ -43,8 +31,10 @@ function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
         [~,I]=max(data.Area(:,indexes)>0,[],1);
         PlateAppearanceTime = data.FilesDateTime(I);
         
-        if substract
-            PlateAppearanceTime=round((PlateAppearanceTime-currBeginTime)*24*60);
+        PlateAppearanceTime=PlateAppearanceTime-currBeginTime;
+        
+        if currBeginTime
+            PlateAppearanceTime=round(PlateAppearanceTime*24*60);
         end
                
         ApperanceTime.plate=[ApperanceTime.plate,i*ones(size(indexes))];
@@ -52,4 +42,3 @@ function [ApperanceTime] = getAppearanceTime(SourceDirs,DataTimeFlag,BeginTimes)
         ApperanceTime.time=[ApperanceTime.time,PlateAppearanceTime];
     end
 end
-
