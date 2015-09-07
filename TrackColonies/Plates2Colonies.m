@@ -1,4 +1,12 @@
 function Plates2Colonies(Plates,Descriptions,Tresholds)
+% function Plates2Colonies(Plates,Descriptions,Tresholds)
+% Processing sent plates, for 'processing' meaning please
+% read Images2Colonies description.
+% arguments:
+%       Plates - array of plates numbers.       
+%       Descriptions - description for each plate
+%       tresholds - colonies TH for each plate
+% Nir Dick 2015
     PlatesNum = length(Plates);
 
     if nargin < 2
