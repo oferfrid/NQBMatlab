@@ -1,5 +1,8 @@
 function [destNames]=saveROI(Image,DestDirNames,ImageName,...
                              Plates2Cut,index,limits,rects)
+% Save the roi for of each plate as long as limits are not being
+% exceeded. Note that each plate has its own limits.
+%Nir Dick 2015
 
     numOfDests=length(DestDirNames);
     
