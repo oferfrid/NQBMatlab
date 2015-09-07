@@ -1,4 +1,15 @@
 function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
+% PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
+% Plotting the plate image of current time.
+% arguments:
+%       TimeGap - the current time we are looking at
+%       DirName - plates directory
+%       BW      - color or grayscale mode
+%       for movie - for movie or not
+%       handle - the gui handle we are plotting in
+%       limits - stretching limits
+% Nir Dick 2015
+
     if nargin < 2
         DirName = uigetdir;
         if isequal(DirName,0)
