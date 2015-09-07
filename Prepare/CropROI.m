@@ -12,6 +12,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     %                  createBoardHint procedure
     % Plates2Cut - array of wanted plates to be prepared
     % updateFlag (default 1) - 1 - update data file, 0 - no
+    % Nir Dick 2015
     if nargin<5
         updateFlag=ones(1,length(Plates2Cut));
     end
