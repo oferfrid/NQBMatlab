@@ -12,7 +12,7 @@ function relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
 % Returns: a logical array specifying for each colony if its in 
 %          working area
 % -------------------------------------------------------------------------
-% Irit L. Reisman 08.2011
+% Nir Dick 2015
 
     %% Constants
 
