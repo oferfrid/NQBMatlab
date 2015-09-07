@@ -1,4 +1,18 @@
 function Out = Images2Colonies(SourceDir,lastPicFlag,TH)
+% Out = Images2Colonies(SourceDir,lastPicFlag,TH)
+% This method takes a series of plate's images in time and 
+% identify , track and calculates the colonies growth 
+% information using image analysis. The information is being
+% stored in the data file.
+%
+% arguments:
+%       SourceDir - The paltes images information.
+%       lastPicFlag - (default 0) 0 - process all images,
+%                                 1 - process last image only
+%       TH - colonies treshold
+% returns:
+%       Out - last bw image
+% Nir Dick (and Ofer Fridman) 2015
     if nargin<2
         lastPicFlag=false;
     end
