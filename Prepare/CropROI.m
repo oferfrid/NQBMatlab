@@ -1,6 +1,17 @@
 function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     %CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
-    
+    % This is the main function for preparing the time lapse images.
+    % The methoid align the scanner's images and the cut the selected plates images.
+    % The function create a motion file holding the alignment data for
+    % being able to add images. If an image was added in the middle of already proccessed
+    % images an error will be raised.
+    % arguments:
+    % SourceName - The scanner's images directory.
+    % DestDirNames - Destination for prepared plate images.
+    % BoardFileName - The board hint file. This file is being created using
+    %                  createBoardHint procedure
+    % Plates2Cut - array of wanted plates to be prepared
+    % updateFlag (default 1) - 1 - update data file, 0 - no
     if nargin<5
         updateFlag=ones(1,length(Plates2Cut));
     end
