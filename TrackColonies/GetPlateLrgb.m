@@ -1,6 +1,6 @@
 function Lrgb = GetPlateLrgb(DirName)
 % Lrgb = GetPlateLrgb(DirName)
-% Creating a n*3 colormap for the a plate
+% Creating a n*3 colormap for the a plate's colonies
 % arguments:
 %       DirName - the plates directory       
 % returns
