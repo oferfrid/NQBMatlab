@@ -1,22 +1,15 @@
 function PlateAnalyzer(FileDir,Time)
-%% PlateAnalyzer(FileDir,DataFlag,LogFile,Time)
+%% PlateAnalyzer(FileDir,Time)
 % -------------------------------------------------------------------------
 % Purpose: Open the plate analyzing screen
 % 
 % Arguments: FileDir - The full path of the directory
-%            DataFlag (default 1) - indication if to search the starting
-%            time in the data file
-%            LogFile - specifiy the log file (for getting the start time)
-%            when DataFlag is 0 or when there is no starting time in the
-%            data file.
-%            Time (default 0) - if no starting time was found in the data file and when
-%            no log file was given (or log file was not found) the time
-%            argument will be used (with 0 value if no such argument was
-%            givven by the user)
-%
-% Returns: CID - An Array of colony IDs
+%            Time (default 0) - if no starting time was found in the data file 
+%            the time argument will be used (with 0 value if no such argument was
+%            given by the user)
 % -------------------------------------------------------------------------
-% Irit L. Reisman 08.2011
+% Nir Dick 2015
+
     global state;
     
     % Close previous opened screen
