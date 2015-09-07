@@ -6,7 +6,7 @@ function relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
 %          the colony's sent center is with NearBorder pixels inside the
 %          mask.
 % 
-% Arguments: Mask - The plate's mask
+% Arguments: Mask - The plate's mask binary image
 %            VecCen - centers array 
 %
 % Returns: a logical array specifying for each colony if its in 
