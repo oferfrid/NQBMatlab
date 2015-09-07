@@ -1,4 +1,11 @@
 function Lrgb = GetPlateLrgb(DirName)
+% Lrgb = GetPlateLrgb(DirName)
+% Creating a n*3 colormap for the a plate
+% arguments:
+%       DirName - the plates directory       
+% returns
+%       Lrgb - colormap
+
     % Load Data file
     dataFileStr=GetDataName(DirName);
     data=load(dataFileStr);
