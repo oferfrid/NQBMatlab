@@ -3,13 +3,11 @@ function clnImg = CleanImage(I,bg)
 % --------------------------------------------------------------
 % purpose: reading a picture file and sharpening it
 %
-% Arguments: I   - A grayscale image
-% Returns:   Img - An image clean from noises
+% Arguments: I   - rgb image
+% Returns:   bg - rgb background
 % --------------------------------------------------------------
-% Irit Levin (with Alex) 8.8.06
-% --------------------------------------------------------------
+% Nir Dick 2015
 
-% disksize = 50;
 clnImg = rgb2gray(imsubtract(I,bg));
 
 %%
