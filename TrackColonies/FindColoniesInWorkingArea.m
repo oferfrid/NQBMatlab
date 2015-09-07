@@ -1,14 +1,16 @@
 function relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
-%% CID = FindColoniesInWorkingArea(FileDir)
+%% relevantColonies = FindColoniesInWorkingArea(Mask,VecCen)
 % -------------------------------------------------------------------------
-% Purpose: Returns the colony IDs in the working area.
+% Purpose: Returns a logical array specifying for each colony if its in 
+%          working area (1) or not (0). Being in working area means that
+%          the colony's sent center is with NearBorder pixels inside the
+%          mask.
 % 
-% Description: Checks the distance of the centre of the colonies from the 
-%          borders 
-% 
-% Arguments: FileDir - The full path of the directory
+% Arguments: Mask - The plate's mask
+%            VecCen - centers array 
 %
-% Returns: CID - An Array of colony IDs
+% Returns: a logical array specifying for each colony if its in 
+%          working area
 % -------------------------------------------------------------------------
 % Irit L. Reisman 08.2011
 
