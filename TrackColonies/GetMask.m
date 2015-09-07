@@ -1,4 +1,12 @@
 function relevantArea = GetMask(Data,Rows,Cols)
+% relevantArea = GetMask(Data,Rows,Cols)
+% Calculates a binary image representing the mask.
+% arguments:
+%       Data - The actual data file
+%       Rows,Cols - binary image dimensions
+% returns:
+%       relevantArea - a binary image
+
     if  isfield(Data,'FullMask')
         relevantArea = Data.FullMask;
     % Working with a circled area
