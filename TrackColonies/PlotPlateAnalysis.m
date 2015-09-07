@@ -1,3 +1,12 @@
+% PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle,Lrgb)
+% Plotting the plate analysis of current time.
+% arguments:
+%       TimeGap - the current time we are looking at
+%       DirName - plates directory
+%       for movie - for movie or not
+%       handle - the gui handle we are plotting in
+%       lrgb - colonies colormap 
+% Nir Dick 2015
 function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle,Lrgb)
     
     if nargin < 2
