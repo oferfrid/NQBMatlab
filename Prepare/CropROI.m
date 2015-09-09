@@ -6,7 +6,11 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     % being able to add images. If an image was added in the middle of already proccessed
     % images an error will be raised.
     % arguments:
-    % SourceName - The scanner's images directory.
+    % SourceName - The scanner's images directory. Please keep the following
+    %               format: sourcedir/filesformat. the filesformat can be an
+    %               empty string or a string with the format "name.type", both
+    %               "name" and "type" are expressions that may imclude hints like *
+    %               as long as the dir() procedure will accept the SourceName.
     % DestDirNames - Destination for prepared plate images.
     % BoardFileName - The board hint file. This file is being created using
     %                  createBoardHint procedure
