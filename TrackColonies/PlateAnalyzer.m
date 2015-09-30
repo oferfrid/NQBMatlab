@@ -265,7 +265,7 @@ function initPics(startTime,handle,FileDir,appData)
     axes(handle);
     
     fileName=getFileName(startTime,appData.times,appData.imagesName);
-    numOfColonies=length(find(state.ignored==0));
+    numOfColonies=getColoniesNumber(appData);
     title=GetTitle(startTime,numOfColonies,appData.description);
     PlotPlateByData(...
      FileDir,fileName,1,title,0,appData.limitsBW,handle,appData.background)
@@ -661,8 +661,7 @@ function handlePlatePlot(handles,FileDir,appData)
         delete(axesHandlesToChildObjects);
     end;
     
-    NColonies=length(find(state.ignored==0));
-    
+    NColonies=getColoniesNumber(appData);  
     title=GetTitle(state.time,NColonies,appData.description);
     fileName=getFileName(state.time,appData.times,appData.imagesName);
     % Check the state for what picture option the user want
@@ -936,7 +935,7 @@ function excludeSelected(handles,FileDir,appData)
             handleColonySelection(colonyNumberStr,handles.graphax,...
                                   handles.picax);
             
-            NColonies=length(find(state.ignored==0));
+            NColonies=getColoniesNumber(appData);
             currTitle=GetTitle(state.time,NColonies,appData.description);
             title(handles.picax,currTitle);
         end
@@ -991,7 +990,7 @@ function includeSelected(handles,FileDir,appData)
             handleColonySelection(colonyNumberStr,handles.graphax,...
                                   handles.picax);
             
-            NColonies=length(find(state.ignored==0));
+            NColonies=getColoniesNumber(appData);
             currTitle=GetTitle(state.time,NColonies,appData.description);
             title(handles.picax,currTitle);
         end
@@ -1033,4 +1032,9 @@ function IgnoredColonies=getIgnoredColonies(FileDir)
     load(GetDataName(FileDir),'IgnoredColonies');
 end
 
-
+function NColonies = getColoniesNumber(appData)
+    global state;
+    
+    idx=find(appData.times==state.time);
+    NColonies=length(find((appData.area(idx,:)>0).*~state.ignored'));
+end
