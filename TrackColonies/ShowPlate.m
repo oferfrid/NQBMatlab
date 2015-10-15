@@ -1,4 +1,12 @@
 function ShowPlate(TimeGap, DirName, ForMovie,Handles,Lrgb)
+% ShowPlate(TimeGap, DirName, ForMovie,Handles,Lrgb)
+% Plot all plate data: Picture, analysis, numbers
+% arguments:
+%   TimeGap - the time we are handling
+%   DirName - source directory
+%   ForMovie - 0/1
+%   Handles - graphic handle
+%   Lrgb - L colors data
     
     if nargin < 2
         DirName = uigetdir;
