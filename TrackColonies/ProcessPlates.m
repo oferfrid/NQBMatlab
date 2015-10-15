@@ -1,4 +1,10 @@
 function ProcessPlates(SourceDirs,LogFiles,Descriptions)
+% ProcessPlates(SourceDirs,LogFiles,Descriptions)
+% Process a set of source directories
+% SourceDirs - array of strings
+% LogFiles - array of strings
+% Descriptions - array of strings
+
     logFlag=true;
     descFlag=true;
     
