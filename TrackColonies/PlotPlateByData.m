@@ -1,5 +1,17 @@
 function PlotPlateByData(DirName,FileName,BW,Title,forMovie,limits,handle,...
                   background)
+% PlotPlateByData(DirName,FileName,BW,Title,forMovie,limits,handle,background)
+% Plot the plate image of current time by data sent as arguments.
+% arguments:
+% DirName - Name of directory
+% FileName - Name of the image to analyse and plot
+% BW - boolean indication
+% Title - title
+% forMovie - yes/no
+% Limits - stretching limits (by it we proccessed the images)
+% handle - the handle to plot in
+% Background - the first image
+% Nir Dick 2015
 
 if nargin < 3
     BW=1;
