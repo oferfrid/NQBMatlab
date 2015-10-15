@@ -1,5 +1,15 @@
 function PlotPlateColoniesNumbersByData(TimeGap,VecCen,ColoniesStatus,...
                                         Times,forMovie)
+% PlotPlateColoniesNumbersByData(TimeGap,VecCen,ColoniesStatus,Times,forMovie)
+% Plot numbers for each colony. Color of number is according
+% to the colony status.
+% arguments:
+%   TimeGap - time we are handling
+%   VecCen - centroid
+%   ColoniesStatus - the IgnoredColonies array
+%   Times - time axis
+%   ForMovie - boolean
+
     if nargin < 5
        forMovie=false; 
     end
