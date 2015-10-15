@@ -1,4 +1,12 @@
 function PlotPlateColoniesNumbers(TimeGap, DirName, ForMovie)
+% PlotPlateColoniesNumbers(TimeGap, DirName, ForMovie)
+% Plot numbers for each colony. Color of number is according
+% to the colony status.
+% arguments:
+%   TimeGap - time we are handling
+%   DirName - name of directory
+%   ForMovie - boolean
+
     if nargin < 2
         DirName = uigetdir;
         if isequal(DirName,0)
