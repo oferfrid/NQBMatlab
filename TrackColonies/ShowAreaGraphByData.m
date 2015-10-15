@@ -1,5 +1,17 @@
 function ShowAreaGraphByData(XScaleHr,handle,...
-                       IgnoredColonies,Area,Times,Colors,Description)             
+                       IgnoredColonies,Area,Times,Colors,Description)
+% function ShowAreaGraphByData(XScaleHr,handle,...
+%                       IgnoredColonies,Area,Times,Colors,Description)
+%
+% Show the area graph using data sent as arguments.
+% XScaleHr -  
+% handle -handle to plot in
+% IgnoredColonies - Colonies status
+% Area - colonies area data
+% Times - time axis
+% Colors - colors data
+% Description - string
+
     %% Prepare data for plotting
     % Remove iirelevant colonies (close to border or excluded)
     
