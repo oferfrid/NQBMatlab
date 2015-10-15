@@ -1,4 +1,8 @@
 function MakePlateMovie(DirName,MovieName)
+% function MakePlateMovie(DirName,MovieName)
+% Creating movie with name MovieName from the images
+% in the directory DirName.
+
     if nargin == 0
         DirName = uigetdir;
         if isequal(DirName,0)
