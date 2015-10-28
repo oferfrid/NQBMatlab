@@ -14,9 +14,9 @@ function [SurvivalCurveX, SurvivalCurveY] = getSurvivalCurve(SourceDirs,BeginTim
     end
     
     if sentBegin
-        totalAppearenceTime=getAppearanceTime(SourceDirs,1,BeginTimes);
+        totalAppearenceTime=getAppearanceTime(SourceDirs,BeginTimes);
     else
-        totalAppearenceTime=getAppearanceTime(SourceDirs,1);
+        totalAppearenceTime=getAppearanceTime(SourceDirs);
     end 
     SurvivalCurveX = sort(totalAppearenceTime.time);
     SurvivalCurveY  = length(totalAppearenceTime.time):-1:1;
