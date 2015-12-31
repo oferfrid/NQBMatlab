@@ -10,6 +10,11 @@ function  CreateBoardHint( inputImage,NumberOfPlates,FileName,PlateDiamiter)
 if nargin<4
     PlateDiamiter = 90;
 end
+
+if ischar(inputImage)
+    im=imread(inputImage);
+    inputImage=im(:,:,1:3);
+end
    
     
 [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamiter);
@@ -24,12 +29,19 @@ ReletiveRadius =  sqrt( radii.^2/(ImageSize(1)*ImageSize(2)));
 
 [~,index] = sortrows(round(ReletiveCenters./sigfig)*sigfig,[1 2]);
 
-AlignmentArea=[870/ImageSize(1) 800/ImageSize(2) 900/ImageSize(1) 800/ImageSize(2)];
+
 
 BoardHint.Centers = ReletiveCenters(index,:);
 BoardHint.Radius = ReletiveRadius(index);
-BoardHint.AlignmentArea = AlignmentArea;
+
 BoardHint.RelativeMaskRadius = 0.8;
+c1=BoardHint.Centers(5,1);
+c2=BoardHint.Centers(5,2);
+r=BoardHint.Radius(5);
+
+AlignmentArea=[c1-r c2-r c1+r c2+r];
+BoardHint.AlignmentArea = AlignmentArea;
+ 
  save(FileName,'BoardHint');
 end
 
@@ -89,7 +101,6 @@ function [centers,radii] = FindAllPlates( inputImage,NumberOfPlates,PlateDiamite
      MException('FindPlates:NoConvergence','Number of iterations exceeded');
  end
  
-
   
 end
 
