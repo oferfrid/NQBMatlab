@@ -12,7 +12,7 @@ function setMaskApp(SourceDir)
  
     % Load data file
    state.data=load(GetDataName(SourceDir));
-    
+   state.saved=1; 
     
 %     resultsDir=fullfile(SourceDir,'Results');
 %     if ~exist(resultsDir,'dir')
@@ -117,6 +117,8 @@ function [handles]=createGUI(SourceDir)
    set(ExAreaButton,'ClickedCallback',...
             @(objH,eventH)handleRemovePolygon(objH,eventH,handles));
         
+   set(handles.fig,'CloseRequestFcn',@(objectH,eventH)closeGUI(objectH,eventH,SourceDir,handles));
+        
    % Save
    b = findall(handles.fig,'ToolTipString','Save Figure');
    set(b,'ClickedCallback',@(objectH,eventH)saveMask(objectH,eventH,SourceDir,handles));
@@ -170,6 +172,7 @@ function handleMaskAreaButton(objH,eventH,handles)
         enableAreaMaskButtons(handles);
         showMaskedImage(handles.picax,state.mask);
         changeSavedSign(0,handles);
+        state.saved=0;
     end
 end
 
@@ -198,6 +201,7 @@ function handleMaskCircButton(objH,eventH,handles,ClearImage,DirName)
         set(imageH,'Tag','Image');
         loadCircleState(handles);
         changeSavedSign(0,handles);
+        state.saved=0;
     end
 end
 
@@ -289,6 +293,7 @@ function addPolygon(handles)
         state.mask = (onesMask-currMask).*state.mask+currMask;
         showMaskedImage(handles.picax,state.mask);
         changeSavedSign(0,handles);
+        state.saved=0;
     end
 end
 
@@ -323,6 +328,7 @@ function removePolygon(handles)
         state.mask = (onesMask-currMask).*state.mask+zeros(size(currMask));
         showMaskedImage(handles.picax,state.mask);
         changeSavedSign(0,handles);
+        state.saved=0;
     end
 end
 
@@ -369,6 +375,7 @@ function saveMask(objectH,eventH,SourceDir,handles)
     end
     
     changeSavedSign(1,handles);
+    state.saved=1;
 end
 
 %% function getImage(axes)
@@ -425,5 +432,25 @@ end
 % Nir Dick Feb. 2014
 % -------------------------------------------------------------------------
 function trackChange(p,handles)
+    global state;
+    
     changeSavedSign(0,handles);
+    state.saved=0;
+end
+
+function closeGUI(objectH,eventH,SourceDir,handles)
+   global state;
+   selection='No';
+   if ~state.saved
+       selection = questdlg('Changes have been made but not saved. Save changes?',...
+          'Close Request Function',...
+          'Yes','No','Cancel','Cancel'); 
+   end
+
+   if ~strcmp(selection,'Cancel')
+       if strcmp(selection,'Yes')
+           saveMask(objectH,eventH,SourceDir,handles);
+       end
+       delete(gcf);
+   end
 end
