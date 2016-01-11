@@ -3,7 +3,7 @@ function ConvertToV16(odir,prefix)
     This function will create a data file containing all previous version's
     results.
 %}
-    odir
+    [ 'current dir is : ' odir]
     
     dataName=[prefix '_data.mat'];
     % Verifying the plate number
