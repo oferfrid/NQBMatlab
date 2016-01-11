@@ -1,4 +1,4 @@
-function transform2V16Dir(root,reg,prefix)
+function Transform2V16Dir(root,reg,prefix)
     subds=subdir(root)';
     subds=subds(~cellfun('isempty',regexp(subds,reg)));
     xlswrite(fullfile(root,'subdsV16.xls'),subds);
