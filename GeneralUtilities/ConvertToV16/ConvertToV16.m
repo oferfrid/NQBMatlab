@@ -23,8 +23,6 @@ function ConvertToV16(odir,prefix)
     % Area, bounding box and centroid
     load(fullfile(odir,'VecArea.mat'),'VecArea');
     Area=VecArea';
-    load(fullfile(odir,'VecBBox.mat'),'VecBBox');
-    BBox=permute(VecBBox,[3 1 2]);
     load(fullfile(odir,'VecCen.mat'),'VecCen');
     Centroid=permute(VecCen,[3 1 2]);
     
@@ -66,7 +64,7 @@ function ConvertToV16(odir,prefix)
     ExcludedBacteria = load(ExcludeFile);
     IgnoredColonies(ExcludedBacteria)=2;
     
-    save(fullfile(odir,dataName),'FilesName','FilesDateTime','Area','BBox',...
+    save(fullfile(odir,dataName),'FilesName','FilesDateTime','Area',...
                                 'Centroid','Description','Limits','TH',...
                                 'IgnoredColonies');
     
