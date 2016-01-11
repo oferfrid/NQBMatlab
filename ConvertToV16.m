@@ -1,4 +1,4 @@
-function TransformToV16(odir,prefix)
+function ConvertToV16(odir,prefix)
 %{
     This function will create a data file containing all previous version's
     results.
