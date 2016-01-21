@@ -14,7 +14,7 @@ function ConvertToV16(odir,prefix)
     % File's name and date
     load(fullfile(odir,'TimeAxis.mat'),'TimeAxis');
     FilesDateTime=TimeAxis;
-    if size(FilesDateTime,2)>1
+    if size(FilesDateTime,1)>1
         FilesDateTime=FilesDateTime';
     end
     FilesPref=['P' plateNumStr '_%05.0f.tif'];
