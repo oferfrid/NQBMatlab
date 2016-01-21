@@ -1,7 +1,9 @@
 function ConvertToV16Dir(root,reg,prefix)
     subds=subdir(root)';
     subds=subds(~cellfun('isempty',regexp(subds,reg)));
-    xlswrite(fullfile(root,'subdsV16.xls'),subds);
+    excelFile=fullfile(root,'subdsV16.xls');
+    delete(excelFile);
+    xlswrite(excelFile,subds);
     [num,txt]=xlsread(fullfile(root,'subdsV16.xls'));
     dirsNum=length(txt);
     for i=1:dirsNum
