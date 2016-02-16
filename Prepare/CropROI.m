@@ -1,4 +1,4 @@
-function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
+function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,updateFlag)
     %CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
     % This is the main function for preparing the time lapse images.
     % The methoid align the scanner's images and the cut the selected plates images.
@@ -16,9 +16,19 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     %                  createBoardHint procedure
     % Plates2Cut - array of wanted plates to be prepared
     % updateFlag (default 1) - 1 - update data file, 0 - no
+    % isSpecific - an arguments says if to allign by cutted plate area
     % Nir Dick 2015
-    if nargin<5
+    if nargin<6
         updateFlag=ones(1,length(Plates2Cut));
+    end
+    
+    if nargin<5
+        isSpecific=0;
+    end
+    
+    if isSpecific && length(Plates2Cut)>1
+        disp('Problem, Plates has length greater then 1');
+        return;
     end
     
     %% Prepare destination doorectories
@@ -63,6 +73,9 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     % Load motions data
     FirstImgName=SrcImgNames{1};
     [~, fname, ~]=fileparts(FirstImgName); 
+    if isSpecific
+       fname=[fname '_P' num2str(Plates2Cut)];
+    end
     motionFileName=[fname MOTIONS_FILE_SUFFIX];
     motionsFileStr=fullfile(SourceDir,motionFileName);
     motionsFlag=dir(motionsFileStr);
@@ -94,10 +107,18 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,updateFlag)
     inputImage=inputImage(:,:,1:3);
     
     ImageSize = [size(inputImage,2) size(inputImage,1)];% in px
-    
-    load(BoardFileName,'BoardHint');    
-    alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
+    load(BoardFileName,'BoardHint');
     [rects,PlatePos] = FindPlates(inputImage,BoardHint);
+    if isSpecific
+        prects=rects{Plates2Cut};
+        x1=prects(1);
+        y1=prects(2);
+        x2=prects(1)+prects(3);
+        y2=prects(2)+prects(4);
+        alignmentArea=[x1,y1,x2,y2];
+    else
+        alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
+    end
 
     %% Align and cut images
     

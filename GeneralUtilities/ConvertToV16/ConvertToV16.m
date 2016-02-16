@@ -3,28 +3,46 @@ function ConvertToV16(odir,prefix)
     This function will create a data file containing all previous version's
     results.
 %}
-    [ 'current dir is : ' odir]
+    disp(['current dir is : ' odir]);
     
-    dataName=[prefix '_data.mat'];
     % Verifying the plate number
     [parentDir,~,~]=fileparts(odir);
     [~,parentName,~]=fileparts(parentDir);
     plateNumStr=parentName(length(parentName));
     
     % File's name and date
-    load(fullfile(odir,'TimeAxis.mat'),'TimeAxis');
-    FilesDateTime=TimeAxis;
-    if size(FilesDateTime,1)>1
-        FilesDateTime=FilesDateTime';
+    currFileName=fullfile(odir,'TimeAxis.mat');
+    if exist(currFileName,'file')
+        load(currFileName,'TimeAxis');
+        FilesDateTime=TimeAxis;
+        if size(FilesDateTime,2)>1
+            FilesDateTime=FilesDateTime';
+        end
+        FilesPref=['P' plateNumStr '_%05.0f.tif'];
+        FilesName= cellstr(num2str(TimeAxis,FilesPref));
+    else
+        printWarn('TimeAxis.mat',odir);
+        return;
     end
-    FilesPref=['P' plateNumStr '_%05.0f.tif'];
-    FilesName= cellstr(num2str(TimeAxis,FilesPref));
     
     % Area, bounding box and centroid
-    load(fullfile(odir,'VecArea.mat'),'VecArea');
-    Area=VecArea';
-    load(fullfile(odir,'VecCen.mat'),'VecCen');
-    Centroid=permute(VecCen,[3 1 2]);
+    currFileName=fullfile(odir,'VecArea.mat');
+    if exist(currFileName,'file')
+        load(currFileName,'VecArea');
+        Area=VecArea';
+    else
+        printWarn('VecArea.mat',odir);
+        return;
+    end
+    
+    currFileName=fullfile(odir,'VecCen.mat');
+    if exist(currFileName,'file')
+        load(currFileName,'VecCen');
+        Centroid=permute(VecCen,[3 1 2]);
+    else
+        printWarn('VecCen.mat',odir);
+        return;
+    end
     
     % Description
     Description = '';
@@ -64,9 +82,18 @@ function ConvertToV16(odir,prefix)
     ExcludedBacteria = load(ExcludeFile);
     IgnoredColonies(ExcludedBacteria)=2;
     
-    save(fullfile(odir,dataName),'FilesName','FilesDateTime','Area',...
-                                'Centroid','Description','Limits','TH',...
-                                'IgnoredColonies');
+    newDirName=[parentName prefix];
+    dataName=[newDirName '_data.mat'];
+    
+    newDir=fullfile(odir,newDirName);
+    
+    if ~exist(newDir,'dir')
+        mkdir(newDir);
+    end
+    
+    save(fullfile(newDir,dataName),'FilesName','FilesDateTime','Area',...
+                                           'Centroid','Description','Limits','TH',...
+                                           'IgnoredColonies');
     
     
     % mask
@@ -87,9 +114,9 @@ function ConvertToV16(odir,prefix)
     end
     
     if fullInd  
-        save(fullfile(odir,dataName),'FullMask','-append');
+        save(fullfile(newDir,dataName),'FullMask','-append');
     else
-        save(fullfile(odir,dataName),'PlateCirc','-append');
+        save(fullfile(newDir,dataName),'PlateCirc','-append');
     end  
 end
 
@@ -149,7 +176,14 @@ function CID = FindColoniesInWorkingAreaN(FileDir)
             end
         end
     else
-        circ = load(CircFile);
+        if exist(CircFile)
+            circ = load(CircFile);
+        else
+            circ.x=526;
+            circ.y=526;
+            circ.r=436;
+        end
+        
         %% Checking which colony is too close to the border
         NumColonies = size(VecCen,1);
         CM = zeros(NumColonies,2);
@@ -173,3 +207,6 @@ function CID = FindColoniesInWorkingAreaN(FileDir)
     end
 end
 
+function printWarn(fileName,odir)
+    disp(['WARNING! WARNING! No ' fileName ' in ' odir]);
+end
