@@ -118,6 +118,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
         alignmentArea=[x1,y1,x2,y2];
     else
         alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
+        alignmentArea=[alignmentArea(1) alignmentArea(2) alignmentArea(3)-alignmentArea(1) alignmentArea(4)-alignmentArea(2)]; 
     end
 
     %% Align and cut images
