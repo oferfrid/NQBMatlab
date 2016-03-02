@@ -1,4 +1,4 @@
-function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,updateFlag)
+function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,changeAlign)
     %CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut)
     % This is the main function for preparing the time lapse images.
     % The methoid align the scanner's images and the cut the selected plates images.
@@ -19,7 +19,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
     % isSpecific - an arguments says if to allign by cutted plate area
     % Nir Dick 2015
     if nargin<6
-        updateFlag=ones(1,length(Plates2Cut));
+        changeAlign=0;
     end
     
     if nargin<5
@@ -27,7 +27,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
     end
     
     if isSpecific && length(Plates2Cut)>1
-        disp('Problem, Plates has length greater then 1');
+        disp('Problem, Plates has length greater then 1 but specific mode was chosen');
         return;
     end
     
@@ -38,6 +38,7 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
     numOfDests=length(DestDirNames);
     destsImgNum=zeros(1,numOfDests);
     currData=cell(1,numOfDests);
+    PrevCutData=cell(numOfDests,1);
     for k=1:numOfDests
         % Create the destination directories if needed
         currDestDir=DestDirNames{k};
@@ -53,6 +54,8 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
             currNames=load(dataFileStr,'FilesName');
             currData{k}=currNames.FilesName;
             destsImgNum(k)=length(currNames.FilesName);
+            PrevCutData{k}=load(dataFileStr,'PrevCut');
+            PrevCutData{k}=PrevCutData{k}.PrevCut;
         end
     end
     
@@ -73,27 +76,26 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
     % Load motions data
     FirstImgName=SrcImgNames{1};
     [~, fname, ~]=fileparts(FirstImgName); 
+    motionsFlag=[];
+    motions=[];
     if isSpecific
-       fname=[fname '_P' num2str(Plates2Cut)];
-    end
-    motionFileName=[fname MOTIONS_FILE_SUFFIX];
-    motionsFileStr=fullfile(SourceDir,motionFileName);
-    motionsFlag=dir(motionsFileStr);
-    
-    if isempty(motionsFlag)
-        otherMotionFileName=['*' MOTIONS_FILE_SUFFIX];
-        otherMotionsFileStr=fullfile(SourceDir,otherMotionFileName);
-        otherMotionsFlag=dir(otherMotionsFileStr);
-        if ~isempty(otherMotionsFlag)
-            disp 'Warning! there exists a motions file which is not relevant to the first image:';
-            disp(['first image name is: ' FirstImgName ', existed motion file is: ' otherMotionsFlag.name ]);
+        if ~isempty(PrevCutData{1})
+            motionsFlag=1;
+            motions=PrevCutData{1}.Motions;
+        end  
+    else
+        motionFileName=[fname MOTIONS_FILE_SUFFIX];
+        motionsFileStr=fullfile(SourceDir,motionFileName);
+        motionsFlag=dir(motionsFileStr);
+        if length(motionsFlag)>0       
+            motionsTmp=load(motionsFileStr);
+            motions=motionsTmp.motions;
         end
     end
+    
     motionSize=0;
     
     if length(motionsFlag)>0
-       motionsTmp=load(motionsFileStr);
-       motions=motionsTmp.motions;
        all_u=cell2mat(motions(:,2));
        all_v=cell2mat(motions(:,3));
        motionNames=motions(:,1);
@@ -109,16 +111,23 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
     ImageSize = [size(inputImage,2) size(inputImage,1)];% in px
     load(BoardFileName,'BoardHint');
     [rects,PlatePos] = FindPlates(inputImage,BoardHint);
-    if isSpecific
-        prects=rects{Plates2Cut};
-        x1=prects(1);
-        y1=prects(2);
-        x2=prects(1)+prects(3);
-        y2=prects(2)+prects(4);
-        alignmentArea=[x1,y1,x2,y2];
-    else
-        alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
-        alignmentArea=[alignmentArea(1) alignmentArea(2) alignmentArea(3)-alignmentArea(1) alignmentArea(4)-alignmentArea(2)]; 
+    
+    if changeAlign
+        imshow(inputImage);
+        h = imrect;
+        alignmentArea=wait(h);
+    else 
+        if isSpecific
+            pcirc=PlatePos{Plates2Cut};
+            x1=pcirc.X-pcirc.R/sqrt(2);
+            y1=pcirc.Y-pcirc.R/sqrt(2);
+            w=2*pcirc.R/sqrt(2);
+            h=2*pcirc.R/sqrt(2);
+            alignmentArea=[x1,y1,w,h];
+        else
+            alignmentArea=[BoardHint.AlignmentArea(1)*ImageSize(1) BoardHint.AlignmentArea(2)*ImageSize(2) BoardHint.AlignmentArea(3)*ImageSize(1) BoardHint.AlignmentArea(4)*ImageSize(2)]; 
+            alignmentArea=[alignmentArea(1) alignmentArea(2) alignmentArea(3)-alignmentArea(1) alignmentArea(4)-alignmentArea(2)]; 
+        end
     end
 
     %% Align and cut images
@@ -156,6 +165,17 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
             disp(diff1);
             disp(diff2);
             valid=0;
+        end
+    end
+    
+    % validate that we continue the previous alignment area
+    for j=1:numOfDests
+        if length(PrevCutData{j})
+           if alignmentArea~=PrevCutData{j}.AlignmentArea
+                valid=0;
+                disp(['plate ' num2str(Plates2Cut(j)) ' has different alignment area']);
+                break;
+           end
         end
     end
     
@@ -254,7 +274,9 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
             motions(:,1)=SrcImgNames;
             motions(:,2)=num2cell(final_u);
             motions(:,3)=num2cell(final_v);
-            save(motionsFileStr,'motions');
+            if ~isSpecific
+                save(motionsFileStr,'motions');
+            end
 
             % Save data file in each destination
             for i=1:numOfDests
@@ -264,12 +286,13 @@ function CropROI(SourceName,DestDirNames,BoardFileName,Plates2Cut,isSpecific,upd
                 PlateCirc.X = PlatePos{i}.X - rects{i}(1);
                 PlateCirc.Y = PlatePos{i}.Y - rects{i}(2);
                 PlateCirc.R = PlatePos{i}.R*BoardHint.RelativeMaskRadius;
-                if updateFlag(i)==1
-                    if exist(dataFileStr, 'file')
-                      save(dataFileStr,'FilesName','FilesDateTime','PlateCirc','-append');
-                    else
-                      save(dataFileStr,'FilesName','FilesDateTime','PlateCirc');
-                    end
+                PrevCut.Motions=motions;
+                PrevCut.BoardHint=BoardHint;
+                PrevCut.AlignmentArea=alignmentArea;
+                if exist(dataFileStr, 'file')
+                  save(dataFileStr,'FilesName','FilesDateTime','PlateCirc','PrevCut','-append');
+                else
+                  save(dataFileStr,'FilesName','FilesDateTime','PlateCirc','PrevCut');
                 end
             end
         end
