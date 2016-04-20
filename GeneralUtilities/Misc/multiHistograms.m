@@ -18,7 +18,7 @@ function h = multiHistograms(data, Xedges, Color_)
           hold on
       end
       h = histogram(data{i}, Xedges ,'FaceAlpha',0.8,'FaceColor',Color_{i},...
-          'Normalization','probability');
+          'Normalization','pdf');
       h.Parent = g;
       max_val = max(max_val,max(h.Values));
     end
