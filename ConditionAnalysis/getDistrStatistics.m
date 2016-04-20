@@ -1,5 +1,5 @@
-function [Stat] = getDistrStatistics(TimeAxis, Distr)
-% Stat = ExperimentStatistics(TimeAxis, Distr)
+function [Stat] = getDistrStatistics(Distr)
+% Stat = ExperimentStatistics(Distr)
 % -------------------------------------------------------------------------
 % Purpose: checking statistical parmeters for a histogram
 % Arguments: TimeAxis - Time
@@ -8,7 +8,7 @@ function [Stat] = getDistrStatistics(TimeAxis, Distr)
 %              .Avg
 %              .std
 %              .skw
-%              .max
+%              .mode
 %              .median
 %              .stdMed
 % -------------------------------------------------------------------------
@@ -17,9 +17,10 @@ function [Stat] = getDistrStatistics(TimeAxis, Distr)
     Stat.Avg   = mean(Distr);
     Stat.std   = std(Distr);
     Stat.skw   = skewness(Distr);
-    h          = hist(Distr, TimeAxis);
-    [val, Ind] = max(h);
-    Stat.max   = TimeAxis(Ind);
+%     h          = hist(Distr, TimeAxis);
+%     [val, Ind] = max(h);
+%   Stat.max   = TimeAxis(Ind);
+    Stat.mode  = mode(Distr);
     Stat.median= median(Distr);
     Stat.stdMed= sqrt(sum((Distr - Stat.median).^2)/Stat.total);
 end
