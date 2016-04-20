@@ -35,11 +35,8 @@ BoardHint.Centers = ReletiveCenters(index,:);
 BoardHint.Radius = ReletiveRadius(index);
 
 BoardHint.RelativeMaskRadius = 0.8;
-c1=BoardHint.Centers(5,1);
-c2=BoardHint.Centers(5,2);
-r=BoardHint.Radius(5);
 
-AlignmentArea=[c1-r c2-r c1+r c2+r];
+AlignmentArea=[870/ImageSize(1) 800/ImageSize(2) 900/ImageSize(1) 800/ImageSize(2)];
 BoardHint.AlignmentArea = AlignmentArea;
  
  save(FileName,'BoardHint');
