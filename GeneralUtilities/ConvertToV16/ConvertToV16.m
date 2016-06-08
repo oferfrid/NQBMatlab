@@ -14,10 +14,7 @@ function ConvertToV16(odir,prefix)
     currFileName=fullfile(odir,'TimeAxis.mat');
     if exist(currFileName,'file')
         load(currFileName,'TimeAxis');
-        FilesDateTime=TimeAxis;
-        if size(FilesDateTime,2)>1
-            FilesDateTime=FilesDateTime';
-        end
+        FilesDateTime=TimeAxis(:)';
         FilesPref=['P' plateNumStr '_%05.0f.tif'];
         FilesName= cellstr(num2str(TimeAxis,FilesPref));
     else
