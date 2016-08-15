@@ -22,7 +22,7 @@ function PlotPlateColoniesNumbers(TimeGap, DirName, ForMovie)
     data=load(dataFileStr);
     
     % Get File name by time
-    times=data.FilesDateTime;
+    times=GetTimes(data);
     
     PlotPlateColoniesNumbersByData(...
              TimeGap,data.Centroid,data.IgnoredColonies,times,ForMovie);    

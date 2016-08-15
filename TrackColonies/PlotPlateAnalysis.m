@@ -33,7 +33,7 @@ function PlotPlateAnalysis(TimeGap, DirName, ForMovie,Handle,Lrgb)
     data=load(dataFileStr);
     
     % Convert time gap to file name
-    times=data.FilesDateTime;
+    times=GetTimes(data);
     idx=find(times<=TimeGap,1,'last');
     filesName=data.FilesName;
     fileName=filesName{idx};
