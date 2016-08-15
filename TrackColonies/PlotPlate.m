@@ -37,7 +37,7 @@ function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
     data=load(dataFileStr);
     
     % Get File name by time
-    times=data.FilesDateTime;
+    times=GetTimes(data);
     idx=find(times<=TimeGap,1,'last');
     filesName=data.FilesName;
     fileName=filesName{idx};
@@ -49,6 +49,10 @@ function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
     
     % Get background
     bg=imread(fullfile(DirName,filesName{1}));
+    
+    if BW
+        limits=data.Limits;
+    end
     
     PlotPlateByData(DirName,fileName,BW,title,forMovie,limits,handle,bg);
 end
