@@ -55,7 +55,7 @@ function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
         limits=data.Limits;
     end
     
-    PlotPlateByData(DirName,bgname,BW,title,forMovie,limits,handle,bg);
+    PlotPlateByData(DirName,bgname,1,title,forMovie,data.Limits,handle,bg);
     hold on;
     PlotPlateByData(DirName,fileName,BW,title,forMovie,limits,handle,bg);
     hold off;
