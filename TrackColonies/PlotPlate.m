@@ -48,11 +48,15 @@ function PlotPlate(TimeGap, DirName, BW, forMovie,handle,limits)
     title=GetTitle(times(idx)-times(1),coloniesNumber,data.Description);
     
     % Get background
-    bg=imread(fullfile(DirName,filesName{1}));
+    bgname=filesName{1};
+    bg=imread(fullfile(DirName,bgname));
     
     if BW
         limits=data.Limits;
     end
     
+    PlotPlateByData(DirName,bgname,BW,title,forMovie,limits,handle,bg);
+    hold on;
     PlotPlateByData(DirName,fileName,BW,title,forMovie,limits,handle,bg);
+    hold off;
 end
