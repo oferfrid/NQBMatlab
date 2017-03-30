@@ -1,4 +1,4 @@
-function [ output_args ] = SetStartingTime(SourceDir,StartingTime,LogFile)
+function [ output_args ] = SetStartingTime(SourceDir,StartTime,LogFile)
 % output_args = SetStartingTime(SourceDir,StartingTime,LogFile)
 % -------------------------------------------------------------------------
 % Purpose: checking statistical parmeters for a histogram
@@ -18,7 +18,7 @@ function [ output_args ] = SetStartingTime(SourceDir,StartingTime,LogFile)
         [startIndex,endIndex] = regexpi(firstLine,...
                                         '\d\d\d\d/\d\d/\d\d \d\d:\d\d:\d\d');
         StartTime=firstLine(startIndex:endIndex);
-        StartingTime=datenum(StartTime,'yyyy/mm/dd HH:MM:SS');
     end
+    StartingTime=datenum(StartTime,'yyyy/mm/dd HH:MM:SS');
     save(GetDataName(SourceDir),'StartingTime','-append');
 end
